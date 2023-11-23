@@ -342,12 +342,13 @@ void Output::paintGL()
         return;
     }
 
+    /*
     // Check pointer events before painting
     if (G::compositor()->updatePointerBeforePaint)
     {
-        seat()->pointer()->pointerMoveEvent(0, 0, false);
+        seat()->pointer()->pointerMoveEvent(nullptr);
         G::compositor()->updatePointerBeforePaint = false;
-    }
+    }*/
 
     // Check if hw cursor is supported
     if (cursor()->hasHardwareSupport(this))

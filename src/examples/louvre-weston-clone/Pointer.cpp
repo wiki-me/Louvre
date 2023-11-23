@@ -3,6 +3,7 @@
 #include "Output.h"
 #include <LDNDIconRole.h>
 #include <LDNDManager.h>
+#include <LPointerMoveEvent.h>
 #include <LSeat.h>
 #include <LTime.h>
 #include <LCursor.h>
@@ -12,12 +13,12 @@
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
-void Pointer::pointerMoveEvent(Float32 x, Float32 y, bool absolute)
+void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
 {
-    if (absolute)
-        cursor()->setPos(x, y);
+    if (event->isAbsolute())
+        cursor()->setPos(event->x(), event->y());
     else
-        cursor()->move(x, y);
+        cursor()->move(event->x(), event->y());
 
     Output *cursorOutput = (Output*)cursor()->output();
     Compositor *c = (Compositor*)compositor();

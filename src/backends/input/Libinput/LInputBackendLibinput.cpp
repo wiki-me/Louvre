@@ -2,6 +2,7 @@
 #include <private/LSeatPrivate.h>
 #include <private/LKeyboardPrivate.h>
 #include <LInputBackend.h>
+#include <LPointerMoveEvent.h>
 #include <LLog.h>
 #include <unordered_map>
 #include <cstring>
@@ -39,6 +40,8 @@ static libinput_key_state keyState;
 static Int32 keyCode;
 
 // Pointer related
+static LPointerMoveEvent pointerMoveEvent;
+
 static libinput_event_pointer *pointerEvent;
 static libinput_button_state pointerButtonState;
 static UInt32 pointerButton;
@@ -99,7 +102,7 @@ static void closeRestricted(int fd, void *data)
     close(fd);
 }
 
-static Int32 processInput(int, unsigned int, void *userData)
+Int32 LInputBackend::processInput(int, unsigned int, void *userData)
 {
     LSeat *seat = (LSeat*)userData;
     BACKEND_DATA *data = (BACKEND_DATA*)seat->imp()->inputBackendData;
@@ -116,34 +119,27 @@ static Int32 processInput(int, unsigned int, void *userData)
     {
         eventType = libinput_event_get_type(ev);
 
-        if (eventType == LIBINPUT_EVENT_POINTER_MOTION)
+        switch (eventType)
         {
-            pointerEvent = libinput_event_get_pointer_event(ev);
-
-            x = libinput_event_pointer_get_dx(pointerEvent);
-            y = libinput_event_pointer_get_dy(pointerEvent);
-
-            seat->pointer()->pointerMoveEvent(x, y, false);
-        }
-        else if (eventType == LIBINPUT_EVENT_POINTER_BUTTON)
-        {
+        case LIBINPUT_EVENT_POINTER_MOTION:
+            pointerMoveEvent.m_backendData = libinput_event_get_pointer_event(ev);
+            seat->pointer()->pointerMoveEvent(&pointerMoveEvent);
+            break;
+        case LIBINPUT_EVENT_POINTER_BUTTON:
             pointerEvent = libinput_event_get_pointer_event(ev);
             pointerButton = libinput_event_pointer_get_button(pointerEvent);
             pointerButtonState = libinput_event_pointer_get_button_state(pointerEvent);
-
             seat->pointer()->pointerButtonEvent(
                 (LPointer::Button)pointerButton,
                 (LPointer::ButtonState)pointerButtonState);
-        }
-        else if (eventType == LIBINPUT_EVENT_KEYBOARD_KEY)
-        {
+            break;
+        case LIBINPUT_EVENT_KEYBOARD_KEY:
             keyEvent = libinput_event_get_keyboard_event(ev);
             keyState = libinput_event_keyboard_get_key_state(keyEvent);
             keyCode = libinput_event_keyboard_get_key(keyEvent);
             seat->keyboard()->imp()->backendKeyEvent(keyCode, (LKeyboard::KeyState)keyState);
-        }
-        else if (eventType == LIBINPUT_EVENT_POINTER_SCROLL_FINGER)
-        {
+            break;
+        case LIBINPUT_EVENT_POINTER_SCROLL_FINGER:
             pointerEvent = libinput_event_get_pointer_event(ev);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
@@ -153,9 +149,8 @@ static Int32 processInput(int, unsigned int, void *userData)
                 axisY = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
 
             seat->pointer()->pointerAxisEvent(axisX, axisY, axisX, axisY, LPointer::AxisSource::Finger);
-        }
-        else if (eventType == LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS)
-        {
+            break;
+        case LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS:
             pointerEvent = libinput_event_get_pointer_event(ev);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
@@ -165,9 +160,8 @@ static Int32 processInput(int, unsigned int, void *userData)
                 axisY = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
 
             seat->pointer()->pointerAxisEvent(axisX, axisY, axisX, axisY, LPointer::AxisSource::Continuous);
-        }
-        else if (eventType == LIBINPUT_EVENT_POINTER_SCROLL_WHEEL)
-        {
+            break;
+        case LIBINPUT_EVENT_POINTER_SCROLL_WHEEL:
             pointerEvent = libinput_event_get_pointer_event(ev);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
@@ -183,6 +177,9 @@ static Int32 processInput(int, unsigned int, void *userData)
             }
 
             seat->pointer()->pointerAxisEvent(discreteX, discreteY, d120X, d120Y, LPointer::AxisSource::Wheel);
+            break;
+        default:
+            break;
         }
 
         seat->nativeInputEvent(ev);
@@ -327,6 +324,22 @@ void LInputBackend::uninitialize()
     seat->imp()->inputBackendData = nullptr;
 }
 
+bool LInputBackend::pointerMoveEventGetIsAbsolute(const LPointerMoveEvent *event)
+{
+    L_UNUSED(event);
+    return false;
+}
+
+Float32 LInputBackend::pointerMoveEventGetX(const LPointerMoveEvent *event)
+{
+    return libinput_event_pointer_get_dx((libinput_event_pointer*)event->m_backendData);
+}
+
+Float32 LInputBackend::pointerMoveEventGetY(const LPointerMoveEvent *event)
+{
+    return libinput_event_pointer_get_dy((libinput_event_pointer*)event->m_backendData);
+}
+
 LInputBackendInterface API;
 
 extern "C" LInputBackendInterface *getAPI()
@@ -339,5 +352,9 @@ extern "C" LInputBackendInterface *getAPI()
     API.suspend = &LInputBackend::suspend;
     API.forceUpdate = &LInputBackend::forceUpdate;
     API.resume = &LInputBackend::resume;
+
+    API.pointerMoveEventGetIsAbsolute = &LInputBackend::pointerMoveEventGetIsAbsolute;
+    API.pointerMoveEventGetX = &LInputBackend::pointerMoveEventGetX;
+    API.pointerMoveEventGetY = &LInputBackend::pointerMoveEventGetY;
     return &API;
 }

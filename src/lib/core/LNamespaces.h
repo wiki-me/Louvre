@@ -67,6 +67,9 @@ namespace Louvre
     class LAnimation;
     class LGraphicBackend;
     class LInputBackend;
+    class LInputDevice;
+    class LInputEvent;
+    class LPointerMoveEvent;
     class LClient;
     class LCompositor;
     class LObject;
@@ -444,6 +447,11 @@ namespace Louvre
         void (*suspend)();
         void (*forceUpdate)();
         void (*resume)();
+
+        // Events
+        bool (*pointerMoveEventGetIsAbsolute)(const LPointerMoveEvent *event);
+        Float32 (*pointerMoveEventGetX)(const LPointerMoveEvent *event);
+        Float32 (*pointerMoveEventGetY)(const LPointerMoveEvent *event);
     };
     /// @endcond
 };

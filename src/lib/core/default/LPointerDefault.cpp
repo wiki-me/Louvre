@@ -10,16 +10,17 @@
 #include <LDNDManager.h>
 #include <LDNDIconRole.h>
 #include <LCursorRole.h>
+#include <LPointerMoveEvent.h>
 
 using namespace Louvre;
 
 //! [pointerMoveEvent]
-void LPointer::pointerMoveEvent(Float32 x, Float32 y, bool absolute)
+void LPointer::pointerMoveEvent(LPointerMoveEvent *event)
 {
-    if (absolute)
-        cursor()->setPos(x, y);
+    if (event->isAbsolute())
+        cursor()->setPos(event->x(), event->y());
     else
-        cursor()->move(x, y);
+        cursor()->move(event->x(), event->y());
 
     // Repaint outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);

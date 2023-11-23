@@ -158,9 +158,10 @@ void Output::paintGL()
         lastRect = rect();
     }
 
+    /*
     // Check if surface moved under cursor
     if (seat()->pointer()->surfaceAt(cursor()->pos()) != seat()->pointer()->focus())
-        seat()->pointer()->pointerMoveEvent(0, 0, false);
+        seat()->pointer()->pointerMoveEvent(0, 0, false);*/
 
     Compositor *c = (Compositor*)compositor();
     LPainter *p = painter();

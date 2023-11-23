@@ -8,6 +8,7 @@
 #include <LSurfaceView.h>
 #include <LSurface.h>
 #include <LOutput.h>
+#include <LPointerMoveEvent.h>
 
 #include "Global.h"
 #include "Pointer.h"
@@ -15,9 +16,9 @@
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
-void Pointer::pointerMoveEvent(Float32 x, Float32 y, bool absolute)
+void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
 {
-    LView *view = G::scene()->handlePointerMoveEvent(x, y, absolute);
+    LView *view = G::scene()->handlePointerMoveEvent(event->x(), event->y(), event->isAbsolute());
 
     if (movingToplevel() || resizingToplevel())
         cursor()->output()->repaint();

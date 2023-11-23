@@ -30,6 +30,12 @@ public:
 
     // Deinitialize the backend
     static void uninitialize();
+
+    // Events
+    static Int32 processInput(int, unsigned int, void *userData);
+    static bool pointerMoveEventGetIsAbsolute(const LPointerMoveEvent *event);
+    static Float32 pointerMoveEventGetX(const LPointerMoveEvent *event);
+    static Float32 pointerMoveEventGetY(const LPointerMoveEvent *event);
 };
 
 #endif // LINPUTBACKEND
