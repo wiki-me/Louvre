@@ -5,6 +5,8 @@
 
 class ToplevelView;
 
+using namespace Louvre;
+
 class ToplevelButton : public LTextureView
 {
 public:
@@ -24,8 +26,8 @@ public:
     bool pressed = false;
 
     void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state) override;
-    void pointerLeaveEvent() override;
-    void pointerMoveEvent(const LPoint &) override;
+    void pointerLeaveEvent(const LPointerMoveEvent &) override;
+    void pointerMoveEvent(const LPointerMoveEvent &) override;
 };
 
 #endif // TOPLEVELBUTTON_H

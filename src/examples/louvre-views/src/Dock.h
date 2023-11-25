@@ -30,9 +30,9 @@ public:
     LSolidColorView *separator;
     LLayerView *itemsContainer;
 
-    void pointerEnterEvent(const LPoint &localPos) override;
-    void pointerMoveEvent(const LPoint &localPos) override;
-    void pointerLeaveEvent() override;
+    void pointerEnterEvent(const LPointerMoveEvent &) override;
+    void pointerMoveEvent(const LPointerMoveEvent &) override;
+    void pointerLeaveEvent(const LPointerMoveEvent &) override;
 
     // Output of this dock
     Output *output = nullptr;

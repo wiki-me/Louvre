@@ -24,10 +24,8 @@
 class Louvre::LDataDevice : public LObject
 {
 public:
-
     /// @cond OMIT
-    LDataDevice(const LDataDevice&) = delete;
-    LDataDevice& operator= (const LDataDevice&) = delete;
+    LCLASS_NO_COPY(LDataDevice)
     /// @endcond
 
     /**

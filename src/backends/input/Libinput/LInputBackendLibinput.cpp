@@ -2,7 +2,9 @@
 #include <private/LSeatPrivate.h>
 #include <private/LKeyboardPrivate.h>
 #include <LInputBackend.h>
+#include <LInputDevice.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerButtonEvent.h>
 #include <LLog.h>
 #include <unordered_map>
 #include <cstring>
@@ -24,6 +26,12 @@ struct BACKEND_DATA
     libinput_interface libinputInterface;
     LSeat *seat;
     std::list<DEVICE_FD_ID> devices;
+    std::list<LInputDevice*> inputDevices;
+
+
+    // Recycled events
+    LPointerMoveEvent pointerMoveEvent;
+    LPointerButtonEvent pointerButtonEvent;
 };
 
 // Libseat devices
@@ -31,6 +39,7 @@ static bool libseatEnabled = false;
 static wl_event_source *eventSource = nullptr;
 
 // Event common
+static libinput_device *dev;
 static libinput_event *ev;
 static libinput_event_type eventType;
 
@@ -39,12 +48,7 @@ static libinput_event_keyboard *keyEvent;
 static libinput_key_state keyState;
 static Int32 keyCode;
 
-// Pointer related
-static LPointerMoveEvent pointerMoveEvent;
-
 static libinput_event_pointer *pointerEvent;
-static libinput_button_state pointerButtonState;
-static UInt32 pointerButton;
 static Float32 x = 0.f, y = 0.f;
 
 // For any axis event
@@ -55,6 +59,8 @@ static Float32 discreteX = 0.f, discreteY = 0.f;
 
 // For 120 scroll events
 static Float32 d120X = 0.f, d120Y = 0.f;
+
+static LInputDevice *inputDevice;
 
 static Int32 openRestricted(const char *path, int flags, void *data)
 {
@@ -102,6 +108,33 @@ static void closeRestricted(int fd, void *data)
     close(fd);
 }
 
+/****************** DEVICE INTERFACE ******************/
+
+static const char *deviceName(const LInputDevice *device)
+{
+    libinput_device *dev = (libinput_device*)device->backendData();
+    return libinput_device_get_name(dev);
+}
+
+static UInt32 deviceVendorId(const LInputDevice *device)
+{
+    libinput_device *dev = (libinput_device*)device->backendData();
+    return libinput_device_get_id_vendor(dev);
+}
+
+static UInt32 deviceProductId(const LInputDevice *device)
+{
+    libinput_device *dev = (libinput_device*)device->backendData();
+    return libinput_device_get_id_product(dev);
+}
+
+static LInputDevice::Interface deviceInterface
+{
+    .name = &deviceName,
+    .vendorId = &deviceVendorId,
+    .productId = &deviceProductId
+};
+
 Int32 LInputBackend::processInput(int, unsigned int, void *userData)
 {
     LSeat *seat = (LSeat*)userData;
@@ -122,22 +155,14 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
         switch (eventType)
         {
         case LIBINPUT_EVENT_POINTER_MOTION:
-            pointerMoveEvent.m_backendData = libinput_event_get_pointer_event(ev);
-            seat->pointer()->pointerMoveEvent(&pointerMoveEvent);
-            break;
-        case LIBINPUT_EVENT_POINTER_BUTTON:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
-            pointerButton = libinput_event_pointer_get_button(pointerEvent);
-            pointerButtonState = libinput_event_pointer_get_button_state(pointerEvent);
-            seat->pointer()->pointerButtonEvent(
-                (LPointer::Button)pointerButton,
-                (LPointer::ButtonState)pointerButtonState);
-            break;
-        case LIBINPUT_EVENT_KEYBOARD_KEY:
-            keyEvent = libinput_event_get_keyboard_event(ev);
-            keyState = libinput_event_keyboard_get_key_state(keyEvent);
-            keyCode = libinput_event_keyboard_get_key(keyEvent);
-            seat->keyboard()->imp()->backendKeyEvent(keyCode, (LKeyboard::KeyState)keyState);
+            data->pointerMoveEvent.setDevice(inputDevice);
+            data->pointerMoveEvent.setX(libinput_event_pointer_get_dx(pointerEvent));
+            data->pointerMoveEvent.setY(libinput_event_pointer_get_dy(pointerEvent));
+            data->pointerMoveEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerMoveEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_FINGER:
             pointerEvent = libinput_event_get_pointer_event(ev);
@@ -178,6 +203,36 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
 
             seat->pointer()->pointerAxisEvent(discreteX, discreteY, d120X, d120Y, LPointer::AxisSource::Wheel);
             break;
+        case LIBINPUT_EVENT_POINTER_BUTTON:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            pointerEvent = libinput_event_get_pointer_event(ev);
+            data->pointerButtonEvent.setDevice(inputDevice);
+            data->pointerButtonEvent.setButton((LPointer::Button)libinput_event_pointer_get_button(pointerEvent));
+            data->pointerButtonEvent.setState((LPointer::ButtonState)libinput_event_pointer_get_button_state(pointerEvent));
+            data->pointerButtonEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerButtonEvent.notify();
+            break;
+        case LIBINPUT_EVENT_KEYBOARD_KEY:
+            keyEvent = libinput_event_get_keyboard_event(ev);
+            keyState = libinput_event_keyboard_get_key_state(keyEvent);
+            keyCode = libinput_event_keyboard_get_key(keyEvent);
+            seat->keyboard()->imp()->backendKeyEvent(keyCode, (LKeyboard::KeyState)keyState);
+            break;
+        case LIBINPUT_EVENT_DEVICE_ADDED:
+            dev = libinput_event_get_device(ev);
+            inputDevice = new LInputDevice(deviceInterface, dev);
+            libinput_device_set_user_data(dev, inputDevice);
+            data->inputDevices.push_back(inputDevice);
+            seat->inputDevicePlugged(inputDevice);
+            break;
+        case LIBINPUT_EVENT_DEVICE_REMOVED:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            data->inputDevices.remove(inputDevice);
+            seat->inputDeviceUnplugged(inputDevice);
+            delete inputDevice;
+            break;
         default:
             break;
         }
@@ -204,6 +259,8 @@ bool LInputBackend::initialize()
     data->seat = (LSeat*)seat;
     seat->imp()->inputBackendData = data;
     data->ud = udev_new();
+
+    data->pointerMoveEvent.setIsAbsolute(false);
 
     if (!data->ud)
         goto fail;
@@ -314,6 +371,13 @@ void LInputBackend::uninitialize()
         eventSource = nullptr;
     }
 
+    // Only delete devices, do not notify
+    while (!data->inputDevices.empty())
+    {
+        delete data->inputDevices.back();
+        data->inputDevices.pop_back();
+    }
+
     if (data->li)
         libinput_unref(data->li);
 
@@ -324,20 +388,11 @@ void LInputBackend::uninitialize()
     seat->imp()->inputBackendData = nullptr;
 }
 
-bool LInputBackend::pointerMoveEventGetIsAbsolute(const LPointerMoveEvent *event)
+std::list<LInputDevice *> *LInputBackend::getDevices()
 {
-    L_UNUSED(event);
-    return false;
-}
-
-Float32 LInputBackend::pointerMoveEventGetX(const LPointerMoveEvent *event)
-{
-    return libinput_event_pointer_get_dx((libinput_event_pointer*)event->m_backendData);
-}
-
-Float32 LInputBackend::pointerMoveEventGetY(const LPointerMoveEvent *event)
-{
-    return libinput_event_pointer_get_dy((libinput_event_pointer*)event->m_backendData);
+    LSeat *seat = LCompositor::compositor()->seat();
+    BACKEND_DATA *data = (BACKEND_DATA*)seat->imp()->inputBackendData;
+    return &data->inputDevices;
 }
 
 LInputBackendInterface API;
@@ -352,9 +407,7 @@ extern "C" LInputBackendInterface *getAPI()
     API.suspend = &LInputBackend::suspend;
     API.forceUpdate = &LInputBackend::forceUpdate;
     API.resume = &LInputBackend::resume;
+    API.getDevices = &LInputBackend::getDevices;
 
-    API.pointerMoveEventGetIsAbsolute = &LInputBackend::pointerMoveEventGetIsAbsolute;
-    API.pointerMoveEventGetX = &LInputBackend::pointerMoveEventGetX;
-    API.pointerMoveEventGetY = &LInputBackend::pointerMoveEventGetY;
     return &API;
 }

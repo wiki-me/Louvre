@@ -35,7 +35,7 @@ DockApp::~DockApp()
     dock->update();
 }
 
-void DockApp::pointerEnterEvent(const LPoint &)
+void DockApp::pointerEnterEvent(const LPointerMoveEvent &)
 {
     G::tooltip()->setText(app->name);
     G::tooltip()->targetView = this;

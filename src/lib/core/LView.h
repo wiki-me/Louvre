@@ -105,8 +105,7 @@ public:
     LView(UInt32 type, LView *parent = nullptr);
 
     /// @cond OMIT
-    LView(const LView&) = delete;
-    LView& operator= (const LView&) = delete;
+    LCLASS_NO_COPY(LView)
     /// @endcond
 
     /**
@@ -714,24 +713,20 @@ public:
 
     /**
      * @brief Handle the pointer enter event within the view.
-     *
-     * @param localPos The local position of the pointer within the view.
      */
-    virtual void pointerEnterEvent(const LPoint &localPos);
+    virtual void pointerEnterEvent(const LPointerMoveEvent &event);
 
     /**
      * @brief Handle the pointer move event within the view.
      *
      * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
-     *
-     * @param localPos The local position of the pointer within the view.
      */
-    virtual void pointerMoveEvent(const LPoint &localPos);
+    virtual void pointerMoveEvent(const LPointerMoveEvent &event);
 
     /**
      * @brief Handle the pointer leave event within the view.
      */
-    virtual void pointerLeaveEvent();
+    virtual void pointerLeaveEvent(const LPointerMoveEvent &event);
 
     /**
      * @brief Handle the pointer button event within the view.

@@ -4,13 +4,15 @@
 #include <LOutput.h>
 #include <private/LRenderBufferPrivate.h>
 #include <LCompositor.h>
+#include <LInputDevice.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <sys/epoll.h>
 #include <map>
 #include <unistd.h>
 
-LPRIVATE_CLASS(LCompositor)
+LPRIVATE_CLASS_NO_COPY(LCompositor)
+    LCompositorPrivate();
 
     /* We do not destroy globals immediatly as suggested here:
      * https://wayland.freedesktop.org/docs/html/apc.html#Server-wayland-server_8c_1a7f93649ba31c12220ee77982a37aa270
@@ -38,6 +40,7 @@ LPRIVATE_CLASS(LCompositor)
     void unitWayland();
 
     bool initSeat();
+        LInputDevice fakeDevice;
         LSeat *seat = nullptr;
         LSession *session = nullptr;
     void unitSeat();

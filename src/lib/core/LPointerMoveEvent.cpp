@@ -1,19 +1,18 @@
 #include <private/LCompositorPrivate.h>
 #include <LPointerMoveEvent.h>
 
+LPointerMoveEvent::LPointerMoveEvent(const LPointF &pos, bool absolute, UInt32 time) :
+    m_isAbsolute(absolute),
+    m_pos(pos)
+{
+    setTime(time);
+}
+
 Louvre::LPointerMoveEvent::LPointerMoveEvent() {}
+LPointerMoveEvent::~LPointerMoveEvent() {}
 
-bool Louvre::LPointerMoveEvent::isAbsolute() const
+void LPointerMoveEvent::notify()
 {
-    return compositor()->imp()->inputBackend->pointerMoveEventGetIsAbsolute(this);
-}
-
-Float32 LPointerMoveEvent::x() const
-{
-    return compositor()->imp()->inputBackend->pointerMoveEventGetX(this);
-}
-
-Float32 LPointerMoveEvent::y() const
-{
-    return compositor()->imp()->inputBackend->pointerMoveEventGetY(this);
+    if (compositor()->state() == LCompositor::Initialized)
+        seat()->pointer()->pointerMoveEvent(*this);
 }

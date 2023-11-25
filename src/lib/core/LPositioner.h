@@ -44,6 +44,7 @@ public:
     /// @cond OMIT
     LPositioner();
     ~LPositioner();
+    LCLASS_NO_COPY(LPositioner)
     /// @endcond
 
     /// Constraint Adjustments.

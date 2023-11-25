@@ -30,6 +30,11 @@ struct libseat;
 class Louvre::LSeat : public LObject
 {
 public:
+
+    const std::list<LInputDevice*> *inputDevices() const;
+    virtual void inputDevicePlugged(LInputDevice *device);
+    virtual void inputDeviceUnplugged(LInputDevice *device);
+
     struct Params;
 
     using InputCapabilitiesFlags = UInt32;
@@ -60,17 +65,16 @@ public:
      */
     LSeat(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LSeat)
+    /// @endcond
+
     /**
      * @brief LSeat class destructor.
      *
      * Invoked after LCompositor::destroySeatRequest().
      */
     virtual ~LSeat();
-
-    /// @cond OMIT
-    LSeat(const LSeat&) = delete;
-    LSeat& operator= (const LSeat&) = delete;
-    /// @endcond
 
     /**
      * @brief List of available outputs.

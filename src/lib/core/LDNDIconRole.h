@@ -29,17 +29,16 @@ public:
      */
     LDNDIconRole(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LDNDIconRole)
+    /// @endcond
+
     /**
      * @brief Destructor of the LDNDIconRole class.
      *
      * Invoked internally by the library after LCompositor::destroyDNDIconRoleRequest() is called.
      */
     virtual ~LDNDIconRole();
-
-    /// @cond OMIT
-    LDNDIconRole(const LDNDIconRole&) = delete;
-    LDNDIconRole& operator= (const LDNDIconRole&) = delete;
-    /// @endcond
 
     /**
      * @brief Notify a hotspot change.

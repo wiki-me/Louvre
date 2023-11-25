@@ -102,17 +102,16 @@ public:
      */
     LOutput();
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LOutput)
+    /// @endcond
+
     /**
      * @brief Destructor of the LOutput class.
      *
      * Invoked internally by the library after LCompositor::destroyOutputRequest() is called.
      */
     virtual ~LOutput();
-
-    /// @cond OMIT
-    LOutput(const LOutput&) = delete;
-    LOutput& operator= (const LOutput&) = delete;
-    /// @endcond
 
     /**
      * @brief Get the current state of the LOutput.

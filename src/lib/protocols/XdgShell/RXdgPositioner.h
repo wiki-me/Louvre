@@ -7,6 +7,7 @@ class Louvre::Protocols::XdgShell::RXdgPositioner : public LResource
 {
 public:
     RXdgPositioner(GXdgWmBase *gXdgWmBase, UInt32 id);
+    LCLASS_NO_COPY(RXdgPositioner)
     ~RXdgPositioner();
 
     const LPositioner &positioner() const;

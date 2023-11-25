@@ -36,7 +36,7 @@
 
 #define LPRIVATE_CLASS_NO_COPY(class_name) \
 class class_name::CAT(class_name,Private){ \
-        public: \
+    public: \
         CAT(class_name,Private)(const CAT(class_name,Private)&) = delete; \
         CAT(class_name,Private) &operator=(const CAT(class_name,Private)&) = delete;
 
@@ -56,6 +56,10 @@ class class_name::CAT(class_name,Private){ \
 #define LPRIVATE_INIT_UNIQUE(class_name) \
     m_imp(std::make_unique<CAT(class_name,Private)>())
 
+#define LCLASS_NO_COPY(class_name) \
+class_name(const class_name&) = delete; \
+class_name& operator= (const class_name&) = delete;
+
 /**
  * @namespace Louvre
  * @brief Namespaces
@@ -67,9 +71,6 @@ namespace Louvre
     class LAnimation;
     class LGraphicBackend;
     class LInputBackend;
-    class LInputDevice;
-    class LInputEvent;
-    class LPointerMoveEvent;
     class LClient;
     class LCompositor;
     class LObject;
@@ -84,6 +85,15 @@ namespace Louvre
     class LSession;
     class LTexture;
     class LWayland;
+
+    // Input
+    class LInputDevice;
+    class LInputEvent;
+    class LPointerMoveEvent;
+    class LPointerButtonEvent;
+    class LPointerAxisEvent;
+    class LKeyboardKeyEvent;
+    class LKeyboardModifiersEvent;
 
     // Painter
     class LPainter;
@@ -448,10 +458,11 @@ namespace Louvre
         void (*forceUpdate)();
         void (*resume)();
 
-        // Events
-        bool (*pointerMoveEventGetIsAbsolute)(const LPointerMoveEvent *event);
-        Float32 (*pointerMoveEventGetX)(const LPointerMoveEvent *event);
-        Float32 (*pointerMoveEventGetY)(const LPointerMoveEvent *event);
+        // Devices
+        std::list<LInputDevice*> *(*getDevices)();
+        const char *(*deviceGetName)(const LInputDevice *device);
+        UInt32 (*deviceGetProductId)(const LInputDevice *device);
+        UInt32 (*deviceGetVendorId)(const LInputDevice *device);
     };
     /// @endcond
 };

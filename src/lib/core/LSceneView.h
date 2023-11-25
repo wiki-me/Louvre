@@ -31,8 +31,7 @@ public:
     LSceneView(const LSize &sizeB, Int32 bufferScale, LView *parent = nullptr);
 
     /// @cond OMIT
-    LSceneView(const LSceneView&) = delete;
-    LSceneView& operator= (const LSceneView&) = delete;
+    LCLASS_NO_COPY(LSceneView)
     /// @endcond
 
     /**

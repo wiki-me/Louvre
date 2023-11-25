@@ -7,6 +7,7 @@
 #include <LTime.h>
 #include <LCursor.h>
 #include <LConfig.h>
+#include <LPointerMoveEvent.h>
 #include <LLog.h>
 #include <LOpenGL.h>
 #include <unistd.h>
@@ -158,10 +159,9 @@ void Output::paintGL()
         lastRect = rect();
     }
 
-    /*
     // Check if surface moved under cursor
     if (seat()->pointer()->surfaceAt(cursor()->pos()) != seat()->pointer()->focus())
-        seat()->pointer()->pointerMoveEvent(0, 0, false);*/
+        seat()->pointer()->pointerMoveEvent(LPointerMoveEvent(cursor()->pos(), true));
 
     Compositor *c = (Compositor*)compositor();
     LPainter *p = painter();

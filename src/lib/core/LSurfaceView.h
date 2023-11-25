@@ -24,12 +24,6 @@
 class Louvre::LSurfaceView : public LView
 {
 public:
-
-    /// @cond OMIT
-    LSurfaceView(const LSurfaceView&) = delete;
-    LSurfaceView& operator= (const LSurfaceView&) = delete;
-    /// @endcond
-
     /**
      * @brief LSurfaceView class constructor.
      *
@@ -37,6 +31,10 @@ public:
      * @param parent Pointer to the parent LView. Default value is nullptr.
      */
     LSurfaceView(LSurface *surface, LView *parent = nullptr);
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LSurfaceView)
+    /// @endcond
 
     /**
      * @brief LSurfaceView class destructor.

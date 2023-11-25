@@ -13,6 +13,15 @@
 #include <dlfcn.h>
 #include <string.h>
 
+static LInputDevice::Interface fakeInterface
+{
+    .name = [](const LInputDevice*) -> const char * {return "Fake Device";},
+    .vendorId = [](const LInputDevice*) -> UInt32 {return 0;},
+    .productId = [](const LInputDevice*) -> UInt32 {return 0;}
+};
+
+LCompositor::LCompositorPrivate::LCompositorPrivate() : fakeDevice(fakeInterface, nullptr) {}
+
 void LCompositor::LCompositorPrivate::processRemovedGlobals()
 {
     std::list<RemovedGlobal*>::iterator it;

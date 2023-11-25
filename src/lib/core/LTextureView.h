@@ -25,11 +25,6 @@
 class Louvre::LTextureView : public LView
 {
 public:
-    /// @cond OMIT
-    LTextureView(const LTextureView&) = delete;
-    LTextureView& operator= (const LTextureView&) = delete;
-    /// @endcond
-
     /**
      * @brief Construct an LTextureView with an optional LTexture and parent LView.
      *
@@ -37,6 +32,10 @@ public:
      * @param parent The parent LView of the LTextureView. Default is nullptr.
      */
     LTextureView(LTexture *texture = nullptr, LView *parent = nullptr);
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LTextureView)
+    /// @endcond
 
     /**
      * @brief Destructor for the LTextureView.

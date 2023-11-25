@@ -1,3 +1,4 @@
+#include <LCursor.h>
 #include "InputRect.h"
 
 InputRect::InputRect(LView *parent, void *userData, UInt32 id) : LLayerView(parent)
@@ -8,22 +9,22 @@ InputRect::InputRect(LView *parent, void *userData, UInt32 id) : LLayerView(pare
     enableInput(true);
 }
 
-void InputRect::pointerEnterEvent(const LPoint &localPos)
+void InputRect::pointerEnterEvent(const LPointerMoveEvent &)
 {
     if (onPointerEnter)
-        onPointerEnter(this, userData, localPos);
+        onPointerEnter(this, userData, cursor()->pos() - pos());
 }
 
-void InputRect::pointerLeaveEvent()
+void InputRect::pointerLeaveEvent(const LPointerMoveEvent &)
 {
     if (onPointerLeave)
         onPointerLeave(this, userData);
 }
 
-void InputRect::pointerMoveEvent(const LPoint &localPos)
+void InputRect::pointerMoveEvent(const LPointerMoveEvent &)
 {
     if (onPointerMove)
-        onPointerMove(this, userData, localPos);
+        onPointerMove(this, userData, cursor()->pos() - pos());
 }
 
 void InputRect::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)

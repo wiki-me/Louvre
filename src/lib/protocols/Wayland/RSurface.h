@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RSurface : public LResource
 {
 public:
     RSurface(GCompositor *gCompositor, UInt32 id);
+    LCLASS_NO_COPY(RSurface)
     ~RSurface();
 
     LSurface *surface() const;

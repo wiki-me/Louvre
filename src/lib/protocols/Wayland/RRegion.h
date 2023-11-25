@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RRegion : public LResource
 {
 public:
     RRegion(GCompositor *gCompositor, UInt32 id);
+    LCLASS_NO_COPY(RRegion)
     ~RRegion();
 
     const LRegion &region() const;

@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RDataOffer : public LResource
 {
 public:
     RDataOffer(RDataDevice *rDataDevice, UInt32 id);
+    LCLASS_NO_COPY(RDataOffer)
     ~RDataOffer();
 
     LDataOffer *dataOffer() const;

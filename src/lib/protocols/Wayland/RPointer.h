@@ -8,6 +8,7 @@ class Louvre::Protocols::Wayland::RPointer : public LResource
 {
 public:
     RPointer(GSeat *gSeat, Int32 id);
+    LCLASS_NO_COPY(RPointer)
     ~RPointer();
 
     struct LastEventSerials

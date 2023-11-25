@@ -72,17 +72,16 @@ public:
      */
     LKeyboard(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LKeyboard)
+    /// @endcond
+
     /**
      * @brief Destructor of the LKeyboard class.
      *
      * Invoked internally by the library after LCompositor::destroyKeyboardRequest() is called.
      */
     virtual ~LKeyboard();
-
-    /// @cond OMIT
-    LKeyboard(const LKeyboard&) = delete;
-    LKeyboard& operator= (const LKeyboard&) = delete;
-    /// @endcond
 
     /**
      * @brief Set keyboard focus.

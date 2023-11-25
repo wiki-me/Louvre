@@ -120,6 +120,24 @@ public:
     };
 
     /**
+     * @brief Constructor of the LSurface class.
+     *
+     * @param params Internal parameters of the library provided in the virtual constructor LCompositor::createSurfaceRequest().
+     */
+    LSurface(Params *params);
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LSurface)
+    /// @endcond
+
+    /**
+     * @brief Destructor of the LSurface class.
+     *
+     * Invoked after LCompositor::destroySurfaceRequest().
+     */
+    virtual ~LSurface();
+
+    /**
      * @brief ID of the role
      *
      * @returns The ID of the surface's role or LSurface::Undefined if it does not have a role.
@@ -167,25 +185,6 @@ public:
      * @returns A pointer to an instance of LSubsurfaceRole or `nullptr` if it has a different role.
      */
     LSubsurfaceRole *subsurface() const;
-
-    /**
-     * @brief Constructor of the LSurface class.
-     *
-     * @param params Internal parameters of the library provided in the virtual constructor LCompositor::createSurfaceRequest().
-     */
-    LSurface(Params *params);
-
-    /**
-     * @brief Destructor of the LSurface class.
-     *
-     * Invoked after LCompositor::destroySurfaceRequest().
-     */
-    virtual ~LSurface();
-
-    /// @cond OMIT
-    LSurface(const LSurface&) = delete;
-    LSurface& operator= (const LSurface&) = delete;
-    /// @endcond
 
     /**
      * @brief Assigns the position.

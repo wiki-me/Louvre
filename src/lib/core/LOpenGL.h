@@ -11,6 +11,10 @@
 class Louvre::LOpenGL
 {
 public:
+    /// @cond OMIT
+    LOpenGL() = delete;
+    /// @endcond
+
     /**
      * @brief Open a GLSL shader file.
      *

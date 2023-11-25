@@ -69,8 +69,7 @@ public:
     ~LResource();
 
     /// @cond OMIT
-    LResource(const LResource&) = delete;
-    LResource& operator= (const LResource&) = delete;
+    LCLASS_NO_COPY(LResource)
     /// @endcond
 
     /**

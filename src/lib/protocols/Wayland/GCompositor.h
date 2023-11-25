@@ -12,8 +12,8 @@ public:
                 UInt32 id,
                 const void *implementation,
                 wl_resource_destroy_func_t destroy);
+    LCLASS_NO_COPY(GCompositor)
     ~GCompositor();
-
     LPRIVATE_IMP_UNIQUE(GCompositor)
 };
 

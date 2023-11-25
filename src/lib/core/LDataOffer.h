@@ -15,6 +15,9 @@
 class Louvre::LDataOffer : public LObject
 {
 public:
+    /// @cond OMIT
+    LCLASS_NO_COPY(LDataOffer)
+    /// @endcond
 
     /**
      * @brief Usage of a data offer.
@@ -33,11 +36,6 @@ public:
         /// @brief Used in a drag & drop session.
         DND = 2
     };
-
-    /// @cond OMIT
-    LDataOffer(const LDataOffer&) = delete;
-    LDataOffer& operator= (const LDataOffer&) = delete;
-    /// @endcond
 
     /**
      * @brief Usage of a data offer.

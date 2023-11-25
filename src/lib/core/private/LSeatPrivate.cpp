@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+#include <private/LPointerPrivate.h>
+
+using namespace Louvre;
 
 void LSeat::LSeatPrivate::seatEnabled(libseat *seat, void *data)
 {

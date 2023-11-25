@@ -449,19 +449,9 @@ LBox LView::boundingBox() const
     return box;
 }
 
-void LView::pointerEnterEvent(const LPoint &localPos)
-{
-    L_UNUSED(localPos);
-}
-
-void LView::pointerMoveEvent(const LPoint &localPos)
-{
-    L_UNUSED(localPos);
-}
-
-void LView::pointerLeaveEvent()
-{
-}
+void LView::pointerEnterEvent(const LPointerMoveEvent &) {}
+void LView::pointerMoveEvent(const LPointerMoveEvent &) {}
+void LView::pointerLeaveEvent(const LPointerMoveEvent &) {}
 
 void LView::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
 {

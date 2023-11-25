@@ -65,45 +65,50 @@ void LScene::handleUninitializeGL(LOutput *output)
     imp()->mutex.unlock();
 }
 
-LView *LScene::handlePointerMoveEvent(Float32 x, Float32 y, bool absolute, LPoint *outLocalPos)
+LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *outLocalPos)
 {
     // Prevent recursive calls
     if (imp()->handlingPointerMove)
         return nullptr;
 
     LSurface *surface = nullptr;
-    LView *view = nullptr;
-    LPoint localPos;
+    LPointF localPos;
+    imp()->currentPointerMoveEvent = event;
 
-    if (absolute)
-        cursor()->setPos(x, y);
+    if (event.isAbsolute())
+        cursor()->setPos(imp()->currentPointerMoveEvent.pos());
     else
-        cursor()->move(x, y);
+    {
+        cursor()->move(imp()->currentPointerMoveEvent.pos());
+        imp()->currentPointerMoveEvent.setIsAbsolute(true);
+        imp()->currentPointerMoveEvent.setPos(cursor()->pos());
+    }
 
     imp()->listChanged = false;
     imp()->pointerIsBlocked = false;
+    imp()->pointerMoveEventFirstView = nullptr;
 
     imp()->handlingPointerMove = true;
     LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::PointerMoveDone);
-    imp()->handlePointerMove(mainView(), cursor()->pos(), &view);
+    imp()->handlePointerMove(mainView());
     imp()->handlingPointerMove = false;
 
-    if (view)
+    if (imp()->pointerMoveEventFirstView)
     {
-        localPos = imp()->viewLocalPos(view, cursor()->pos());
+        localPos = imp()->viewLocalPos(imp()->pointerMoveEventFirstView, cursor()->pos());
 
         if (outLocalPos)
             *outLocalPos = localPos;
 
-        if (view->type() == LView::Surface)
+        if (imp()->pointerMoveEventFirstView->type() == LView::Surface)
         {
-            LSurfaceView *surfaceView = (LSurfaceView*)view;
+            LSurfaceView *surfaceView = (LSurfaceView*)imp()->pointerMoveEventFirstView;
             surface = surfaceView->surface();
         }
     }
 
     if (!handleWaylandPointerEventsEnabled())
-        return view;
+        return imp()->pointerMoveEventFirstView;
 
     // Repaint cursor outputs if hardware composition is not supported
     cursor()->repaintOutputs(true);
@@ -119,7 +124,7 @@ LView *LScene::handlePointerMoveEvent(Float32 x, Float32 y, bool absolute, LPoin
     if (seat()->pointer()->resizingToplevel())
     {
         seat()->pointer()->updateResizingToplevelSize(cursor()->pos());
-        return view;
+        return imp()->pointerMoveEventFirstView;
     }
 
     // Update the toplevel pos (if there was one being moved interactively)
@@ -132,7 +137,7 @@ LView *LScene::handlePointerMoveEvent(Float32 x, Float32 y, bool absolute, LPoin
         if (seat()->pointer()->movingToplevel()->maximized())
             seat()->pointer()->movingToplevel()->configure(seat()->pointer()->movingToplevel()->states() &~ LToplevelRole::Maximized);
 
-        return view;
+        return imp()->pointerMoveEventFirstView;
     }
 
     // DO NOT GET CONFUSED! If we are in a drag & drop session, we call setDragginSurface(NULL) in case there is a surface being dragged.
@@ -143,28 +148,27 @@ LView *LScene::handlePointerMoveEvent(Float32 x, Float32 y, bool absolute, LPoin
     if (seat()->pointer()->draggingSurface())
     {
         if (seat()->pointer()->draggingSurface()->imp()->lastPointerEventView)
-            seat()->pointer()->sendMoveEvent(imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos()));
+            seat()->pointer()->sendMoveEvent(imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos()),
+                                             imp()->currentPointerMoveEvent.time());
         else
-            seat()->pointer()->sendMoveEvent();
+            seat()->pointer()->sendMoveEvent(imp()->currentPointerMoveEvent.time());
 
-        return view;
+        return imp()->pointerMoveEventFirstView;
     }
 
     if (!surface)
-    {
         seat()->pointer()->setFocus(nullptr);
-    }
     else
     {
-        surface->imp()->lastPointerEventView = (LSurfaceView*)view;
+        surface->imp()->lastPointerEventView = (LSurfaceView*)imp()->pointerMoveEventFirstView;
 
         if (seat()->pointer()->focus() == surface)
-            seat()->pointer()->sendMoveEvent(localPos);
+            seat()->pointer()->sendMoveEvent(localPos, imp()->currentPointerMoveEvent.time());
         else
             seat()->pointer()->setFocus(surface, localPos);
     }
 
-    return view;
+    return imp()->pointerMoveEventFirstView;
 }
 
 void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)

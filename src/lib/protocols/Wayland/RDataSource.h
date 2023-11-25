@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RDataSource : public LResource
 {
 public:
     RDataSource(GDataDeviceManager *gDataDeviceManager, UInt32 id);
+    LCLASS_NO_COPY(RDataSource)
     ~RDataSource();
 
     LDataSource *dataSource() const;

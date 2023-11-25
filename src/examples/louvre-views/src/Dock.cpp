@@ -231,16 +231,13 @@ void Dock::hide()
     anim->start();
 }
 
-void Dock::pointerEnterEvent(const LPoint &localPos)
+void Dock::pointerEnterEvent(const LPointerMoveEvent &)
 {
-    L_UNUSED(localPos);
     showResistanceCount = 0;
 }
 
-void Dock::pointerMoveEvent(const LPoint &localPos)
+void Dock::pointerMoveEvent(const LPointerMoveEvent &)
 {
-    L_UNUSED(localPos);
-
     if (visiblePercent == 1.f && !G::pointer()->cursorOwner)
     {
         cursor()->useDefault();
@@ -253,7 +250,7 @@ void Dock::pointerMoveEvent(const LPoint &localPos)
         showResistanceCount++;    
 }
 
-void Dock::pointerLeaveEvent()
+void Dock::pointerLeaveEvent(const LPointerMoveEvent &)
 {
     G::tooltip()->hide();
     showResistanceCount = 0;

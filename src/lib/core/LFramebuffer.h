@@ -20,6 +20,11 @@
 class Louvre::LFramebuffer : public LObject
 {
 public:
+    LFramebuffer() = default;
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LFramebuffer)
+    /// @endcond
 
     /**
      * @brief Enumeration for Framebuffer Transformations

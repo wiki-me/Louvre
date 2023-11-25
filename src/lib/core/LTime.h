@@ -10,8 +10,7 @@ class Louvre::LTime
 {
 public:
     /// @cond OMIT
-    LTime(const LTime&) = delete;
-    LTime& operator= (const LTime&) = delete;
+    LTime() = delete;
     /// @endcond
 
     /**
@@ -27,11 +26,6 @@ public:
      * Time with nanosecond granularity and undefined base.
      */
     static timespec ns();
-
-private:
-    /// @cond OMIT
-    LTime() = delete;
-    /// @endcond
 };
 
 #endif // LTIME_H

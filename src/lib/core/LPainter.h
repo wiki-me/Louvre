@@ -32,8 +32,7 @@ class Louvre::LPainter : LObject
 {
 public:
     /// @cond OMIT
-    LPainter(const LPainter&) = delete;
-    LPainter& operator= (const LPainter&) = delete;
+    LCLASS_NO_COPY(LPainter)
     /// @endcond
 
     /**

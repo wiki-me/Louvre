@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RCallback : public LResource
 {
 public:
     RCallback(wl_client *client, UInt32 id, std::list<RCallback*>*list);
+    LCLASS_NO_COPY(RCallback)
     ~RCallback();
 
     bool commited = false;

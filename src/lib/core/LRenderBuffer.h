@@ -25,8 +25,7 @@ public:
     LRenderBuffer(const LSize &sizeB);
 
     /// @cond OMIT
-    LRenderBuffer(const LRenderBuffer&) = delete;
-    LRenderBuffer& operator= (const LRenderBuffer&) = delete;
+    LCLASS_NO_COPY(LRenderBuffer)
     /// @endcond
 
     /**

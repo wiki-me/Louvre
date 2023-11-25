@@ -9,6 +9,8 @@
 #include <LSurface.h>
 #include <LOutput.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerButtonEvent.h>
+#include <LInputDevice.h>
 
 #include "Global.h"
 #include "Pointer.h"
@@ -16,9 +18,9 @@
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
-void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
+void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
-    LView *view = G::scene()->handlePointerMoveEvent(event->x(), event->y(), event->isAbsolute());
+    LView *view = G::scene()->handlePointerMoveEvent(event);
 
     if (movingToplevel() || resizingToplevel())
         cursor()->output()->repaint();
@@ -60,15 +62,15 @@ void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
     cursor()->setVisible(true);
 }
 
-void Pointer::pointerButtonEvent(Button button, ButtonState state)
+void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
 {
-    if (button == LPointer::Left && state == LPointer::Released)
+    if (event->button() == Left && event->state() == Released)
     {
         G::enableDocks(true);
         G::compositor()->updatePointerBeforePaint = true;
     }
 
-    G::scene()->handlePointerButtonEvent(button, state);
+    G::scene()->handlePointerButtonEvent(event->button(), event->state());
 }
 
 void Pointer::pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source)

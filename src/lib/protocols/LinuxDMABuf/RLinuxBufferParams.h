@@ -7,6 +7,7 @@ class Louvre::Protocols::LinuxDMABuf::RLinuxBufferParams : public LResource
 {
 public:
     RLinuxBufferParams(GLinuxDMABuf *gLinuxDMABuf, UInt32 id);
+    LCLASS_NO_COPY(RLinuxBufferParams)
     ~RLinuxBufferParams();
 
     const LDMAPlanes *planes() const;

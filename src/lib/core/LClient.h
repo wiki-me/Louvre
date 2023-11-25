@@ -25,15 +25,14 @@ public:
      */
     LClient(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LClient)
+    /// @endcond
+
     /**
      * @brief Destructor of the LClient class.
      */
     virtual ~LClient();
-
-    /// @cond OMIT
-    LClient(const LClient&) = delete;
-    LClient& operator= (const LClient&) = delete;
-    /// @endcond
 
     /**
      * @brief Sends a Ping event to the client for responsiveness detection.

@@ -25,6 +25,7 @@ public:
     /// @cond OMIT
     LOutputFramebuffer(LOutput *output);
     ~LOutputFramebuffer();
+    LCLASS_NO_COPY(LOutputFramebuffer)
     /// @endcond
 
     Int32 scale() const override;

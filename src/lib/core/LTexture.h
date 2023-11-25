@@ -17,7 +17,6 @@
 class Louvre::LTexture : public LObject
 {
 public:
-
     /**
      * @brief Texture source enumeration indicating the origin of the texture data.
      */
@@ -45,8 +44,7 @@ public:
     LTexture();
 
     /// @cond OMIT
-    LTexture(const LTexture&) = delete;
-    LTexture& operator= (const LTexture&) = delete;
+    LCLASS_NO_COPY(LTexture)
     /// @endcond
 
     /**

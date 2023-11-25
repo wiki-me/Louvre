@@ -9,7 +9,7 @@ DRMBackend = library(
     dependencies : [
         louvre_dep,
         udev_dep,
-	    input_dep,
+        input_dep,
         xkbcommon_dep,
         libseat_dep
     ],

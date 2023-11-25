@@ -31,17 +31,16 @@ public:
      */
     static LXCursor *loadXCursorB(const char *cursor, const char *theme = NULL, Int32 suggestedSize = 64);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LXCursor)
+    /// @endcond
+
     /**
      * @brief Destructor of the LXCursor class.
      *
      * @warning The destructor releases any resources associated with an LXCursor instance, including its texture.
      */
     ~LXCursor();
-
-    /// @cond OMIT
-    LXCursor(const LXCursor&) = delete;
-    LXCursor& operator= (const LXCursor&) = delete;
-    /// @endcond
 
     /**
      * @brief Get the cursor's texture.

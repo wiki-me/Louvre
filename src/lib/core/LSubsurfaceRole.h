@@ -47,8 +47,7 @@ public:
     virtual ~LSubsurfaceRole();
 
     /// @cond OMIT
-    LSubsurfaceRole(const LSubsurfaceRole&) = delete;
-    LSubsurfaceRole& operator= (const LSubsurfaceRole&) = delete;
+    LCLASS_NO_COPY(LSubsurfaceRole)
     /// @endcond
 
     /**

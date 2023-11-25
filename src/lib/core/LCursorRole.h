@@ -27,17 +27,16 @@ public:
      */
     LCursorRole(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LCursorRole)
+    /// @endcond
+
     /**
      * @brief Destructor of the LCursorRole class.
      *
      * Invoked internally by the library after LCompositor::destroyCursorRoleRequest() is called.
      */
     virtual ~LCursorRole();
-
-    /// @cond OMIT
-    LCursorRole(const LCursorRole&) = delete;
-    LCursorRole& operator= (const LCursorRole&) = delete;
-    /// @endcond
 
     /**
      * @brief Position of the surface given the role.

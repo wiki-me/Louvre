@@ -12,6 +12,7 @@ class Louvre::LDMABuffer : public LResource
 {
 public:
     LDMABuffer(RLinuxBufferParams *rLinuxBufferParams, UInt32 id);
+    LCLASS_NO_COPY(LDMABuffer)
     ~LDMABuffer();
 
     const LDMAPlanes *planes() const;

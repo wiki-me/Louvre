@@ -1,9 +1,16 @@
 #ifndef LPOINTERPRIVATE_H
 #define LPOINTERPRIVATE_H
 
+#include <protocols/Wayland/GSeat.h>
+#include <protocols/Wayland/RPointer.h>
+#include <private/LDataDevicePrivate.h>
 #include <LPointer.h>
+#include <LSeat.h>
+#include <LDNDManager.h>
+#include <LClient.h>
 
 using namespace Louvre;
+using namespace Louvre::Protocols;
 
 struct LPointer::Params
 {
@@ -33,6 +40,25 @@ LPRIVATE_CLASS(LPointer)
     // Cursor
     LCursorRole *lastCursorRequest = nullptr;
     bool lastCursorRequestWasHide = false;
+
+
+    inline void sendMoveEvent(const LPointF &localPos, UInt32 time)
+    {
+        Float24 x = wl_fixed_from_double(localPos.x());
+        Float24 y = wl_fixed_from_double(localPos.y());
+
+        if (seat()->dndManager()->focus())
+            seat()->dndManager()->focus()->client()->dataDevice().imp()->sendDNDMotionEventS(x, y);
+
+        for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
+        {
+            if (s->pointerResource())
+            {
+                s->pointerResource()->motion(time, x, y);
+                s->pointerResource()->frame();
+            }
+        }
+    }
 };
 
 #endif // LPOINTERPRIVATE_H

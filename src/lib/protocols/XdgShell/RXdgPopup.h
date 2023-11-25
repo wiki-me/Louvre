@@ -10,6 +10,7 @@ public:
               RXdgSurface *rXdgParentSurface,
               RXdgPositioner *rXdgPositioner,
               UInt32 id);
+    LCLASS_NO_COPY(RXdgPopup)
     ~RXdgPopup();
 
     RXdgSurface *xdgSurfaceResource() const;

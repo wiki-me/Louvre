@@ -11,8 +11,8 @@ public:
                        Int32 version,
                        UInt32 id,
                        const void *implementation, wl_resource_destroy_func_t destroy);
+    LCLASS_NO_COPY(GDataDeviceManager)
     ~GDataDeviceManager();
-
     LPRIVATE_IMP_UNIQUE(GDataDeviceManager)
 };
 #endif // GDATADEVICEMANAGER_H

@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RDataDevice : public LResource
 {
 public:
     RDataDevice(GDataDeviceManager *gDataDeviceManager, GSeat *gSeat, Int32 id);
+    LCLASS_NO_COPY(RDataDevice)
     ~RDataDevice();
 
     struct LastEventSerials

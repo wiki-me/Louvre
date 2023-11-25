@@ -25,9 +25,8 @@ DockItem::~DockItem()
     surface->minimizedViews.remove(this);
 }
 
-void DockItem::pointerEnterEvent(const LPoint &localPos)
+void DockItem::pointerEnterEvent(const LPointerMoveEvent &)
 {
-    L_UNUSED(localPos);
     setOpacity(0.8f);
 
     if (surface->toplevel())
@@ -40,7 +39,7 @@ void DockItem::pointerEnterEvent(const LPoint &localPos)
         G::tooltip()->hide();
 }
 
-void DockItem::pointerLeaveEvent()
+void DockItem::pointerLeaveEvent(const LPointerMoveEvent &)
 {
     setOpacity(1.f);
 }

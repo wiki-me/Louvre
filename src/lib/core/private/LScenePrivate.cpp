@@ -97,66 +97,19 @@ bool LScene::LScenePrivate::pointClippedByParentScene(LView *view, const LPoint 
     return pointClippedByParentScene(parentScene, point);
 }
 
-bool LScene::LScenePrivate::pointerIsOverView(LView *view, const LPoint &pos)
-{
-    if (!view->mapped() || !view->inputEnabled())
-        return false;
-
-    if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
-        return false;
-
-    if (pointClippedByParent(view, pos))
-        return false;
-
-    if (pointClippedByParentScene(view, pos))
-        return false;
-
-    if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector() != LSizeF(1.f,1.f))
-    {
-        if (view->scalingVector().area() == 0.f)
-            return false;
-
-        if (view->inputRegion())
-        {
-            if (view->inputRegion()->containsPoint((pos - view->pos())/view->scalingVector()))
-                return true;
-        }
-        else
-        {
-            if (LRect(view->pos(), view->size()).containsPoint((pos - view->pos())/view->scalingVector()))
-                return true;
-        }
-    }
-    else
-    {
-        if (view->inputRegion())
-        {
-            if (view->inputRegion()->containsPoint(pos - view->pos()))
-                return true;
-        }
-        else
-        {
-            if (LRect(view->pos(), view->size()).containsPoint(pos))
-                return true;
-        }
-    }
-
-    return false;
-}
-
-bool LScene::LScenePrivate::handlePointerMove(LView *view, const LPoint &pos, LView **firstViewFound)
+bool LScene::LScenePrivate::handlePointerMove(LView *view)
 {
     if (listChanged)
         goto listChangedErr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerMove(*it, pos, firstViewFound))
+        if (!handlePointerMove(*it))
             return false;
 
-    if (!pointerIsBlocked && pointerIsOverView(view, pos))
+    if (!pointerIsBlocked && pointerIsOverView(view, currentPointerMoveEvent.pos()))
     {
-        if (!(*firstViewFound))
-            *firstViewFound = view;
+        if (!(pointerMoveEventFirstView))
+            pointerMoveEventFirstView = view;
 
         if (!(view->imp()->state & LVS::PointerMoveDone))
         {
@@ -164,7 +117,7 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view, const LPoint &pos, LV
 
             if (view->pointerIsOver())
             {
-                view->pointerMoveEvent(viewLocalPos(view, pos));
+                view->pointerMoveEvent(currentPointerMoveEvent);
 
                 if (listChanged)
                     goto listChangedErr;
@@ -172,7 +125,7 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view, const LPoint &pos, LV
             else
             {
                 view->imp()->addFlag(LVS::PointerIsOver);
-                view->pointerEnterEvent(viewLocalPos(view, pos));
+                view->pointerEnterEvent(currentPointerMoveEvent);
 
                 if (listChanged)
                     goto listChangedErr;
@@ -191,7 +144,7 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view, const LPoint &pos, LV
             if (view->pointerIsOver())
             {
                 view->imp()->removeFlag(LVS::PointerIsOver);
-                view->pointerLeaveEvent();
+                view->pointerLeaveEvent(currentPointerMoveEvent);
 
                 if (listChanged)
                     goto listChangedErr;
@@ -199,25 +152,13 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view, const LPoint &pos, LV
         }
     }
 
-    // Hides unused warning
-    (void)firstViewFound;
-
     return true;
 
     // If a list was modified, start again, serials are used to prevent resend events
     listChangedErr:
     listChanged = false;
-    handlePointerMove(&this->view, pos, nullptr);
+    handlePointerMove(&this->view);
     return false;
-}
-
-
-LPoint LScene::LScenePrivate::viewLocalPos(LView *view, const LPoint &pos)
-{
-    if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector().area() != 0.f)
-        return (pos - view->pos()) / view->scalingVector();
-    else
-        return pos - view->pos();
 }
 
 bool LScene::LScenePrivate::handlePointerButton(LView *view, LPointer::Button button, LPointer::ButtonState state)

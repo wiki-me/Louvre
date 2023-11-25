@@ -30,17 +30,16 @@ public:
      */
     LToplevelRole(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LToplevelRole)
+    /// @endcond
+
     /**
      * @brief LToplevelRole class destructor.
      *
      * Invoked after LCompositor::destroyToplevelRoleRequest().
      */
     virtual ~LToplevelRole();
-
-    /// @cond OMIT
-    LToplevelRole(const LToplevelRole&) = delete;
-    LToplevelRole& operator= (const LToplevelRole&) = delete;
-    /// @endcond
 
     /**
      * @brief Resizing border/corner.

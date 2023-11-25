@@ -20,7 +20,6 @@ struct LSeat::Params
 };
 
 LPRIVATE_CLASS(LSeat)
-
     Int32 ttyNumber = -1;
 
     // Wayland

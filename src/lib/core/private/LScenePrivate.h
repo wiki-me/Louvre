@@ -1,6 +1,8 @@
 #ifndef LSCENEPRIVATE_H
 #define LSCENEPRIVATE_H
 
+#include <LRegion.h>
+#include <LPointerMoveEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
 #include <mutex>
@@ -24,12 +26,70 @@ LPRIVATE_CLASS(LScene)
     bool handlingKeyModifiersEvent = false;
     bool handlingKeyEvent = false;
 
+    LView *pointerMoveEventFirstView;
+    LPointF pointerMoveEventOutLocalPos;
+    LPointerMoveEvent currentPointerMoveEvent;
+
     bool pointClippedByParent(LView *parent, const LPoint &point);
     bool pointClippedByParentScene(LView *view, const LPoint &point);
     LView *viewAt(LView *view, const LPoint &pos);
-    LPoint viewLocalPos(LView *view, const LPoint &pos);
-    bool pointerIsOverView(LView *view, const LPoint &pos);
-    bool handlePointerMove(LView *view, const LPoint &pos, LView **firstViewFound);
+
+    inline LPointF viewLocalPos(LView *view, const LPointF &pos)
+    {
+        if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector().area() != 0.f)
+            return (pos - view->pos()) / view->scalingVector();
+        else
+            return pos - view->pos();
+    }
+
+    inline bool pointerIsOverView(LView *view, const LPointF &pos)
+    {
+        if (!view->mapped() || !view->inputEnabled())
+            return false;
+
+        if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
+            return false;
+
+        if (pointClippedByParent(view, pos))
+            return false;
+
+        if (pointClippedByParentScene(view, pos))
+            return false;
+
+        if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector() != LSizeF(1.f,1.f))
+        {
+            if (view->scalingVector().area() == 0.f)
+                return false;
+
+            if (view->inputRegion())
+            {
+                if (view->inputRegion()->containsPoint((pos - view->pos())/view->scalingVector()))
+                    return true;
+            }
+            else
+            {
+                if (LRect(view->pos(), view->size()).containsPoint((pos - view->pos())/view->scalingVector()))
+                    return true;
+            }
+        }
+        else
+        {
+            if (view->inputRegion())
+            {
+                if (view->inputRegion()->containsPoint(pos - view->pos()))
+                    return true;
+            }
+            else
+            {
+                if (LRect(view->pos(), view->size()).containsPoint(pos))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool handlePointerMove(LView *view);
     bool handlePointerButton(LView *view, LPointer::Button button, LPointer::ButtonState state);
     bool handlePointerAxisEvent(LView *view, Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, UInt32 source);
     bool handleKeyModifiersEvent(LView *view, UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group);

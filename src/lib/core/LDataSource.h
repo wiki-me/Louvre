@@ -17,7 +17,10 @@
  */
 class Louvre::LDataSource : LObject
 {
-public:   
+public:
+    /// @cond OMIT
+    LCLASS_NO_COPY(LDataSource)
+    /// @endcond
 
     /**
      * @brief Variant of a data source.
@@ -32,11 +35,6 @@ public:
         /// @brief Mime type
         char *mimeType;
     };
-
-    /// @cond OMIT
-    LDataSource(const LDataSource&) = delete;
-    LDataSource& operator= (const LDataSource&) = delete;
-    /// @endcond
 
     /**
      * @brief Client owner of the data source.

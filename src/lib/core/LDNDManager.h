@@ -24,17 +24,16 @@ public:
      */
     LDNDManager(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LDNDManager)
+    /// @endcond
+
     /**
      * @brief Destructor of the LDNDManager class.
      *
      * Invoked internally by the library after LCompositor::destroyDNDManagerRequest() is called.
      */
     virtual ~LDNDManager();
-
-    /// @cond OMIT
-    LDNDManager(const LDNDManager&) = delete;
-    LDNDManager& operator= (const LDNDManager&) = delete;
-    /// @endcond
 
     /**
      * @brief Action flags for drag & drop sessions.

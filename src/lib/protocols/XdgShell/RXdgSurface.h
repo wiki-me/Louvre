@@ -7,6 +7,7 @@ class Louvre::Protocols::XdgShell::RXdgSurface : public LResource
 {
 public:
     RXdgSurface(GXdgWmBase *gXdgWmBase, LSurface *lSurface, UInt32 id);
+    LCLASS_NO_COPY(RXdgSurface)
     ~RXdgSurface();
 
     GXdgWmBase *xdgWmBaseGlobal() const;

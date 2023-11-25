@@ -76,8 +76,7 @@ public:
     using Callback = std::function<void(LAnimation*)>;
 
     /// @cond OMIT
-    LAnimation(const LAnimation&) = delete;
-    LAnimation& operator= (const LAnimation&) = delete;
+    LCLASS_NO_COPY(LAnimation)
     /// @endcond
 
     /**

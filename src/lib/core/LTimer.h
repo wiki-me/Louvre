@@ -34,8 +34,7 @@ public:
     static void oneShot(UInt32 intervalMs, const Callback &onTimeout);
 
     /// @cond OMIT
-    LTimer(const LTimer&) = delete;
-    LTimer& operator= (const LTimer&) = delete;
+    LCLASS_NO_COPY(LTimer)
     /// @endcond
 
     /**

@@ -56,15 +56,13 @@ void Topbar::update()
                  1 + (size().h() - clock->size().h()) / 2);
 }
 
-void Topbar::pointerEnterEvent(const LPoint &localPos)
+void Topbar::pointerEnterEvent(const LPointerMoveEvent &)
 {
-    L_UNUSED(localPos);
-
     if (!G::pointer()->resizingToplevel() && !G::pointer()->movingToplevel() && !G::pointer()->cursorOwner)
         cursor()->useDefault();
 }
 
-void Topbar::pointerMoveEvent(const LPoint &)
+void Topbar::pointerMoveEvent(const LPointerMoveEvent &)
 {
     if (!G::pointer()->resizingToplevel() && !G::pointer()->movingToplevel() && !G::pointer()->cursorOwner)
         cursor()->useDefault();

@@ -28,17 +28,16 @@ public:
      */
     LPopupRole(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LPopupRole)
+    /// @endcond
+
     /**
      * @brief Destructor of LPopupRole class.
      *
      * Invoked after LCompositor::destroyPopupRoleRequest().
      */
     virtual ~LPopupRole();
-
-    /// @cond OMIT
-    LPopupRole(const LPopupRole&) = delete;
-    LPopupRole& operator= (const LPopupRole&) = delete;
-    /// @endcond
 
     /**
      * @brief Window geometry in surface coordinates.

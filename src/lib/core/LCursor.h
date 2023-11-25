@@ -32,10 +32,8 @@
 class Louvre::LCursor : public LObject
 {
 public:
-
     /// @cond OMIT
-    LCursor(const LCursor&) = delete;
-    LCursor& operator= (const LCursor&) = delete;
+    LCLASS_NO_COPY(LCursor)
     /// @endcond
 
     /**
@@ -118,6 +116,17 @@ public:
      * @note Louvre automatically repositions the cursor if the new position is not within any output.
      */
     void move(Float32 dx, Float32 dy);
+
+    /**
+     * @brief Move the cursor.
+     *
+     * Adjusts the cursor position by a delta (dx, dy) in surface coordinates.
+     *
+     * @param delta Delta in surface coordinates.
+     *
+     * @note Louvre automatically repositions the cursor if the new position is not within any output.
+     */
+    void move(const LPointF &delta);
 
     /**
      * @brief Set the cursor position.

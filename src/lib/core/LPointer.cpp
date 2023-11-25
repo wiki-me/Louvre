@@ -81,32 +81,16 @@ void LPointer::setFocus(LSurface *surface, const LPoint &localPos)
 
 }
 
-void LPointer::sendMoveEvent()
+void LPointer::sendMoveEvent(UInt32 time)
 {
     if (focus())
-        sendMoveEvent(cursor()->pos() - focus()->rolePos());
+        imp()->sendMoveEvent(cursor()->pos() - focus()->rolePos(), time);
 }
 
-void LPointer::sendMoveEvent(const LPoint &localPos)
+void LPointer::sendMoveEvent(const LPoint &localPos, UInt32 time)
 {
-    if (!focus())
-        return;
-
-    Float24 x = wl_fixed_from_int(localPos.x());
-    Float24 y = wl_fixed_from_int(localPos.y());
-
-    if (seat()->dndManager()->focus())
-        seat()->dndManager()->focus()->client()->dataDevice().imp()->sendDNDMotionEventS(x, y);
-
-    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-    {
-        if (s->pointerResource())
-        {
-            UInt32 ms = LTime::ms();
-            s->pointerResource()->motion(ms, x, y);
-            s->pointerResource()->frame();
-        }
-    }    
+    if (focus())
+        imp()->sendMoveEvent(localPos, time);
 }
 
 void LPointer::sendButtonEvent(Button button, ButtonState state)

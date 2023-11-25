@@ -9,7 +9,7 @@ public:
     RWpPresentationFeedback(GWpPresentation *gWpPresentation,
                             LSurface *lSurface,
                             UInt32 id);
-
+    LCLASS_NO_COPY(RWpPresentationFeedback)
     ~RWpPresentationFeedback();
 
     LSurface *lSurface() const;

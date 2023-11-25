@@ -94,8 +94,7 @@ public:
     LScene();
 
     /// @cond OMIT
-    LScene(const LScene&) = delete;
-    LScene& operator= (const LScene&) = delete;
+    LCLASS_NO_COPY(LScene)
     /// @endcond
 
     /**
@@ -153,13 +152,11 @@ public:
      *
      * This method should be integrated into LPointer::pointerMoveEvent() to effectively manage pointer movement events.
      *
-     * @param x The x-component of the new pointer position or delta from its previous position.
-     * @param y The y-component of the new pointer position or delta from its previous position.
-     * @param absolute If `true`, the (x, y) values represent absolute coordinates; if `false`, they are deltas from the previous position.
-     * @param localPos Local pos of the first view found under the cursor.
+     * @param event Pointer move event to handle.
+     * @param outLocalPos Stores the local position of the first view found under the cursor. Pass `nullptr` if not needed.
      * @return The first LView found under the cursor.
      */
-    LView *handlePointerMoveEvent(Float32 x, Float32 y, bool absolute, LPoint *localPos = nullptr);
+    LView *handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *outLocalPos = nullptr);
 
     /**
      * @brief Handle pointer button event.

@@ -63,15 +63,14 @@ public:
      */
     LCompositor();
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LCompositor)
+    /// @endcond
+
     /**
      * @brief Destructor of the LCompositor class.
      */
     virtual ~LCompositor();
-
-    /// @cond OMIT
-    LCompositor(const LCompositor&) = delete;
-    LCompositor& operator= (const LCompositor&) = delete;
-    /// @endcond
 
     /**
      * @brief Get the static LCompositor instance.

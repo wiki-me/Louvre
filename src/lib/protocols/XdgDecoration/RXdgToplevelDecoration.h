@@ -9,7 +9,7 @@ public:
     RXdgToplevelDecoration(GXdgDecorationManager *gXdgDecorationManager,
                            LToplevelRole *lToplevelRole,
                            UInt32 id);
-
+    LCLASS_NO_COPY(RXdgToplevelDecoration)
     ~RXdgToplevelDecoration();
 
     LToplevelRole *toplevelRole() const;

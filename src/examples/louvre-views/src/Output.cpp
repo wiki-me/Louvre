@@ -6,6 +6,7 @@
 #include <LLog.h>
 #include <LOpenGL.h>
 #include <LTextureView.h>
+#include <LPointerMoveEvent.h>
 
 #include "Global.h"
 #include "Output.h"
@@ -342,13 +343,12 @@ void Output::paintGL()
         return;
     }
 
-    /*
     // Check pointer events before painting
     if (G::compositor()->updatePointerBeforePaint)
     {
-        seat()->pointer()->pointerMoveEvent(nullptr);
+        seat()->pointer()->pointerMoveEvent(LPointerMoveEvent(cursor()->pos(), true));
         G::compositor()->updatePointerBeforePaint = false;
-    }*/
+    }
 
     // Check if hw cursor is supported
     if (cursor()->hasHardwareSupport(this))

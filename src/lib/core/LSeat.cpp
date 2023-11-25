@@ -31,8 +31,33 @@
 #include <LOutput.h>
 #include <LPopupRole.h>
 #include <LLog.h>
+#include <LInputDevice.h>
 
 using namespace Louvre;
+
+const std::list<LInputDevice *> *LSeat::inputDevices() const
+{
+    return compositor()->imp()->inputBackend->getDevices();
+}
+
+void LSeat::inputDevicePlugged(LInputDevice *device)
+{
+    LLog::log("New device %d %d %s",
+              device->vendorId(),
+              device->productId(),
+              device->name());
+
+    L_UNUSED(device);
+}
+
+void LSeat::inputDeviceUnplugged(LInputDevice *device)
+{
+    LLog::log("Rem device %d %d %s",
+              device->vendorId(),
+              device->productId(),
+              device->name());
+    L_UNUSED(device);
+}
 
 LSeat::LSeat(Params *params) : LPRIVATE_INIT_UNIQUE(LSeat)
 {

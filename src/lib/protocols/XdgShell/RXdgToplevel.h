@@ -7,6 +7,7 @@ class Louvre::Protocols::XdgShell::RXdgToplevel : public LResource
 {
 public:
     RXdgToplevel(RXdgSurface *rXdgSurface, UInt32 id);
+    LCLASS_NO_COPY(RXdgToplevel)
     ~RXdgToplevel();
 
     RXdgSurface *xdgSurfaceResource() const;

@@ -7,6 +7,7 @@ class Louvre::Protocols::Wayland::RKeyboard : public LResource
 {
 public:
     RKeyboard(GSeat *gSeat, Int32 id);
+    LCLASS_NO_COPY(RKeyboard)
     ~RKeyboard();
 
     struct LastEventSerials

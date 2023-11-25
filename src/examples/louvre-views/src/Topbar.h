@@ -30,8 +30,8 @@ public:
     // Current app title
     LTextureView *appName = nullptr;
 
-    void pointerEnterEvent(const LPoint &localPos) override;
-    void pointerMoveEvent(const LPoint &) override;
+    void pointerEnterEvent(const LPointerMoveEvent &) override;
+    void pointerMoveEvent(const LPointerMoveEvent &) override;
 };
 
 #endif // TOPBAR_H

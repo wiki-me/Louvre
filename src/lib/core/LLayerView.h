@@ -12,18 +12,16 @@
 class Louvre::LLayerView : public LView
 {
 public:
-
-    /// @cond OMIT
-    LLayerView(const LLayerView&) = delete;
-    LLayerView& operator= (const LLayerView&) = delete;
-    /// @endcond
-
     /**
      * @brief Constructor for LLayerView.
      *
      * @param parent The parent view, if any.
      */
     LLayerView(LView *parent = nullptr);
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LLayerView)
+    /// @endcond
 
     /**
      * @brief Destructor for LLayerView.

@@ -149,17 +149,17 @@ void ToplevelButton::pointerButtonEvent(LPointer::Button button, LPointer::Butto
     update();
 }
 
-void ToplevelButton::pointerLeaveEvent()
+void ToplevelButton::pointerMoveEvent(const LPointerMoveEvent &)
+{
+    if (!G::pointer()->resizingToplevel() && !G::pointer()->movingToplevel())
+        cursor()->useDefault();
+}
+
+void ToplevelButton::pointerLeaveEvent(const LPointerMoveEvent &)
 {
     if (!pressed)
         return;
 
     pressed = false;
     update();
-}
-
-void ToplevelButton::pointerMoveEvent(const LPoint &)
-{
-    if (!G::pointer()->resizingToplevel() && !G::pointer()->movingToplevel())
-        cursor()->useDefault();
 }

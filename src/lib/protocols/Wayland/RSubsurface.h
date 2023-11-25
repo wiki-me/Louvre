@@ -10,6 +10,7 @@ public:
                 LSurface *surface,
                 LSurface *parent,
                 UInt32 id);
+    LCLASS_NO_COPY(RSubsurface)
     ~RSubsurface();
 
     LSubsurfaceRole *subsurfaceRole() const;

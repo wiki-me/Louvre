@@ -41,7 +41,6 @@
 class Louvre::LBaseSurfaceRole : public LObject
 {
 public:
-
     /**
      * @brief Constructor of LBaseSurfaceRole class.
      *
@@ -53,13 +52,14 @@ public:
      */
     LBaseSurfaceRole(LResource *resource, LSurface *surface, UInt32 roleId);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LBaseSurfaceRole)
+    /// @endcond
+
     /**
      * @brief The LBaseSurfaceRole class destructor.
      */
     virtual ~LBaseSurfaceRole();
-
-    LBaseSurfaceRole(const LBaseSurfaceRole&) = delete;
-    LBaseSurfaceRole& operator= (const LBaseSurfaceRole&) = delete;
 
     /**
      * @brief Position of the surface given its role.

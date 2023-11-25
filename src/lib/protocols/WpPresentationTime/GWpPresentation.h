@@ -12,7 +12,7 @@ public:
                     UInt32 id,
                     const void *implementation,
                     wl_resource_destroy_func_t destroy);
-
+    LCLASS_NO_COPY(GWpPresentation)
     ~GWpPresentation();
 
     // Since 1

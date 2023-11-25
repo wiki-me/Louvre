@@ -16,8 +16,7 @@ public:
     /// @cond OMIT
     LOutputMode(LOutput *output);
     ~LOutputMode();
-    LOutputMode(const LOutputMode&) = delete;
-    LOutputMode& operator= (const LOutputMode&) = delete;
+    LCLASS_NO_COPY(LOutputMode)
     /// @endcond
 
     /**

@@ -116,17 +116,16 @@ public:
      */
     LPointer(Params *params);
 
+    /// @cond OMIT
+    LCLASS_NO_COPY(LPointer)
+    /// @endcond
+
     /**
      * @brief LPointer class destructor.
      *
      * Invoked internally by the library after notification of its destruction with LCompositor::destroyPointerRequest().
      */
     virtual ~LPointer();
-
-    /// @cond OMIT
-    LPointer(const LPointer&) = delete;
-    LPointer& operator= (const LPointer&) = delete;
-    /// @endcond
 
     /**
      * @brief Get the surface with pointer focus.
@@ -254,8 +253,10 @@ public:
      *
      * @note This method internally transforms the LCursor position to the local coordinates of the focused surface,
      *       taking into account the surface's role position.
+     *
+     * @param time Time at which the event was generated with millisecond granularity.
      */
-    void sendMoveEvent();
+    void sendMoveEvent(UInt32 time);
 
     /**
      * @brief Send a pointer move event to the surface with focus.
@@ -264,7 +265,7 @@ public:
      *
      * @param localPos Pointer position relative to the top-left corner of the surface in surface coordinates.
      */
-    void sendMoveEvent(const LPoint &localPos);
+    void sendMoveEvent(const LPoint &localPos, UInt32 time);
 
     /**
      * @brief Send a pointer button event to the surface with focus.
@@ -469,7 +470,7 @@ public:
      * #### Default Implementation
      * @snippet LPointerDefault.cpp pointerMoveEvent
      */
-    virtual void pointerMoveEvent(LPointerMoveEvent *event);
+    virtual void pointerMoveEvent(const LPointerMoveEvent &event);
 
     /**
      * @brief Pointer button event.
@@ -483,7 +484,7 @@ public:
      * #### Default Implementation
      * @snippet LPointerDefault.cpp pointerButtonEvent
      */
-    virtual void pointerButtonEvent(Button button, ButtonState state);
+    virtual void pointerButtonEvent(const LPointerButtonEvent *event);
 
     /**
      * @brief Pointer scroll event.

@@ -11,16 +11,17 @@
 #include <LDNDIconRole.h>
 #include <LCursorRole.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerButtonEvent.h>
 
 using namespace Louvre;
 
 //! [pointerMoveEvent]
-void LPointer::pointerMoveEvent(LPointerMoveEvent *event)
+void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 {
-    if (event->isAbsolute())
-        cursor()->setPos(event->x(), event->y());
+    if (event.isAbsolute())
+        cursor()->setPos(event.pos());
     else
-        cursor()->move(event->x(), event->y());
+        cursor()->move(event.pos());
 
     // Repaint outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);
@@ -58,7 +59,7 @@ void LPointer::pointerMoveEvent(LPointerMoveEvent *event)
     // If a surface had the left pointer button held down
     if (draggingSurface())
     {
-        sendMoveEvent();
+        sendMoveEvent(event.time());
         return;
     }
 
@@ -68,7 +69,7 @@ void LPointer::pointerMoveEvent(LPointerMoveEvent *event)
     if (surface)
     {
         if (focus() == surface)
-            sendMoveEvent();
+            sendMoveEvent(event.time());
         else
             setFocus(surface);
     }
@@ -82,9 +83,9 @@ void LPointer::pointerMoveEvent(LPointerMoveEvent *event)
 //! [pointerMoveEvent]
 
 //! [pointerButtonEvent]
-void LPointer::pointerButtonEvent(Button button, ButtonState state)
+void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
 {
-    if (state == Released && button == Left)
+    if (event->state() == Released && event->button() == Left)
         seat()->dndManager()->drop();
 
     if (!focus())
@@ -95,7 +96,7 @@ void LPointer::pointerButtonEvent(Button button, ButtonState state)
         {
             seat()->keyboard()->setFocus(surface);
             setFocus(surface);
-            sendButtonEvent(button, state);
+            sendButtonEvent(event->button(), event->state());
 
             if (!surface->popup())
                 dismissPopups();
@@ -109,13 +110,13 @@ void LPointer::pointerButtonEvent(Button button, ButtonState state)
         return;
     }
 
-    sendButtonEvent(button, state);
+    sendButtonEvent(event->button(), event->state());
 
-    if (button != Left)
+    if (event->button() != Left)
         return;
 
     // Left button pressed
-    if (state == Pressed)
+    if (event->state() == Pressed)
     {
         // We save the pointer focus surface to continue sending events to it even when the cursor
         // is outside of it (while the left button is being held down)

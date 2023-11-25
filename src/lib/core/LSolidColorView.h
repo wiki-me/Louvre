@@ -11,12 +11,6 @@
 class Louvre::LSolidColorView : public LView
 {
 public:
-
-    /// @cond OMIT
-    LSolidColorView(const LSolidColorView&) = delete;
-    LSolidColorView& operator= (const LSolidColorView&) = delete;
-    /// @endcond
-
     /**
      * @brief Construct a solid color view as a child of another view.
      *
@@ -43,6 +37,10 @@ public:
      * @param parent The parent view that will contain this solid color view.
      */
     LSolidColorView(const LRGBF &color, Float32 a = 1.f, LView *parent = nullptr);
+
+    /// @cond OMIT
+    LCLASS_NO_COPY(LSolidColorView)
+    /// @endcond
 
     /**
      * @brief Destructor for the solid color view.

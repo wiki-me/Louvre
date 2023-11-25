@@ -4,6 +4,7 @@
 #include <LDNDIconRole.h>
 #include <LDNDManager.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerButtonEvent.h>
 #include <LSeat.h>
 #include <LTime.h>
 #include <LCursor.h>
@@ -13,12 +14,12 @@
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
-void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
+void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
-    if (event->isAbsolute())
-        cursor()->setPos(event->x(), event->y());
+    if (event.isAbsolute())
+        cursor()->setPos(event.pos());
     else
-        cursor()->move(event->x(), event->y());
+        cursor()->move(event.pos());
 
     Output *cursorOutput = (Output*)cursor()->output();
     Compositor *c = (Compositor*)compositor();
@@ -90,7 +91,7 @@ void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
     // If there was a surface holding the left pointer button
     if (draggingSurface())
     {
-        sendMoveEvent();
+        sendMoveEvent(event.time());
         return;
     }
 
@@ -109,19 +110,19 @@ void Pointer::pointerMoveEvent(LPointerMoveEvent *event)
     else
     {
         if (focus() == surface)
-            sendMoveEvent();
+            sendMoveEvent(event.time());
         else
             setFocus(surface);
     }
 }
 
-void Pointer::pointerButtonEvent(Button button, ButtonState state)
+void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
 {
     Output *cursorOutput = (Output*)cursor()->output();
 
     bool pointerOverTerminalIcon = cursorOutput->terminalIconRect.containsPoint(cursor()->pos());
 
-    if (state == Released && button == Left)
+    if (event->state() == Released && event->button() == Left)
     {
         seat()->dndManager()->drop();
 
@@ -148,7 +149,7 @@ void Pointer::pointerButtonEvent(Button button, ButtonState state)
                 seat()->keyboard()->setFocus(surface);
 
             setFocus(surface);
-            sendButtonEvent(button, state);
+            sendButtonEvent(event->button(), event->state());
         }
         // If no surface under the cursor
         else
@@ -161,13 +162,13 @@ void Pointer::pointerButtonEvent(Button button, ButtonState state)
         return;
     }
 
-    sendButtonEvent(button, state);
+    sendButtonEvent(event->button(), event->state());
 
-    if (button != Left)
+    if (event->button() != Left)
         return;
 
     // Left button pressed
-    if (state == Pressed)
+    if (event->state() == Pressed)
     {
         if (pointerOverTerminalIcon)
         {
