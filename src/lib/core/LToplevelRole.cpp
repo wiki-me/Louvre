@@ -56,22 +56,27 @@ LToplevelRole::~LToplevelRole()
 
 bool LToplevelRole::maximized() const
 {
-    return imp()->stateFlags & LToplevelRole::Maximized;
+    return imp()->currentConf.flags & LToplevelRole::Maximized;
 }
 
 bool LToplevelRole::fullscreen() const
 {
-    return imp()->stateFlags & LToplevelRole::Fullscreen;
+    return imp()->currentConf.flags & LToplevelRole::Fullscreen;
 }
 
 bool LToplevelRole::activated() const
 {
-    return imp()->stateFlags & LToplevelRole::Activated;
+    return imp()->currentConf.flags & LToplevelRole::Activated;
 }
 
-UInt32 LToplevelRole::states() const
+UInt32 LToplevelRole::currentState() const
 {
-    return imp()->stateFlags;
+    return imp()->currentConf.flags;
+}
+
+LToplevelRole::States LToplevelRole::pendingState() const
+{
+    return imp()->pendingSendConf.flags;
 }
 
 void LToplevelRole::setDecorationMode(DecorationMode mode)
@@ -247,11 +252,11 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
         // Clean Up
         imp()->setAppId("");
         imp()->setTitle("");
-        imp()->stateFlags = NoState;
         imp()->currentConf.commited = false;
         imp()->currentConf.size = LSize();
         imp()->currentConf.flags = NoState;
         imp()->currentConf.serial = 0;
+        imp()->pendingSendConf = imp()->currentConf;
         imp()->sentConfs.clear();
         imp()->hasPendingMinSize = false;
         imp()->hasPendingMaxSize = false;
@@ -293,7 +298,7 @@ const LSize &LToplevelRole::maxSize() const
 
 bool LToplevelRole::resizing() const
 {
-    return imp()->stateFlags & LToplevelRole::Resizing;
+    return imp()->currentConf.flags & LToplevelRole::Resizing;
 }
 
 const LSize &LToplevelRole::minSize() const
@@ -303,105 +308,7 @@ const LSize &LToplevelRole::minSize() const
 
 void LToplevelRole::configure(Int32 width, Int32 height, UInt32 stateFlags)
 {
-    XdgShell::RXdgToplevel *res = (XdgShell::RXdgToplevel*)resource();
-
-    LToplevelRolePrivate::ToplevelConfiguration conf;
-
-    surface()->requestNextFrame(false);
-
-    if (width < 0)
-        width = 0;
-
-    if (height < 0)
-        height = 0;
-
-    conf.serial = LCompositor::nextSerial();
-    conf.flags = stateFlags;
-    conf.size.setW(width);
-    conf.size.setH(height);
-    conf.commited = false;
-
-    wl_array dummy;
-    wl_array_init(&dummy);
-    UInt32 index = 0;
-
-    if (conf.flags & LToplevelRole::Activated)
-    {
-        wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-        xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-        s[index] = XDG_TOPLEVEL_STATE_ACTIVATED;
-        index++;
-    }
-    if (conf.flags & LToplevelRole::Fullscreen)
-    {
-        wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-        xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-        s[index] = XDG_TOPLEVEL_STATE_FULLSCREEN;
-        index++;
-    }
-    if (conf.flags & LToplevelRole::Maximized)
-    {
-        wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-        xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-        s[index] = XDG_TOPLEVEL_STATE_MAXIMIZED;
-        index++;
-    }
-    if (conf.flags & LToplevelRole::Resizing)
-    {
-        wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-        xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-        s[index] = XDG_TOPLEVEL_STATE_RESIZING;
-        index++;
-    }
-
-#if LOUVRE_XDG_WM_BASE_VERSION >= 2
-    if (resource()->version() >= 2)
-    {
-        if (conf.flags & LToplevelRole::TiledBottom)
-        {
-            wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-            xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-            s[index] = XDG_TOPLEVEL_STATE_TILED_BOTTOM;
-            index++;
-        }
-        if (conf.flags & LToplevelRole::TiledLeft)
-        {
-            wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-            xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-            s[index] = XDG_TOPLEVEL_STATE_TILED_LEFT;
-            index++;
-        }
-        if (conf.flags & LToplevelRole::TiledRight)
-        {
-            wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-            xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-            s[index] = XDG_TOPLEVEL_STATE_TILED_RIGHT;
-            index++;
-        }
-        if (conf.flags & LToplevelRole::TiledTop)
-        {
-            wl_array_add(&dummy, sizeof(xdg_toplevel_state));
-            xdg_toplevel_state *s = (xdg_toplevel_state*)dummy.data;
-            s[index] = XDG_TOPLEVEL_STATE_TILED_TOP;
-            index++;
-        }
-    }
-#endif
-
-    imp()->sentConfs.push_back(conf);
-    res->configure(conf.size.w(), conf.size.h(), &dummy);
-    wl_array_release(&dummy);
-
-    if (res->xdgSurfaceResource())
-    {
-        if (imp()->pendingDecorationMode != 0 && imp()->xdgDecoration)
-        {
-            imp()->xdgDecoration->configure(imp()->pendingDecorationMode);
-            imp()->lastDecorationModeConfigureSerial = conf.serial;
-        }
-
-        res->xdgSurfaceResource()->configure(conf.serial);
-    }
+    imp()->configure(width, height, stateFlags);
 }
 
 void LToplevelRole::close() const
@@ -417,15 +324,14 @@ const LRect &LToplevelRole::windowGeometry() const
 
 void LToplevelRole::configure(const LSize &size, UInt32 stateFlags)
 {
-    configure(size.w(), size.h(), stateFlags);
+    imp()->configure(size.w(), size.h(), stateFlags);
 }
 
 void LToplevelRole::configure(UInt32 stateFlags)
 {
-    if (imp()->sentConfs.empty())
-        configure(windowGeometry().size(), stateFlags);
-    else
-        configure(imp()->sentConfs.back().size, stateFlags);
+    imp()->configure(imp()->pendingSendConf.size.w(),
+                     imp()->pendingSendConf.size.h(),
+                     stateFlags);
 }
 
 LSize LToplevelRole::calculateResizeSize(const LPoint &cursorPosDelta, const LSize &initialSize, ResizeEdge edge)
@@ -526,38 +432,4 @@ void LToplevelRole::LToplevelRolePrivate::setTitle(const char *newTitle)
     title = new char[strlen(text)+1];
     strcpy(title, text);
     toplevel->titleChanged();
-}
-
-void LToplevelRole::LToplevelRolePrivate::applyPendingChanges()
-{
-    if (!currentConf.commited)
-    {
-        currentConf.commited = true;
-
-        UInt32 prevState = stateFlags;
-        stateFlags = currentConf.flags;
-
-        if ((prevState & LToplevelRole::Maximized) != (stateFlags & LToplevelRole::Maximized))
-            toplevel->maximizedChanged();
-
-        if ((prevState & LToplevelRole::Fullscreen) != (stateFlags & LToplevelRole::Fullscreen))
-            toplevel->fullscreenChanged();
-
-        if (currentConf.flags & LToplevelRole::Activated)
-        {
-            if (seat()->activeToplevel() && seat()->activeToplevel() != toplevel)
-                seat()->activeToplevel()->configure(seat()->activeToplevel()->states() & ~LToplevelRole::Activated);
-
-            seat()->imp()->activeToplevel = toplevel;
-        }
-
-        if ((prevState & LToplevelRole::Activated) != (currentConf.flags & LToplevelRole::Activated))
-            toplevel->activatedChanged();
-
-        if ((prevState & LToplevelRole::Resizing) != (currentConf.flags & LToplevelRole::Resizing))
-            toplevel->resizingChanged();
-
-        if (prevState != currentConf.flags)
-            toplevel->statesChanged();
-    }
 }

@@ -69,7 +69,7 @@ void Toplevel::configureRequest()
     if (surf()->firstMap)
         configure(0, Activated);
     else
-        configure(0, states() | Activated);
+        configure(0, pendingState() | Activated);
 }
 
 void Toplevel::startResizeRequest(ResizeEdge edge)
@@ -102,7 +102,7 @@ void Toplevel::setMaximizedRequest()
     // Already in maximized mode
     if (maximized())
     {
-        configure(states());
+        configure(currentState());
         return;
     }
 
@@ -136,11 +136,11 @@ void Toplevel::unsetMaximizedRequest()
 {
     if (!maximized())
     {
-        configure(states());
+        configure(pendingState());
         return;
     }
 
-    configure(prevRect.size(), states() & ~Maximized);
+    configure(prevRect.size(), pendingState() & ~Maximized);
 }
 
 void Toplevel::maximizedChanged()
@@ -163,14 +163,14 @@ void Toplevel::setFullscreenRequest(LOutput *output)
 
     if (animScene)
     {
-        configure(states());
+        configure(pendingState());
         return;
     }
 
     // Already in fullscreen mode
     if (fullscreen() || !surf || surf->firstMap)
     {
-        configure(states());
+        configure(pendingState());
         return;
     }
 
@@ -186,7 +186,7 @@ void Toplevel::setFullscreenRequest(LOutput *output)
 
     if (dstOutput->animatedFullscreenToplevel)
     {
-        configure(states());
+        configure(pendingState());
         return;
     }
 
@@ -194,7 +194,7 @@ void Toplevel::setFullscreenRequest(LOutput *output)
     dstRect = LRect(dstOutput->pos(), dstOutput->size());
 
     fullscreenOutput = dstOutput;
-    prevStates = states();
+    prevStates = currentState();
     configure(dstRect.size(), Activated | Fullscreen);
 
     LBox box = surf->getView()->boundingBox();
@@ -214,7 +214,7 @@ void Toplevel::unsetFullscreenRequest()
 {
     if (!fullscreen() || !fullscreenOutput || fullscreenOutput->animatedFullscreenToplevel)
     {
-        configure(states());
+        configure(pendingState());
         return;
     }
 
@@ -248,7 +248,7 @@ void Toplevel::fullscreenChanged()
     {
         if (!fullscreenOutput)
         {
-            configure(states() &~ Fullscreen);
+            configure(pendingState() &~ Fullscreen);
             return;
         }
 
@@ -439,6 +439,6 @@ void Toplevel::preferredDecorationModeChanged()
         return;
 
     setDecorationMode((DecorationMode)preferredDecorationMode());
-    configure(states());
+    configure(pendingState());
 }
 

@@ -48,7 +48,7 @@ void LToplevelRole::configureRequest()
     setDecorationMode(ClientSide);
 
     // Activates the toplevel with size (0,0) so that the client can decide the size
-    configure(LSize(0,0), states() | Activated);
+    configure(LSize(0,0), pendingState() | Activated);
 }
 //! [configureRequest]
 
@@ -99,7 +99,7 @@ void LToplevelRole::setMaximizedRequest()
 //! [unsetMaximizedRequest]
 void LToplevelRole::unsetMaximizedRequest()
 {
-    configure(states() &~ Maximized);
+    configure(pendingState() &~ Maximized);
 }
 //! [unsetMaximizedRequest]
 
@@ -134,7 +134,7 @@ void LToplevelRole::setFullscreenRequest(LOutput *destOutput)
 //! [unsetFullscreenRequest]
 void LToplevelRole::unsetFullscreenRequest()
 {
-    configure(states() &~ Fullscreen);
+    configure(pendingState() &~ Fullscreen);
 }
 //! [unsetFullscreenRequest]
 

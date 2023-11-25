@@ -135,7 +135,7 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
         seat()->pointer()->movingToplevel()->surface()->repaintOutputs();
 
         if (seat()->pointer()->movingToplevel()->maximized())
-            seat()->pointer()->movingToplevel()->configure(seat()->pointer()->movingToplevel()->states() &~ LToplevelRole::Maximized);
+            seat()->pointer()->movingToplevel()->configure(seat()->pointer()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
 
         return imp()->pointerMoveEventFirstView;
     }
@@ -249,7 +249,7 @@ void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonS
             seat()->keyboard()->setFocus(seat()->pointer()->focus());
 
         if (seat()->pointer()->focus()->toplevel() && !seat()->pointer()->focus()->toplevel()->activated())
-            seat()->pointer()->focus()->toplevel()->configure(seat()->pointer()->focus()->toplevel()->states() | LToplevelRole::Activated);
+            seat()->pointer()->focus()->toplevel()->configure(seat()->pointer()->focus()->toplevel()->pendingState() | LToplevelRole::Activated);
 
         // Raise surface
         if (seat()->pointer()->focus() == compositor()->surfaces().back())

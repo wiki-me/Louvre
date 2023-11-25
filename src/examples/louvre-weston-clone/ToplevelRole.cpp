@@ -10,7 +10,7 @@ ToplevelRole::ToplevelRole(Params *params) : LToplevelRole(params) {}
 void ToplevelRole::configureRequest()
 {
     setDecorationMode(ClientSide);
-    configure(0, Activated | states());
+    configure(0, Activated | pendingState());
 }
 
 void ToplevelRole::setMaximizedRequest()
@@ -24,7 +24,7 @@ void ToplevelRole::setMaximizedRequest()
 
 void ToplevelRole::setFullscreenRequest(LOutput *output)
 {
-    statesBeforeFullscreen = states();
+    statesBeforeFullscreen = currentState();
     rectBeforeFullscreen = LRect(surface()->pos(), windowGeometry().size());
 
     if (!output)

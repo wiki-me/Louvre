@@ -119,6 +119,8 @@ LPRIVATE_CLASS_NO_COPY(LCompositor)
                 greatestOutputScale = o->scale();
         }
     }
+
+    void sendPendingToplevelsConfiguration();
 };
 
 #endif // LCOMPOSITORPRIVATE_H

@@ -46,7 +46,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         movingToplevel()->surface()->repaintOutputs();
 
         if (movingToplevel()->maximized())
-            movingToplevel()->configure(movingToplevel()->states() &~ LToplevelRole::Maximized);
+            movingToplevel()->configure(movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
 
         return;
     }
@@ -126,7 +126,7 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
             seat()->keyboard()->setFocus(focus());
 
         if (focus()->toplevel() && !focus()->toplevel()->activated())
-            focus()->toplevel()->configure(focus()->toplevel()->states() | LToplevelRole::Activated);
+            focus()->toplevel()->configure(focus()->toplevel()->pendingState() | LToplevelRole::Activated);
 
         if (!focus()->popup())
             dismissPopups();

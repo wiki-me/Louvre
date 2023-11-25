@@ -128,7 +128,7 @@ public:
     /**
      * @brief Configures the Toplevel.
      *
-     * Requests to change the states of the toplevel while keeping its current size.\n
+     * Requests to change the states of the toplevel while keeping its pending size.\n
      *
      * @param stateFlags Union of toplevel states defined in #States.
      */
@@ -260,7 +260,8 @@ public:
      *
      * @return The states of the toplevel window as a #States bitfield.
      */
-    States states() const;
+    States currentState() const;
+    States pendingState() const;
 
     /**
      * @brief Request the client to change its decoration mode.
