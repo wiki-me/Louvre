@@ -739,31 +739,15 @@ public:
      * @brief Handle the pointer axis event within the view.
      *
      * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
-     *
      */
     virtual void pointerAxisEvent(const LPointerAxisEvent &event);
-
-    /**
-     * @brief Handle the key modifiers event within the view.
-     *
-     * Keyboard events are allways called, even if inputEnabled() is set to `false`.
-     *
-     * @param depressed The state of the depressed key modifiers.
-     * @param latched The state of the latched key modifiers.
-     * @param locked The state of the locked key modifiers.
-     * @param group The key group state.
-     */
-    virtual void keyModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group);
 
     /**
      * @brief Handle the key event within the view.
      *
      * Keyboard events are allways called, even if inputEnabled() is set to `false`.
-     *
-     * @param keyCode The code of the key that triggered the event.
-     * @param keyState The state of the key (e.g., pressed, released, etc.).
      */
-    virtual void keyEvent(UInt32 keyCode, UInt32 keyState);
+    virtual void keyEvent(const LKeyboardKeyEvent &event);
 
 LPRIVATE_IMP_UNIQUE(LView)
 };

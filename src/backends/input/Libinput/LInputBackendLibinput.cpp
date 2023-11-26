@@ -3,9 +3,13 @@
 #include <private/LKeyboardPrivate.h>
 #include <LInputBackend.h>
 #include <LInputDevice.h>
+
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
 #include <LPointerAxisEvent.h>
+
+#include <LKeyboardKeyEvent.h>
+
 #include <LLog.h>
 #include <unordered_map>
 #include <cstring>
@@ -29,11 +33,11 @@ struct BACKEND_DATA
     std::list<DEVICE_FD_ID> devices;
     std::list<LInputDevice*> inputDevices;
 
-
     // Recycled events
     LPointerMoveEvent pointerMoveEvent;
     LPointerButtonEvent pointerButtonEvent;
     LPointerAxisEvent pointerAxisEvent;
+    LKeyboardKeyEvent keyboardKeyEvent;
 };
 
 // Libseat devices
@@ -44,24 +48,8 @@ static wl_event_source *eventSource = nullptr;
 static libinput_device *dev;
 static libinput_event *ev;
 static libinput_event_type eventType;
-
-// Keyboard related
 static libinput_event_keyboard *keyEvent;
-static libinput_key_state keyState;
-static Int32 keyCode;
-
 static libinput_event_pointer *pointerEvent;
-static Float32 x = 0.f, y = 0.f;
-
-// For any axis event
-static Float32 axisX = 0.f, axisY = 0.f;
-
-// For discrete scroll events
-static Float32 discreteX = 0.f, discreteY = 0.f;
-
-// For 120 scroll events
-static Float32 d120X = 0.f, d120Y = 0.f;
-
 static LInputDevice *inputDevice;
 
 static Int32 openRestricted(const char *path, int flags, void *data)
@@ -235,10 +223,14 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerButtonEvent.notify();
             break;
         case LIBINPUT_EVENT_KEYBOARD_KEY:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             keyEvent = libinput_event_get_keyboard_event(ev);
-            keyState = libinput_event_keyboard_get_key_state(keyEvent);
-            keyCode = libinput_event_keyboard_get_key(keyEvent);
-            seat->keyboard()->imp()->backendKeyEvent(keyCode, (LKeyboard::KeyState)keyState);
+            data->keyboardKeyEvent.setDevice(inputDevice);
+            data->keyboardKeyEvent.setKeyCode(libinput_event_keyboard_get_key(keyEvent));
+            data->keyboardKeyEvent.setState((LKeyboard::KeyState)libinput_event_keyboard_get_key_state(keyEvent));
+            data->keyboardKeyEvent.setTime(libinput_event_keyboard_get_time(keyEvent));
+            data->keyboardKeyEvent.notify();
             break;
         case LIBINPUT_EVENT_DEVICE_ADDED:
             dev = libinput_event_get_device(ev);

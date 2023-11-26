@@ -319,36 +319,21 @@ void LScene::enableHandleWaylandPointerEvents(bool enabled)
     imp()->handleWaylandPointerEvents = enabled;
 }
 
-void LScene::handleKeyModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
-{
-    // Prevent recursive calls
-    if (imp()->handlingKeyModifiersEvent)
-        return;
-
-    imp()->listChanged = false;
-    imp()->handlingKeyModifiersEvent = true;
-    LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::KeyModifiersDone);
-    imp()->handleKeyModifiersEvent(mainView(), depressed, latched, locked, group);
-    imp()->handlingKeyModifiersEvent = false;
-
-    if (handleWaylandKeyboardEventsEnabled())
-        seat()->keyboard()->sendModifiersEvent(depressed, latched, locked, group);
-}
-
-void LScene::handleKeyEvent(UInt32 keyCode, LKeyboard::KeyState keyState)
+void LScene::handleKeyEvent(const LKeyboardKeyEvent &event)
 {
     // Prevent recursive calls
     if (imp()->handlingKeyEvent)
         return;
 
+    imp()->currentKeyboardKeyEvent = event;
     imp()->listChanged = false;
     imp()->handlingKeyEvent = true;
     LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::KeyDone);
-    imp()->handleKeyEvent(mainView(), keyCode, keyState);
+    imp()->handleKeyEvent(mainView());
     imp()->handlingKeyEvent = false;
 
     if (handleWaylandKeyboardEventsEnabled())
-        seat()->keyboard()->sendKeyEvent(keyCode, keyState);
+        seat()->keyboard()->sendKeyEvent(imp()->currentKeyboardKeyEvent);
 
     if (!auxKeyboardImplementationEnabled())
         return;
@@ -357,28 +342,28 @@ void LScene::handleKeyEvent(UInt32 keyCode, LKeyboard::KeyState keyState)
     bool L_SHIFT = seat()->keyboard()->isKeyCodePressed(KEY_LEFTSHIFT);
     bool mods = seat()->keyboard()->isKeyCodePressed(KEY_LEFTALT) && L_CTRL;
 
-    if (keyState == LKeyboard::Released)
+    if (imp()->currentKeyboardKeyEvent.state() == LKeyboard::Released)
     {
         // Terminates client connection
-        if (L_CTRL && seat()->keyboard()->keySymbol(keyCode) == XKB_KEY_q)
+        if (L_CTRL && seat()->keyboard()->keySymbol(imp()->currentKeyboardKeyEvent.keyCode()) == XKB_KEY_q)
         {
             if (seat()->keyboard()->focus())
                 seat()->keyboard()->focus()->client()->destroy();
         }
 
         // Minimizes currently focused surface
-        else if (L_CTRL && seat()->keyboard()->keySymbol(keyCode) == XKB_KEY_m)
+        else if (L_CTRL && seat()->keyboard()->keySymbol(imp()->currentKeyboardKeyEvent.keyCode()) == XKB_KEY_m)
         {
             if (seat()->keyboard()->focus() && seat()->keyboard()->focus()->toplevel() && !seat()->keyboard()->focus()->toplevel()->fullscreen())
                 seat()->keyboard()->focus()->toplevel()->setMinimizedRequest();
         }
 
         // Terminates the compositor
-        else if (keyCode == KEY_ESC && L_CTRL && L_SHIFT)
+        else if (imp()->currentKeyboardKeyEvent.keyCode() == KEY_ESC && L_CTRL && L_SHIFT)
             compositor()->finish();
 
         // Screenshot
-        else if (L_CTRL && L_SHIFT && keyCode == KEY_3)
+        else if (L_CTRL && L_SHIFT && imp()->currentKeyboardKeyEvent.keyCode() == KEY_3)
         {
             if (cursor() && cursor()->output()->bufferTexture(0))
             {
@@ -415,11 +400,9 @@ void LScene::handleKeyEvent(UInt32 keyCode, LKeyboard::KeyState keyState)
     else
     {
         // Launches weston-terminal
-        if (keyCode == KEY_F1 && !mods)
-        {
+        if (imp()->currentKeyboardKeyEvent.keyCode() == KEY_F1 && !mods)
             if (fork() == 0)
                 exit(system("weston-terminal"));
-        }
 
         // CTRL sets Copy as the preferred action in drag & drop sesión
         if (L_CTRL)

@@ -21,22 +21,21 @@ LPRIVATE_CLASS(LView)
         PointerMoveDone         = 1 << 0,
         PointerButtonDone       = 1 << 2,
         PointerAxisDone         = 1 << 3,
-        KeyModifiersDone        = 1 << 4,
-        KeyDone                 = 1 << 5,
+        KeyDone                 = 1 << 4,
 
-        RepaintCalled           = 1 << 6,
-        ColorFactor             = 1 << 7,
-        Visible                 = 1 << 8,
-        Input                   = 1 << 9,
-        Scaling                 = 1 << 10,
-        ParentScaling           = 1 << 11,
-        ParentOffset            = 1 << 12,
-        Clipping                = 1 << 13,
-        ParentClipping          = 1 << 14,
-        ParentOpacity           = 1 << 15,
-        ForceRequestNextFrame   = 1 << 16,
-        PointerIsOver           = 1 << 17,
-        BlockPointer            = 1 << 18
+        RepaintCalled           = 1 << 5,
+        ColorFactor             = 1 << 6,
+        Visible                 = 1 << 7,
+        Input                   = 1 << 8,
+        Scaling                 = 1 << 9,
+        ParentScaling           = 1 << 10,
+        ParentOffset            = 1 << 11,
+        Clipping                = 1 << 12,
+        ParentClipping          = 1 << 13,
+        ParentOpacity           = 1 << 14,
+        ForceRequestNextFrame   = 1 << 15,
+        PointerIsOver           = 1 << 16,
+        BlockPointer            = 1 << 17
     };
 
     // This is used for detecting changes on a view since the last time it was drawn on a specific output

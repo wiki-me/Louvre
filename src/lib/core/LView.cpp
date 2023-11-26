@@ -454,17 +454,4 @@ void LView::pointerMoveEvent(const LPointerMoveEvent &) {}
 void LView::pointerLeaveEvent(const LPointerMoveEvent &) {}
 void LView::pointerButtonEvent(const LPointerButtonEvent &) {}
 void LView::pointerAxisEvent(const LPointerAxisEvent &) {}
-
-void LView::keyModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
-{
-    L_UNUSED(depressed);
-    L_UNUSED(latched);
-    L_UNUSED(locked);
-    L_UNUSED(group);
-}
-
-void LView::keyEvent(UInt32 keyCode, UInt32 keyState)
-{
-    L_UNUSED(keyCode);
-    L_UNUSED(keyState);
-}
+void LView::keyEvent(const LKeyboardKeyEvent &) {}

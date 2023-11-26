@@ -5,6 +5,7 @@
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
 #include <LPointerAxisEvent.h>
+#include <LKeyboardKeyEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
 #include <mutex>
@@ -25,7 +26,6 @@ LPRIVATE_CLASS(LScene)
     bool handlingPointerMove = false;
     bool handlingPointerButton = false;
     bool handlingPointerAxisEvent = false;
-    bool handlingKeyModifiersEvent = false;
     bool handlingKeyEvent = false;
 
     LView *pointerMoveEventFirstView;
@@ -33,6 +33,7 @@ LPRIVATE_CLASS(LScene)
     LPointerMoveEvent currentPointerMoveEvent;
     LPointerButtonEvent currentPointerButtonEvent;
     LPointerAxisEvent currentPointerAxisEvent;
+    LKeyboardKeyEvent currentKeyboardKeyEvent;
 
     bool pointClippedByParent(LView *parent, const LPoint &point);
     bool pointClippedByParentScene(LView *view, const LPoint &point);
@@ -96,8 +97,7 @@ LPRIVATE_CLASS(LScene)
     bool handlePointerMove(LView *view);
     bool handlePointerButton(LView *view);
     bool handlePointerAxisEvent(LView *view);
-    bool handleKeyModifiersEvent(LView *view, UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group);
-    bool handleKeyEvent(LView *view, UInt32 keyCode, UInt32 keyState);
+    bool handleKeyEvent(LView *view);
 };
 
 #endif // LSCENEPRIVATE_H

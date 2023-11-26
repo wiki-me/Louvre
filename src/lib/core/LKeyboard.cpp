@@ -4,6 +4,7 @@
 #include <private/LClientPrivate.h>
 #include <private/LDataDevicePrivate.h>
 #include <private/LKeyboardPrivate.h>
+#include <LKeyboardKeyEvent.h>
 #include <LObject.h>
 #include <LCompositor.h>
 #include <LDNDManager.h>
@@ -242,7 +243,7 @@ LSurface *LKeyboard::focus() const
 
 const LKeyboard::KeyboardModifiersState &LKeyboard::modifiersState() const
 {
-    return imp()->modifiersState;
+    return imp()->currentModifiersState;
 }
 
 void LKeyboard::setFocus(LSurface *surface)
@@ -332,19 +333,30 @@ void LKeyboard::setFocus(LSurface *surface)
     focusChanged();
 }
 
-void LKeyboard::sendKeyEvent(UInt32 keyCode, KeyState keyState)
+void LKeyboard::sendKeyEvent(const LKeyboardKeyEvent &event)
 {
     // If no surface has focus
     if (!focus())
         return;
 
     UInt32 serial = LCompositor::nextSerial();
-    UInt32 ms = LTime::ms();
 
     if (grabbingSurface())
     {
         grabbingKeyboardResource()->imp()->serials.key = serial;
-        grabbingKeyboardResource()->key(serial, ms, keyCode, keyState);
+        grabbingKeyboardResource()->key(serial, event.time(), event.keyCode(), event.state());
+
+        if (imp()->modifiersChanged)
+        {
+            grabbingKeyboardResource()->imp()->serials.modifiers = serial;
+            grabbingKeyboardResource()->modifiers(
+                serial,
+                modifiersState().depressed,
+                modifiersState().latched,
+                modifiersState().locked,
+                modifiersState().group);
+        }
+
         return;
     }
 
@@ -353,38 +365,20 @@ void LKeyboard::sendKeyEvent(UInt32 keyCode, KeyState keyState)
         if (s->keyboardResource())
         {
             s->keyboardResource()->imp()->serials.key = serial;
-            s->keyboardResource()->key(serial, ms, keyCode, keyState);
+            s->keyboardResource()->key(serial, event.time(), event.keyCode(), event.state());
+
+            if (imp()->modifiersChanged)
+            {
+                s->keyboardResource()->imp()->serials.modifiers = serial;
+                s->keyboardResource()->modifiers(
+                    serial,
+                    modifiersState().depressed,
+                    modifiersState().latched,
+                    modifiersState().locked,
+                    modifiersState().group);
+            }
         }
     }
-}
-
-void LKeyboard::sendModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
-{
-    if (!focus())
-        return;
-
-    UInt32 serial = LCompositor::nextSerial();
-
-    if (grabbingSurface())
-    {
-        grabbingKeyboardResource()->imp()->serials.modifiers = serial;
-        grabbingKeyboardResource()->modifiers(serial, depressed, latched, locked, group);
-        return;
-    }
-
-    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-    {
-        if (s->keyboardResource())
-        {
-            s->keyboardResource()->imp()->serials.modifiers = serial;
-            s->keyboardResource()->modifiers(serial, depressed, latched, locked, group);
-        }
-    }
-}
-
-void LKeyboard::sendModifiersEvent()
-{
-    sendModifiersEvent(imp()->modifiersState.depressed, imp()->modifiersState.latched, imp()->modifiersState.locked, imp()->modifiersState.group);
 }
 
 xkb_keysym_t LKeyboard::keySymbol(UInt32 keyCode)

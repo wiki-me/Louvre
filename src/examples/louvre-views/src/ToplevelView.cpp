@@ -1,3 +1,4 @@
+#include <LKeyboardKeyEvent.h>
 #include <LTextureView.h>
 #include <LSceneView.h>
 #include <LAnimation.h>
@@ -748,10 +749,8 @@ const LPoint &ToplevelView::nativePos() const
     return toplevel->rolePos();
 }
 
-void ToplevelView::keyEvent(UInt32 keyCode, UInt32 keyState)
+void ToplevelView::keyEvent(const LKeyboardKeyEvent &event)
 {
-    L_UNUSED(keyState);
-
-    if (keyCode == KEY_LEFTALT)
+    if (event.keyCode() == KEY_LEFTALT)
         maximizeButton->update();
 }

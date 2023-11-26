@@ -219,41 +219,13 @@ bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view)
     return false;
 }
 
-bool LScene::LScenePrivate::handleKeyModifiersEvent(LView *view, UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
+bool LScene::LScenePrivate::handleKeyEvent(LView *view)
 {
     if (listChanged)
         goto listChangedErr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handleKeyModifiersEvent(*it, depressed, latched, locked, group))
-            return false;
-
-    if (view->imp()->state & LVS::KeyModifiersDone)
-        return true;
-
-    view->imp()->state |= LVS::KeyModifiersDone;
-
-    view->keyModifiersEvent(depressed, latched, locked, group);
-
-    if (listChanged)
-        goto listChangedErr;
-
-    return true;
-
-    // If a list was modified, start again, serials are used to prevent resend events
-    listChangedErr:
-    listChanged = false;
-    handleKeyModifiersEvent(&this->view, depressed, latched, locked, group);
-    return false;
-}
-
-bool LScene::LScenePrivate::handleKeyEvent(LView *view, UInt32 keyCode, UInt32 keyState)
-{
-    if (listChanged)
-        goto listChangedErr;
-
-    for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handleKeyEvent(*it, keyCode, keyState))
+        if (!handleKeyEvent(*it))
             return false;
 
     if (view->imp()->state & LVS::KeyDone)
@@ -261,7 +233,7 @@ bool LScene::LScenePrivate::handleKeyEvent(LView *view, UInt32 keyCode, UInt32 k
 
     view->imp()->state |= LVS::KeyDone;
 
-    view->keyEvent(keyCode, keyState);
+    view->keyEvent(currentKeyboardKeyEvent);
 
     if (listChanged)
         goto listChangedErr;
@@ -271,6 +243,6 @@ bool LScene::LScenePrivate::handleKeyEvent(LView *view, UInt32 keyCode, UInt32 k
     // If a list was modified, start again, serials are used to prevent resend events
     listChangedErr:
     listChanged = false;
-    handleKeyEvent(&this->view, keyCode, keyState);
+    handleKeyEvent(&this->view);
     return false;
 }

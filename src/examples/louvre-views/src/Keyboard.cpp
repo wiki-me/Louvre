@@ -1,3 +1,4 @@
+#include <LKeyboardKeyEvent.h>
 #include <LSurface.h>
 #include <LCursor.h>
 #include <LCompositor.h>
@@ -16,31 +17,26 @@
 
 Keyboard::Keyboard(Params *params) : LKeyboard(params) {}
 
-void Keyboard::keyModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
-{
-    G::scene()->handleKeyModifiersEvent(depressed, latched, locked, group);
-}
-
 static Float32 ease = 2.3f;
-void Keyboard::keyEvent(UInt32 keyCode, KeyState keyState)
+void Keyboard::keyEvent(const LKeyboardKeyEvent &event)
 {
     Output *output = (Output*)cursor()->output();
 
-    if (keyState == Pressed)
+    if (event.state() == Pressed)
     {
         if (isKeyCodePressed(KEY_LEFTCTRL))
         {
             // Switch workspace
             if (output && output->currentWorkspace && isKeyCodePressed(KEY_LEFTALT))
             {
-                if (keyCode == KEY_RIGHT && std::next(output->currentWorkspace->outputLink) != output->workspaces.end())
+                if (event.keyCode() == KEY_RIGHT && std::next(output->currentWorkspace->outputLink) != output->workspaces.end())
                 {
                     if (!output->animatedFullscreenToplevel)
                         output->setWorkspace(*std::next(output->currentWorkspace->outputLink), 500.f, ease);
                     //ease += 0.1f;
                     return;
                 }
-                else if (keyCode == KEY_LEFT && output->currentWorkspace != output->workspaces.front())
+                else if (event.keyCode() == KEY_LEFT && output->currentWorkspace != output->workspaces.front())
                 {
                     if (!output->animatedFullscreenToplevel)
                         output->setWorkspace(*std::prev(output->currentWorkspace->outputLink), 500.f, ease);
@@ -52,7 +48,7 @@ void Keyboard::keyEvent(UInt32 keyCode, KeyState keyState)
             if (isKeyCodePressed(KEY_LEFTSHIFT))
             {
                 // Change output mode
-                if (keyCode == KEY_M)
+                if (event.keyCode() == KEY_M)
                 {
                     const LOutputMode *mode = cursor()->output()->currentMode();
 
@@ -98,7 +94,7 @@ void Keyboard::keyEvent(UInt32 keyCode, KeyState keyState)
         }
     }
 
-    G::scene()->handleKeyEvent(keyCode, keyState);
+    G::scene()->handleKeyEvent(event);
 }
 
 void Keyboard::focusChanged()
