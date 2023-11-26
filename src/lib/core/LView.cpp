@@ -452,21 +452,8 @@ LBox LView::boundingBox() const
 void LView::pointerEnterEvent(const LPointerMoveEvent &) {}
 void LView::pointerMoveEvent(const LPointerMoveEvent &) {}
 void LView::pointerLeaveEvent(const LPointerMoveEvent &) {}
-
-void LView::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
-{
-    L_UNUSED(button);
-    L_UNUSED(state);
-}
-
-void LView::pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, UInt32 source)
-{
-    L_UNUSED(axisX);
-    L_UNUSED(axisY);
-    L_UNUSED(discreteX);
-    L_UNUSED(discreteY);
-    L_UNUSED(source);
-}
+void LView::pointerButtonEvent(const LPointerButtonEvent &) {}
+void LView::pointerAxisEvent(const LPointerAxisEvent &) {}
 
 void LView::keyModifiersEvent(UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group)
 {

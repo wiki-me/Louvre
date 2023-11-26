@@ -1,3 +1,4 @@
+#include <LPointerButtonEvent.h>
 #include <LCursor.h>
 #include <LXCursor.h>
 #include <LScene.h>
@@ -44,12 +45,12 @@ void DockItem::pointerLeaveEvent(const LPointerMoveEvent &)
     setOpacity(1.f);
 }
 
-void DockItem::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
+void DockItem::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (button != LPointer::Button::Left)
+    if (event.button() != LPointer::Button::Left)
         return;
 
-    if (state == LPointer::Pressed)
+    if (event.state() == LPointer::Pressed)
         setOpacity(0.7f);
     else
     {

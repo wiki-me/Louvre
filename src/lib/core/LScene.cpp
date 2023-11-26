@@ -171,22 +171,24 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
     return imp()->pointerMoveEventFirstView;
 }
 
-void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
+void LScene::handlePointerButtonEvent(const LPointerButtonEvent &event)
 {
     // Prevent recursive calls
     if (imp()->handlingPointerButton)
         return;
 
+    imp()->currentPointerButtonEvent = event;
     imp()->listChanged = false;
     imp()->handlingPointerButton = true;
     LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::PointerButtonDone);
-    imp()->handlePointerButton(mainView(), button, state);
+    imp()->handlePointerButton(mainView());
     imp()->handlingPointerButton = false;
 
     if (!handleWaylandPointerEventsEnabled())
         return;
 
-    if (button == LPointer::Left && state == LPointer::Released)
+    if (imp()->currentPointerButtonEvent.button() == LPointer::Left &&
+        imp()->currentPointerButtonEvent.state() == LPointer::Released)
         seat()->dndManager()->drop();
 
     if (!seat()->pointer()->focus())
@@ -212,7 +214,7 @@ void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonS
                 seat()->keyboard()->setFocus(surface);
 
             seat()->pointer()->setFocus(surface, imp()->viewLocalPos(view, cursor()->pos()));
-            seat()->pointer()->sendButtonEvent(button, state);
+            seat()->pointer()->sendButtonEvent(imp()->currentPointerButtonEvent);
         }
         // If no surface under the cursor
         else
@@ -224,13 +226,13 @@ void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonS
         return;
     }
 
-    seat()->pointer()->sendButtonEvent(button, state);
+    seat()->pointer()->sendButtonEvent(imp()->currentPointerButtonEvent);
 
-    if (button != LPointer::Button::Left)
+    if (imp()->currentPointerButtonEvent.button() != LPointer::Button::Left)
         return;
 
     // Left button pressed
-    if (state == LPointer::ButtonState::Pressed)
+    if (imp()->currentPointerButtonEvent.state() == LPointer::ButtonState::Pressed)
     {
         /* We save the pointer focus surface in order to continue sending events to it even when the cursor
          * is outside of it (while the left button is being held down)*/
@@ -288,22 +290,23 @@ void LScene::handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonS
     }
 }
 
-void LScene::handlePointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, LPointer::AxisSource source)
+void LScene::handlePointerAxisEvent(const LPointerAxisEvent &event)
 {
     // Prevent recursive calls
     if (imp()->handlingPointerAxisEvent)
         return;
 
+    imp()->currentPointerAxisEvent = event;
     imp()->listChanged = false;
     imp()->handlingPointerAxisEvent = true;
     LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::PointerAxisDone);
-    imp()->handlePointerAxisEvent(mainView(), axisX, axisY, discreteX, discreteY, source);
+    imp()->handlePointerAxisEvent(mainView());
     imp()->handlingPointerAxisEvent = false;
 
     if (!handleWaylandPointerEventsEnabled())
         return;
 
-    seat()->pointer()->sendAxisEvent(axisX, axisY, discreteX, discreteY, source);
+    seat()->pointer()->sendAxisEvent(imp()->currentPointerAxisEvent);
 }
 
 bool LScene::handleWaylandPointerEventsEnabled() const

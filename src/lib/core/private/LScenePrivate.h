@@ -3,6 +3,8 @@
 
 #include <LRegion.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerButtonEvent.h>
+#include <LPointerAxisEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
 #include <mutex>
@@ -29,6 +31,8 @@ LPRIVATE_CLASS(LScene)
     LView *pointerMoveEventFirstView;
     LPointF pointerMoveEventOutLocalPos;
     LPointerMoveEvent currentPointerMoveEvent;
+    LPointerButtonEvent currentPointerButtonEvent;
+    LPointerAxisEvent currentPointerAxisEvent;
 
     bool pointClippedByParent(LView *parent, const LPoint &point);
     bool pointClippedByParentScene(LView *view, const LPoint &point);
@@ -90,8 +94,8 @@ LPRIVATE_CLASS(LScene)
     }
 
     bool handlePointerMove(LView *view);
-    bool handlePointerButton(LView *view, LPointer::Button button, LPointer::ButtonState state);
-    bool handlePointerAxisEvent(LView *view, Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, UInt32 source);
+    bool handlePointerButton(LView *view);
+    bool handlePointerAxisEvent(LView *view);
     bool handleKeyModifiersEvent(LView *view, UInt32 depressed, UInt32 latched, UInt32 locked, UInt32 group);
     bool handleKeyEvent(LView *view, UInt32 keyCode, UInt32 keyState);
 };

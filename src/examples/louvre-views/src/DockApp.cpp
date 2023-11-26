@@ -1,3 +1,4 @@
+#include <LPointerButtonEvent.h>
 #include "DockApp.h"
 #include "App.h"
 #include "Dock.h"
@@ -42,8 +43,8 @@ void DockApp::pointerEnterEvent(const LPointerMoveEvent &)
     dock->update();
 }
 
-void DockApp::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
+void DockApp::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (button == LPointer::Left && state == LPointer::Released)
+    if (event.button() == LPointer::Left && event.state() == LPointer::Released)
         app->clicked();
 }

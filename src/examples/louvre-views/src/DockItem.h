@@ -16,7 +16,7 @@ public:
 
     void pointerEnterEvent(const LPointerMoveEvent &localPos) override;
     void pointerLeaveEvent(const LPointerMoveEvent &) override;
-    void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state) override;
+    void pointerButtonEvent(const LPointerButtonEvent &event) override;
 
     Dock *dock = nullptr;
     class Surface *surface = nullptr;

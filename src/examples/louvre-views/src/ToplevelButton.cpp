@@ -1,13 +1,14 @@
+#include <LPointerButtonEvent.h>
+#include <LKeyboard.h>
+#include <LSeat.h>
+#include <LCursor.h>
 #include "Toplevel.h"
 #include "ToplevelButton.h"
 #include "ToplevelView.h"
 #include "Global.h"
 #include "InputRect.h"
 #include "Pointer.h"
-#include "src/Compositor.h"
-#include <LKeyboard.h>
-#include <LSeat.h>
-#include <LCursor.h>
+#include "Compositor.h"
 
 ToplevelButton::ToplevelButton(LView *parent, ToplevelView *toplevelView, ButtonType type) : LTextureView(nullptr, parent)
 {
@@ -103,12 +104,12 @@ void ToplevelButton::update()
     }
 }
 
-void ToplevelButton::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
+void ToplevelButton::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (button != LPointer::Button::Left)
+    if (event.button() != LPointer::Button::Left)
         return;
 
-    if (pressed && state == LPointer::Released)
+    if (pressed && event.state() == LPointer::Released)
     {
         if (buttonType == Close)
         {
@@ -144,7 +145,7 @@ void ToplevelButton::pointerButtonEvent(LPointer::Button button, LPointer::Butto
         }
     }
 
-    pressed = state == LPointer::Pressed;
+    pressed = event.state() == LPointer::Pressed;
 
     update();
 }

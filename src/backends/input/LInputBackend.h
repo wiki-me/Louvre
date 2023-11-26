@@ -37,16 +37,6 @@ public:
 
     // Events
     static Int32 processInput(int, unsigned int, void *userData);
-    static LInputDevice *inputEventGetDevice(const LInputEvent *event);
-
-    static UInt32 pointerButtonEventGetButton(const LPointerButtonEvent *event);
-    static UInt32 pointerButtonEventGetButtonState(const LPointerButtonEvent *event);
-
-    static Float32 pointerAxisEventGetAxisX(const LPointerAxisEvent *event);
-    static Float32 pointerAxisEventGetAxisY(const LPointerAxisEvent *event);
-    static Float32 pointerAxisEventGetDiscreteX(const LPointerAxisEvent *event);
-    static Float32 pointerAxisEventGetDiscreteY(const LPointerAxisEvent *event);
-    static UInt32 pointerAxisEventGetSource(const LPointerAxisEvent *event);
 };
 
 #endif // LINPUTBACKEND

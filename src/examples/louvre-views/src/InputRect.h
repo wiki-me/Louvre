@@ -20,7 +20,7 @@ public:
     void pointerEnterEvent(const LPointerMoveEvent &) override;
     void pointerLeaveEvent(const LPointerMoveEvent &) override;
     void pointerMoveEvent(const LPointerMoveEvent &) override;
-    void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state) override;
+    void pointerButtonEvent(const LPointerButtonEvent &event) override;
 };
 
 #endif // INPUTRECT_H

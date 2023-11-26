@@ -152,7 +152,7 @@ public:
      *
      * This method should be integrated into LPointer::pointerMoveEvent() to effectively manage pointer movement events.
      *
-     * @param event Pointer move event to handle.
+     * @param event The pointer move event to handle.
      * @param outLocalPos Stores the local position of the first view found under the cursor. Pass `nullptr` if not needed.
      * @return The first LView found under the cursor.
      */
@@ -163,23 +163,18 @@ public:
      *
      * This method should be integrated into LPointer::pointerButtonEvent() to handle pointer button events.
      *
-     * @param button The button involved in the event.
-     * @param state The state of the button (pressed or released).
+     * @param event The pointer button event to handle.
      */
-    void handlePointerButtonEvent(LPointer::Button button, LPointer::ButtonState state);
+    void handlePointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
      * @brief Handle pointer axis event.
      *
      * This method should be integrated into LPointer::pointerAxisEvent() to manage pointer axis events.
      *
-     * @param axisX The x-axis value of the event.
-     * @param axisY The y-axis value of the event.
-     * @param discreteX The discrete value on the x-axis.
-     * @param discreteY The discrete value on the y-axis.
-     * @param source The source of the event.
+     * @param event The pointer axis event to handle.
      */
-    void handlePointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, LPointer::AxisSource source);
+    void handlePointerAxisEvent(const LPointerAxisEvent &event);
 
     /**
      * @brief Check if handling of Wayland pointer events is enabled.

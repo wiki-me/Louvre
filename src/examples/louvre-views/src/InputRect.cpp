@@ -1,3 +1,4 @@
+#include <LPointerButtonEvent.h>
 #include <LCursor.h>
 #include "InputRect.h"
 
@@ -27,8 +28,8 @@ void InputRect::pointerMoveEvent(const LPointerMoveEvent &)
         onPointerMove(this, userData, cursor()->pos() - pos());
 }
 
-void InputRect::pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state)
+void InputRect::pointerButtonEvent(const LPointerButtonEvent &event)
 {
     if (onPointerButton)
-        onPointerButton(this, userData, button, state);
+        onPointerButton(this, userData, event.button(), event.state());
 }

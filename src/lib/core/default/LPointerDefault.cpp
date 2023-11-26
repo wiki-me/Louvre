@@ -83,9 +83,9 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 //! [pointerMoveEvent]
 
 //! [pointerButtonEvent]
-void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
+void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event->state() == Released && event->button() == Left)
+    if (event.state() == Released && event.button() == Left)
         seat()->dndManager()->drop();
 
     if (!focus())
@@ -96,7 +96,7 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
         {
             seat()->keyboard()->setFocus(surface);
             setFocus(surface);
-            sendButtonEvent(event->button(), event->state());
+            sendButtonEvent(event);
 
             if (!surface->popup())
                 dismissPopups();
@@ -110,13 +110,13 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
         return;
     }
 
-    sendButtonEvent(event->button(), event->state());
+    sendButtonEvent(event);
 
-    if (event->button() != Left)
+    if (event.button() != Left)
         return;
 
     // Left button pressed
-    if (event->state() == Pressed)
+    if (event.state() == Pressed)
     {
         // We save the pointer focus surface to continue sending events to it even when the cursor
         // is outside of it (while the left button is being held down)
@@ -159,10 +159,10 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent *event)
 //! [pointerButtonEvent]
 
 //! [pointerAxisEvent]
-void LPointer::pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source)
+void LPointer::pointerAxisEvent(const LPointerAxisEvent &event)
 {
     // Invert the scroll axis for natural scrolling
-    sendAxisEvent(-axisX, -axisY, -discreteX, -discreteY, source);
+    sendAxisEvent(event);
 }
 //! [pointerAxisEvent]
 

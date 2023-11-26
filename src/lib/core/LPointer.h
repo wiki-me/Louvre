@@ -254,7 +254,7 @@ public:
      * @note This method internally transforms the LCursor position to the local coordinates of the focused surface,
      *       taking into account the surface's role position.
      *
-     * @param time Time at which the event was generated with millisecond granularity.
+     * @param time Time the event was generated with millisecond granularity and undefined base.
      */
     void sendMoveEvent(UInt32 time);
 
@@ -264,18 +264,23 @@ public:
      * This method sends the current pointer position, provided as 'localPos', to the surface with pointer focus.
      *
      * @param localPos Pointer position relative to the top-left corner of the surface in surface coordinates.
+     * @param time Time the event was generated with millisecond granularity and undefined base.
      */
     void sendMoveEvent(const LPoint &localPos, UInt32 time);
 
     /**
      * @brief Send a pointer button event to the surface with focus.
      *
-     * This method sends a pointer button event with the specified 'button' code and 'state' to the surface currently in focus.
-     *
      * @param button Button code.
      * @param state State of the button.
+     * @param time Time the event was generated with millisecond granularity and undefined base.
      */
-    void sendButtonEvent(Button button, ButtonState state);
+    void sendButtonEvent(Button button, ButtonState state, UInt32 time);
+
+    /**
+     * @brief Send a pointer button event to the surface with focus.
+     */
+    void sendButtonEvent(const LPointerButtonEvent &event);
 
     /**
      * @brief Send a scroll event to the focused surface.
@@ -288,7 +293,7 @@ public:
      * @param discreteY The discrete vertical scroll value.
      * @param source The source of the scroll event (one of the values from LPointer::AxisSource).
      */
-    void sendAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source);
+    void sendAxisEvent(const LPointerAxisEvent &event);
 
 ///@}
 
@@ -484,7 +489,7 @@ public:
      * #### Default Implementation
      * @snippet LPointerDefault.cpp pointerButtonEvent
      */
-    virtual void pointerButtonEvent(const LPointerButtonEvent *event);
+    virtual void pointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
      * @brief Pointer scroll event.
@@ -501,7 +506,7 @@ public:
      * #### Default Implementation
      * @snippet LPointerDefault.cpp pointerAxisEvent
      */
-    virtual void pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source);
+    virtual void pointerAxisEvent(const LPointerAxisEvent &event);
 
     /**
      * @brief Set cursor request.

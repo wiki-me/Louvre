@@ -15,7 +15,7 @@ public:
     ~DockApp();
 
     void pointerEnterEvent(const LPointerMoveEvent &) override;
-    void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state) override;
+    void pointerButtonEvent(const LPointerButtonEvent &event) override;
 
     std::list<DockApp*>::iterator appLink;
     App *app = nullptr;

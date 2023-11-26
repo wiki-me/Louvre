@@ -116,13 +116,13 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     }
 }
 
-void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
+void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
     Output *cursorOutput = (Output*)cursor()->output();
 
     bool pointerOverTerminalIcon = cursorOutput->terminalIconRect.containsPoint(cursor()->pos());
 
-    if (event->state() == Released && event->button() == Left)
+    if (event.state() == Released && event.button() == Left)
     {
         seat()->dndManager()->drop();
 
@@ -149,7 +149,7 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
                 seat()->keyboard()->setFocus(surface);
 
             setFocus(surface);
-            sendButtonEvent(event->button(), event->state());
+            sendButtonEvent(event);
         }
         // If no surface under the cursor
         else
@@ -162,13 +162,13 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
         return;
     }
 
-    sendButtonEvent(event->button(), event->state());
+    sendButtonEvent(event);
 
-    if (event->button() != Left)
+    if (event.button() != Left)
         return;
 
     // Left button pressed
-    if (event->state() == Pressed)
+    if (event.state() == Pressed)
     {
         if (pointerOverTerminalIcon)
         {

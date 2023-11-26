@@ -5,6 +5,7 @@
 #include <LInputDevice.h>
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
+#include <LPointerAxisEvent.h>
 #include <LLog.h>
 #include <unordered_map>
 #include <cstring>
@@ -32,6 +33,7 @@ struct BACKEND_DATA
     // Recycled events
     LPointerMoveEvent pointerMoveEvent;
     LPointerButtonEvent pointerButtonEvent;
+    LPointerAxisEvent pointerAxisEvent;
 };
 
 // Libseat devices
@@ -165,43 +167,62 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerMoveEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_FINGER:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
+            data->pointerAxisEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
-                axisX = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
+                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
-                axisY = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
+                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
 
-            seat->pointer()->pointerAxisEvent(axisX, axisY, axisX, axisY, LPointer::AxisSource::Finger);
+            data->pointerAxisEvent.setAxis120X(0.f);
+            data->pointerAxisEvent.setAxis120Y(0.f);
+            data->pointerAxisEvent.setSource(LPointer::AxisSource::Finger);
+            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerAxisEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
+            data->pointerAxisEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
-                axisX = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
+                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
-                axisY = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
+                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
 
-            seat->pointer()->pointerAxisEvent(axisX, axisY, axisX, axisY, LPointer::AxisSource::Continuous);
+            data->pointerAxisEvent.setAxis120X(0.f);
+            data->pointerAxisEvent.setAxis120Y(0.f);
+            data->pointerAxisEvent.setSource(LPointer::AxisSource::Continuous);
+            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerAxisEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_WHEEL:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
+            data->pointerAxisEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
             {
-                discreteX = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
-                d120X = libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL);
+                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
+                data->pointerAxisEvent.setAxis120X(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
             }
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
             {
-                discreteY = libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
-                d120Y = libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
+                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
+                data->pointerAxisEvent.setAxis120Y(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
             }
 
-            seat->pointer()->pointerAxisEvent(discreteX, discreteY, d120X, d120Y, LPointer::AxisSource::Wheel);
+            data->pointerAxisEvent.setSource(LPointer::AxisSource::Wheel);
+            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerAxisEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_BUTTON:
             dev = libinput_event_get_device(ev);

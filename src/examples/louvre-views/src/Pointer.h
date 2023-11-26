@@ -10,8 +10,8 @@ class Pointer : public LPointer
 public:
     Pointer(Params *params);
     void pointerMoveEvent(const LPointerMoveEvent &event) override;
-    void pointerButtonEvent(const LPointerButtonEvent *event) override;
-    void pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source) override;
+    void pointerButtonEvent(const LPointerButtonEvent &event) override;
+    void pointerAxisEvent(const LPointerAxisEvent &event) override;
 
     void setCursorRequest(LCursorRole *cursorRole) override;
 

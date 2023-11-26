@@ -62,25 +62,20 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     cursor()->setVisible(true);
 }
 
-void Pointer::pointerButtonEvent(const LPointerButtonEvent *event)
+void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event->button() == Left && event->state() == Released)
+    if (event.button() == Left && event.state() == Released)
     {
         G::enableDocks(true);
         G::compositor()->updatePointerBeforePaint = true;
     }
 
-    G::scene()->handlePointerButtonEvent(event->button(), event->state());
+    G::scene()->handlePointerButtonEvent(event);
 }
 
-void Pointer::pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source)
+void Pointer::pointerAxisEvent(const LPointerAxisEvent &event)
 {
-    Float32 speed = 0.6f;
-    G::scene()->handlePointerAxisEvent(-axisX * speed,
-                                       -axisY * speed,
-                                       -discreteX * speed,
-                                       -discreteY * speed,
-                                       source);
+    G::scene()->handlePointerAxisEvent(event);
 }
 
 void Pointer::setCursorRequest(LCursorRole *cursorRole)

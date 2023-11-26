@@ -1,9 +1,10 @@
 #ifndef LPOINTERPRIVATE_H
 #define LPOINTERPRIVATE_H
 
+#include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/GSeat.h>
-#include <protocols/Wayland/RPointer.h>
 #include <private/LDataDevicePrivate.h>
+#include <LCompositor.h>
 #include <LPointer.h>
 #include <LSeat.h>
 #include <LDNDManager.h>
@@ -41,7 +42,6 @@ LPRIVATE_CLASS(LPointer)
     LCursorRole *lastCursorRequest = nullptr;
     bool lastCursorRequestWasHide = false;
 
-
     inline void sendMoveEvent(const LPointF &localPos, UInt32 time)
     {
         Float24 x = wl_fixed_from_double(localPos.x());
@@ -55,6 +55,21 @@ LPRIVATE_CLASS(LPointer)
             if (s->pointerResource())
             {
                 s->pointerResource()->motion(time, x, y);
+                s->pointerResource()->frame();
+            }
+        }
+    }
+
+    inline void sendButtonEvent(Button button, ButtonState state, UInt32 time)
+    {
+        for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
+        {
+            if (s->pointerResource())
+            {
+                s->pointerResource()->imp()->serials.button = LCompositor::nextSerial();
+                s->pointerResource()->button(
+                    s->pointerResource()->imp()->serials.button,
+                    time, button, state);
                 s->pointerResource()->frame();
             }
         }

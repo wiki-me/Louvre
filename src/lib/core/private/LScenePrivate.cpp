@@ -161,13 +161,13 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
     return false;
 }
 
-bool LScene::LScenePrivate::handlePointerButton(LView *view, LPointer::Button button, LPointer::ButtonState state)
+bool LScene::LScenePrivate::handlePointerButton(LView *view)
 {
     if (listChanged)
         goto listChangedErr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerButton(*it, button, state))
+        if (!handlePointerButton(*it))
             return false;
 
     if (view->imp()->state & LVS::PointerButtonDone)
@@ -176,7 +176,7 @@ bool LScene::LScenePrivate::handlePointerButton(LView *view, LPointer::Button bu
     view->imp()->state |= LVS::PointerButtonDone;
 
     if (view->imp()->hasFlag(LVS::PointerIsOver))
-        view->pointerButtonEvent(button, state);
+        view->pointerButtonEvent(currentPointerButtonEvent);
 
     if (listChanged)
         goto listChangedErr;
@@ -186,17 +186,17 @@ bool LScene::LScenePrivate::handlePointerButton(LView *view, LPointer::Button bu
     // If a list was modified, start again, serials are used to prevent resend events
     listChangedErr:
     listChanged = false;
-    handlePointerButton(&this->view, button, state);
+    handlePointerButton(&this->view);
     return false;
 }
 
-bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view, Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, UInt32 source)
+bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view)
 {
     if (listChanged)
         goto listChangedErr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerAxisEvent(*it, axisX, axisY, discreteX, discreteY, source))
+        if (!handlePointerAxisEvent(*it))
             return false;
 
     if (view->imp()->state & LVS::PointerAxisDone)
@@ -205,7 +205,7 @@ bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view, Float64 axisX, F
     view->imp()->state |= LVS::PointerAxisDone;
 
     if (view->imp()->hasFlag(LVS::PointerIsOver))
-        view->pointerAxisEvent(axisX, axisY, discreteX, discreteY, source);
+        view->pointerAxisEvent(currentPointerAxisEvent);
 
     if (listChanged)
         goto listChangedErr;
@@ -215,7 +215,7 @@ bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view, Float64 axisX, F
     // If a list was modified, start again, serials are used to prevent resend events
     listChangedErr:
     listChanged = false;
-    handlePointerAxisEvent(&this->view, axisX, axisY, discreteX, discreteY, source);
+    handlePointerAxisEvent(&this->view);
     return false;
 }
 

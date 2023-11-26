@@ -25,7 +25,7 @@ public:
     ButtonType buttonType;
     bool pressed = false;
 
-    void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state) override;
+    void pointerButtonEvent(const LPointerButtonEvent &event) override;
     void pointerLeaveEvent(const LPointerMoveEvent &) override;
     void pointerMoveEvent(const LPointerMoveEvent &) override;
 };

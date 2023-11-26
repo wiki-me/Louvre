@@ -732,24 +732,16 @@ public:
      * @brief Handle the pointer button event within the view.
      *
      * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
-     *
-     * @param button The button that triggered the event (e.g., left button, right button, etc.).
-     * @param state The state of the button (e.g., pressed, released, etc.).
      */
-    virtual void pointerButtonEvent(LPointer::Button button, LPointer::ButtonState state);
+    virtual void pointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
      * @brief Handle the pointer axis event within the view.
      *
      * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
      *
-     * @param axisX The x-coordinate of the axis movement.
-     * @param axisY The y-coordinate of the axis movement.
-     * @param discreteX The discrete x-coordinate of the axis movement.
-     * @param discreteY The discrete y-coordinate of the axis movement.
-     * @param source The source of the axis event (e.g., mouse wheel, touchpad, etc.).
      */
-    virtual void pointerAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, UInt32 source);
+    virtual void pointerAxisEvent(const LPointerAxisEvent &event);
 
     /**
      * @brief Handle the key modifiers event within the view.

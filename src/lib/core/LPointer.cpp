@@ -12,6 +12,8 @@
 #include <LTime.h>
 #include <LKeyboard.h>
 #include <LDNDManager.h>
+#include <LPointerButtonEvent.h>
+#include <LPointerAxisEvent.h>
 
 using namespace Louvre;
 using namespace Louvre::Protocols;
@@ -93,24 +95,16 @@ void LPointer::sendMoveEvent(const LPoint &localPos, UInt32 time)
         imp()->sendMoveEvent(localPos, time);
 }
 
-void LPointer::sendButtonEvent(Button button, ButtonState state)
+void LPointer::sendButtonEvent(Button button, ButtonState state, UInt32 time)
 {
-    if (!focus())
-        return;
+    if (focus())
+        imp()->sendButtonEvent(button, state, time);
+}
 
-    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-    {
-        if (s->pointerResource())
-        {
-            UInt32 serial = LCompositor::nextSerial();
-            UInt32 ms = LTime::ms();
-            s->pointerResource()->imp()->serials.button = serial;
-            s->pointerResource()->button(serial, ms, button, state);
-            s->pointerResource()->frame();
-        }
-    }
-
-    focus()->client()->flush();
+void LPointer::sendButtonEvent(const LPointerButtonEvent &event)
+{
+    if (focus())
+        imp()->sendButtonEvent(event.button(), event.state(), event.time());
 }
 
 void LPointer::startResizingToplevel(LToplevelRole *toplevel,
@@ -284,30 +278,28 @@ const LPoint &LPointer::movingToplevelInitPointerPos() const
     return imp()->movingToplevelInitPointerPos;
 }
 
-void LPointer::sendAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int32 discreteY, AxisSource source)
+void LPointer::sendAxisEvent(const LPointerAxisEvent &event)
 {
     // If no surface has focus
     if (!focus())
         return;
 
-    Float24 aX = wl_fixed_from_double(axisX);
-    Float24 aY = wl_fixed_from_double(axisY);
-    Float24 dX = wl_fixed_from_int(discreteX);
-    Float24 dY = wl_fixed_from_int(discreteY);
-
-    UInt32 ms = LTime::ms();
+    Float24 aX = wl_fixed_from_double(event.axis().x());
+    Float24 aY = wl_fixed_from_double(event.axis().y());
+    Float24 dX = wl_fixed_from_double(event.axis120().x());
+    Float24 dY = wl_fixed_from_double(event.axis120().y());
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
         if (s->pointerResource())
         {
             // Since 5
-            if (s->pointerResource()->axisSource(source))
+            if (s->pointerResource()->axisSource(event.source()))
             {
-                s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_HORIZONTAL_SCROLL, 0 /* 0 = IDENTICAL */);
-                s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_VERTICAL_SCROLL, 0 /* 0 = IDENTICAL */);
+                if (s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_HORIZONTAL_SCROLL, 0 /* 0 = IDENTICAL */))
+                    s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_VERTICAL_SCROLL, 0 /* 0 = IDENTICAL */);
 
-                if (source == LPointer::AxisSource::Wheel)
+                if (event.source() == LPointer::AxisSource::Wheel)
                 {
                     if (!s->pointerResource()->axisValue120(WL_POINTER_AXIS_HORIZONTAL_SCROLL, dX))
                     {
@@ -318,15 +310,15 @@ void LPointer::sendAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int3
                         s->pointerResource()->axisValue120(WL_POINTER_AXIS_VERTICAL_SCROLL, dY);
                 }
 
-                if (axisX == 0.0 && imp()->axisXprev != 0.0)
-                    s->pointerResource()->axisStop(ms, WL_POINTER_AXIS_HORIZONTAL_SCROLL);
+                if (event.axis().x() == 0.0 && imp()->axisXprev != 0.0)
+                    s->pointerResource()->axisStop(event.time(), WL_POINTER_AXIS_HORIZONTAL_SCROLL);
                 else
-                    s->pointerResource()->axis(ms, WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
+                    s->pointerResource()->axis(event.time(), WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
 
-                if (axisY == 0.0 && imp()->axisYprev != 0.0)
-                   s->pointerResource()->axisStop(ms, WL_POINTER_AXIS_VERTICAL_SCROLL);
+                if (event.axis().y() == 0.0 && imp()->axisYprev != 0.0)
+                   s->pointerResource()->axisStop(event.time(), WL_POINTER_AXIS_VERTICAL_SCROLL);
                 else
-                    s->pointerResource()->axis(ms, WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
+                    s->pointerResource()->axis(event.time(), WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
 
                 s->pointerResource()->frame();
             }
@@ -334,15 +326,15 @@ void LPointer::sendAxisEvent(Float64 axisX, Float64 axisY, Int32 discreteX, Int3
             else
             {
                 s->pointerResource()->axis(
-                    ms,
+                    event.time(),
                     aX,
                     aY);
             }
         }
     }
 
-    imp()->axisXprev = axisX;
-    imp()->axisYprev = axisY;
+    imp()->axisXprev = event.axis().x();
+    imp()->axisYprev = event.axis().y();
 }
 
 LSurface *LPointer::surfaceAt(const LPoint &point)
