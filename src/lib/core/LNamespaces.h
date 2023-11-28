@@ -361,6 +361,7 @@ namespace Louvre
             class RRegion;
             class RPointer;
             class RKeyboard;
+            class RTouch;
             class RDataDevice;
             class RDataSource;
             class RDataOffer;

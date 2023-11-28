@@ -9,18 +9,18 @@ public:
     LTouchUpEvent();
     ~LTouchUpEvent();
 
-    inline void setId(UInt32 id)
+    inline void setId(Int32 id)
     {
         m_id = id;
     }
 
-    inline UInt32 id() const
+    inline Int32 id() const
     {
         return m_id;
     }
 
 protected:
-    UInt32 m_id;
+    Int32 m_id;
 private:
     friend class LInputBackend;
     void notify();
