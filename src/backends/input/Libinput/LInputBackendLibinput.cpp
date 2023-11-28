@@ -6,9 +6,15 @@
 
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
-#include <LPointerAxisEvent.h>
+#include <LPointerScrollEvent.h>
 
 #include <LKeyboardKeyEvent.h>
+
+#include <LTouchDownEvent.h>
+#include <LTouchMoveEvent.h>
+#include <LTouchUpEvent.h>
+#include <LTouchFrameEvent.h>
+#include <LTouchCancelEvent.h>
 
 #include <LLog.h>
 #include <unordered_map>
@@ -32,12 +38,18 @@ struct BACKEND_DATA
     LSeat *seat;
     std::list<DEVICE_FD_ID> devices;
     std::list<LInputDevice*> inputDevices;
+    LSeat::InputCapabilitiesFlags capabilities = 0;
 
     // Recycled events
     LPointerMoveEvent pointerMoveEvent;
     LPointerButtonEvent pointerButtonEvent;
-    LPointerAxisEvent pointerAxisEvent;
+    LPointerScrollEvent pointerScrollEvent;
     LKeyboardKeyEvent keyboardKeyEvent;
+    LTouchDownEvent touchDownEvent;
+    LTouchMoveEvent touchMoveEvent;
+    LTouchUpEvent touchUpEvent;
+    LTouchFrameEvent touchFrameEvent;
+    LTouchCancelEvent touchCancelEvent;
 };
 
 // Libseat devices
@@ -50,6 +62,7 @@ static libinput_event *ev;
 static libinput_event_type eventType;
 static libinput_event_keyboard *keyEvent;
 static libinput_event_pointer *pointerEvent;
+static libinput_event_touch *touchEvent;
 static LInputDevice *inputDevice;
 
 static Int32 openRestricted(const char *path, int flags, void *data)
@@ -98,7 +111,34 @@ static void closeRestricted(int fd, void *data)
     close(fd);
 }
 
+/****************** UTILITIES ******************/
+
+static void updateCapabilities(BACKEND_DATA *bknd)
+{
+    bknd->capabilities = 0;
+
+    for (LInputDevice *device : bknd->inputDevices)
+        bknd->capabilities |= device->capabilities();
+}
+
 /****************** DEVICE INTERFACE ******************/
+
+static LSeat::InputCapabilitiesFlags deviceCapabilities(const LInputDevice *device)
+{
+    libinput_device *dev = (libinput_device*)device->backendData();
+    LSeat::InputCapabilitiesFlags caps = 0;
+
+    if (libinput_device_has_capability(dev, LIBINPUT_DEVICE_CAP_POINTER))
+        caps |= LSeat::Pointer;
+
+    if (libinput_device_has_capability(dev, LIBINPUT_DEVICE_CAP_KEYBOARD))
+        caps |= LSeat::Keyboard;
+
+    if (libinput_device_has_capability(dev, LIBINPUT_DEVICE_CAP_TOUCH))
+        caps |= LSeat::Touch;
+
+    return caps;
+}
 
 static const char *deviceName(const LInputDevice *device)
 {
@@ -120,6 +160,7 @@ static UInt32 deviceProductId(const LInputDevice *device)
 
 static LInputDevice::Interface deviceInterface
 {
+    .capabilities = &deviceCapabilities,
     .name = &deviceName,
     .vendorId = &deviceVendorId,
     .productId = &deviceProductId
@@ -158,59 +199,59 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
-            data->pointerAxisEvent.setDevice(inputDevice);
+            data->pointerScrollEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
-                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
+                data->pointerScrollEvent.setX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
-                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
+                data->pointerScrollEvent.setY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
 
-            data->pointerAxisEvent.setAxis120X(0.f);
-            data->pointerAxisEvent.setAxis120Y(0.f);
-            data->pointerAxisEvent.setSource(LPointer::AxisSource::Finger);
-            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerAxisEvent.notify();
+            data->pointerScrollEvent.set120X(0.f);
+            data->pointerScrollEvent.set120Y(0.f);
+            data->pointerScrollEvent.setSource(LPointer::ScrollEventSource::Finger);
+            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS:
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
-            data->pointerAxisEvent.setDevice(inputDevice);
+            data->pointerScrollEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
-                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
+                data->pointerScrollEvent.setX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
-                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
+                data->pointerScrollEvent.setY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
 
-            data->pointerAxisEvent.setAxis120X(0.f);
-            data->pointerAxisEvent.setAxis120Y(0.f);
-            data->pointerAxisEvent.setSource(LPointer::AxisSource::Continuous);
-            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerAxisEvent.notify();
+            data->pointerScrollEvent.set120X(0.f);
+            data->pointerScrollEvent.set120Y(0.f);
+            data->pointerScrollEvent.setSource(LPointer::ScrollEventSource::Continuous);
+            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_WHEEL:
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
-            data->pointerAxisEvent.setDevice(inputDevice);
+            data->pointerScrollEvent.setDevice(inputDevice);
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL))
             {
-                data->pointerAxisEvent.setAxisX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
-                data->pointerAxisEvent.setAxis120X(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
+                data->pointerScrollEvent.setX(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
+                data->pointerScrollEvent.set120X(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL));
             }
 
             if (libinput_event_pointer_has_axis(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL))
             {
-                data->pointerAxisEvent.setAxisY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
-                data->pointerAxisEvent.setAxis120Y(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
+                data->pointerScrollEvent.setY(libinput_event_pointer_get_scroll_value(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
+                data->pointerScrollEvent.set120Y(libinput_event_pointer_get_scroll_value_v120(pointerEvent, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL));
             }
 
-            data->pointerAxisEvent.setSource(LPointer::AxisSource::Wheel);
-            data->pointerAxisEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerAxisEvent.notify();
+            data->pointerScrollEvent.setSource(LPointer::ScrollEventSource::Wheel);
+            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_BUTTON:
             dev = libinput_event_get_device(ev);
@@ -232,18 +273,67 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->keyboardKeyEvent.setTime(libinput_event_keyboard_get_time(keyEvent));
             data->keyboardKeyEvent.notify();
             break;
+        case LIBINPUT_EVENT_TOUCH_DOWN:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            touchEvent = libinput_event_get_touch_event(ev);
+            data->touchDownEvent.setDevice(inputDevice);
+            data->touchDownEvent.setX(libinput_event_touch_get_x_transformed(touchEvent, 1));
+            data->touchDownEvent.setY(libinput_event_touch_get_y_transformed(touchEvent, 1));
+            data->touchDownEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
+            data->touchDownEvent.setTime(libinput_event_touch_get_time(touchEvent));
+            data->touchDownEvent.notify();
+            break;
+        case LIBINPUT_EVENT_TOUCH_MOTION:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            touchEvent = libinput_event_get_touch_event(ev);
+            data->touchMoveEvent.setDevice(inputDevice);
+            data->touchMoveEvent.setX(libinput_event_touch_get_x_transformed(touchEvent, 1));
+            data->touchMoveEvent.setY(libinput_event_touch_get_y_transformed(touchEvent, 1));
+            data->touchMoveEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
+            data->touchMoveEvent.setTime(libinput_event_touch_get_time(touchEvent));
+            data->touchMoveEvent.notify();
+            break;
+        case LIBINPUT_EVENT_TOUCH_UP:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            touchEvent = libinput_event_get_touch_event(ev);
+            data->touchUpEvent.setDevice(inputDevice);
+            data->touchUpEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
+            data->touchUpEvent.setTime(libinput_event_touch_get_time(touchEvent));
+            data->touchUpEvent.notify();
+            break;
+        case LIBINPUT_EVENT_TOUCH_FRAME:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            touchEvent = libinput_event_get_touch_event(ev);
+            data->touchFrameEvent.setDevice(inputDevice);
+            data->touchFrameEvent.setTime(libinput_event_touch_get_time(touchEvent));
+            data->touchFrameEvent.notify();
+            break;
+        case LIBINPUT_EVENT_TOUCH_CANCEL:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            touchEvent = libinput_event_get_touch_event(ev);
+            data->touchCancelEvent.setDevice(inputDevice);
+            data->touchCancelEvent.setTime(libinput_event_touch_get_time(touchEvent));
+            data->touchCancelEvent.notify();
+            break;
         case LIBINPUT_EVENT_DEVICE_ADDED:
             dev = libinput_event_get_device(ev);
             inputDevice = new LInputDevice(deviceInterface, dev);
             libinput_device_set_user_data(dev, inputDevice);
             data->inputDevices.push_back(inputDevice);
-            seat->inputDevicePlugged(inputDevice);
+            data->capabilities |= inputDevice->capabilities();
+            inputDevice->notifyPlugged();
             break;
         case LIBINPUT_EVENT_DEVICE_REMOVED:
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             data->inputDevices.remove(inputDevice);
-            seat->inputDeviceUnplugged(inputDevice);
+            updateCapabilities(data);
+            inputDevice->notifyUnplugged();
             delete inputDevice;
             break;
         default:
@@ -303,7 +393,9 @@ bool LInputBackend::initialize()
 
 UInt32 LInputBackend::getCapabilities()
 {
-    return LSeat::InputCapabilities::Pointer | LSeat::InputCapabilities::Keyboard;
+    LSeat *seat = LCompositor::compositor()->seat();
+    BACKEND_DATA *data = (BACKEND_DATA*)seat->imp()->inputBackendData;
+    return data->capabilities;
 }
 
 void *LInputBackend::getContextHandle()
@@ -421,6 +513,5 @@ extern "C" LInputBackendInterface *getAPI()
     API.forceUpdate = &LInputBackend::forceUpdate;
     API.resume = &LInputBackend::resume;
     API.getDevices = &LInputBackend::getDevices;
-
     return &API;
 }

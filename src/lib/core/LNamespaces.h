@@ -87,13 +87,24 @@ namespace Louvre
     class LWayland;
 
     // Input
+    class LSeat;
+    class LPointer;
+    class LKeyboard;
+    class LTouch;
+    class LCursor;
+    class LXCursor;
     class LInputDevice;
     class LInputEvent;
     class LPointerMoveEvent;
     class LPointerButtonEvent;
-    class LPointerAxisEvent;
+    class LPointerScrollEvent;
     class LKeyboardKeyEvent;
-    class LKeyboardModifiersEvent;
+    class LTouchDownEvent;
+    class LTouchMoveEvent;
+    class LTouchUpEvent;
+    class LTouchFrameEvent;
+    class LTouchCancelEvent;
+    class LTouchPoint;
 
     // Painter
     class LPainter;
@@ -123,13 +134,6 @@ namespace Louvre
     class LToplevelRole;
     class LPopupRole;
     class LSubsurfaceRole;
-
-    // Input related
-    class LSeat;
-    class LPointer;
-    class LKeyboard;
-    class LCursor;
-    class LXCursor;
 
     // Other
     class LDMABuffer;

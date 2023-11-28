@@ -145,6 +145,13 @@ LKeyboard *LCompositor::createKeyboardRequest(LKeyboard::Params *params)
 }
 //! [createKeyboardRequest]
 
+//! [createTouchRequest]
+LTouch *LCompositor::createTouchRequest(LTouch::Params *params)
+{
+    return new LTouch(params);
+}
+//! [createTouchRequest]
+
 //! [createDNDManagerRequest]
 LDNDManager *LCompositor::createDNDManagerRequest(LDNDManager::Params *params)
 {
@@ -228,6 +235,13 @@ void LCompositor::destroyKeyboardRequest(LKeyboard *keyboard)
     L_UNUSED(keyboard);
 }
 //! [destroyKeyboardRequest]
+
+//! [destroyTouchRequest]
+void LCompositor::destroyTouchRequest(LTouch *touch)
+{
+    L_UNUSED(touch);
+}
+//! [destroyTouchRequest]
 
 //! [destroyDNDManagerRequest]
 void LCompositor::destroyDNDManagerRequest(LDNDManager *dndManager)

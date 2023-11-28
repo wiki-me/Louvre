@@ -25,6 +25,7 @@ LPRIVATE_CLASS(LSeat)
     // Wayland
     LPointer *pointer                               = nullptr;
     LKeyboard *keyboard                             = nullptr;
+    LTouch *touch                                   = nullptr;
 
     LToplevelRole *activeToplevel                   = nullptr;
     InputCapabilitiesFlags capabilities             = Pointer | Keyboard;

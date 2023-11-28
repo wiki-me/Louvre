@@ -30,13 +30,7 @@ struct libseat;
 class Louvre::LSeat : public LObject
 {
 public:
-
-    const std::list<LInputDevice*> *inputDevices() const;
-    virtual void inputDevicePlugged(LInputDevice *device);
-    virtual void inputDeviceUnplugged(LInputDevice *device);
-
     struct Params;
-
     using InputCapabilitiesFlags = UInt32;
 
     /**
@@ -82,10 +76,13 @@ public:
      * This method provides a list of currently available outputs. The list includes connected outputs that can be initialized
      * as well as those that are already initialized.
      * To obtain a list of only initialized outputs, refer to LCompositor::outputs().
-     *
-     * @return A reference to a list of available outputs.
      */
     const std::list<LOutput *> &outputs() const;
+
+    /**
+     * @brief List of avaliable input devices
+     */
+    const std::list<LInputDevice*> &inputDevices() const;
 
     /**
      * @brief Handle to the native context used by the graphic backend.
@@ -134,9 +131,12 @@ public:
     UInt32 inputBackendId() const;
 
     /**
-     * @brief Input Backend Capabilities
+     * @brief Retrieve the input backend capabilities.
      *
-     * Flags representing the input capabilities of the input backend, defined in Louvre::LSeat::InputCapabilities.
+     * This method returns flags representing the input capabilities of the input backend.
+     * These capabilities are defined in Louvre::LSeat::InputCapabilities and may change each time an input device is plugged or unplugged.
+     *
+     * @return Input capabilities flags of the input backend.
      */
     InputCapabilitiesFlags inputBackendCapabilities() const;
 
@@ -148,20 +148,23 @@ public:
     const char *name() const;
 
     /**
-     * @brief Input capabilities of the compositor.
+     * @brief Retrieve the input capabilities of the compositor.
      *
-     * Flags with the input capabilities of the compositor assigned with setInputCapabilities().
+     * This method returns flags representing the input capabilities assigned to the compositor using setInputCapabilities().
+     * These capabilities may differ from those of the input backend.
+     *
+     * @return Input capabilities flags assigned to the compositor.
      */
     InputCapabilitiesFlags inputCapabilities() const;
 
     /**
-     * @brief Assigns the input capabilities of the compositor.
+     * @brief Set the input capabilities of the compositor.
      *
-     * This method notifies clients about the compositor's input capabilities.\n
-     * Clients will only listen to events specified in the capabilities flags.\n
-     * The default implementation of initialized() sets the compositor's capabilities to those of the input backend.\n
+     * This method informs clients about the compositor's input capabilities.
+     * Clients will only listen to events specified in the capabilities flags.
+     * The default implementation of initialized() sets the compositor's capabilities to match those of the input backend.
      *
-     * @param capabilitiesFlags Flags with the input capabilities of the compositor defined in Louvre::LSeat::InputCapabilities. They may differ from the input capabilities of the input backend.
+     * @param capabilitiesFlags Flags representing the input capabilities of the compositor, as defined in Louvre::LSeat::InputCapabilities. These capabilities may differ from those of the input backend.
      */
     void setInputCapabilities(InputCapabilitiesFlags capabilitiesFlags);
 
@@ -188,6 +191,13 @@ public:
      * Access to the LKeyboard instance used to receive keyboard events from the backend and redirect them to clients.
      */
     LKeyboard *keyboard() const;
+
+    /**
+     * @brief Access to touch events.
+     *
+     * Access to the LTouch instance used to receive touch events from the backend and redirect them to clients.
+     */
+    LTouch *touch() const;
 
     /**
      * @brief Access to the drag & drop session manager.
@@ -348,6 +358,28 @@ public:
      * @snippet LSeatDefault.cpp outputUnplugged
      */
     virtual void outputUnplugged(LOutput *output);
+
+    /**
+     * @brief New available input device.
+     *
+     * Override this method to be notified when a new input device is avaliable.\n
+     * The default implementation aligns the input capabilities of the compositor with those of the input backend.
+     *
+     * #### Default Implementation
+     * @snippet LSeatDefault.cpp inputDevicePlugged
+     */
+    virtual void inputDevicePlugged(LInputDevice *device);
+
+    /**
+     * @brief Disconnected input device.
+     *
+     * Override this method to be notified when an input device is no longer avaliable.\n
+     * The default implementation aligns the input capabilities of the compositor with those of the input backend.
+     *
+     * #### Default Implementation
+     * @snippet LSeatDefault.cpp inputDeviceUnplugged
+     */
+    virtual void inputDeviceUnplugged(LInputDevice *device);
 
 /// @}
 

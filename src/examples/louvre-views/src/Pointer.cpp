@@ -10,6 +10,7 @@
 #include <LOutput.h>
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
+#include <LPointerScrollEvent.h>
 #include <LInputDevice.h>
 
 #include "Global.h"
@@ -73,9 +74,12 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
     G::scene()->handlePointerButtonEvent(event);
 }
 
-void Pointer::pointerAxisEvent(const LPointerAxisEvent &event)
+void Pointer::pointerScrollEvent(const LPointerScrollEvent &event)
 {
-    G::scene()->handlePointerAxisEvent(event);
+    LPointerScrollEvent ev = event;
+    ev.invertX();
+    ev.invertY();
+    G::scene()->handlePointerScrollEvent(ev);
 }
 
 void Pointer::setCursorRequest(LCursorRole *cursorRole)

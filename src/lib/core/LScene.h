@@ -168,13 +168,13 @@ public:
     void handlePointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
-     * @brief Handle pointer axis event.
+     * @brief Handle pointer scroll event.
      *
-     * This method should be integrated into LPointer::pointerAxisEvent() to manage pointer axis events.
+     * This method should be integrated into LPointer::pointerScrollEvent() to manage pointer scroll events.
      *
-     * @param event The pointer axis event to handle.
+     * @param event The pointer scroll event to handle.
      */
-    void handlePointerAxisEvent(const LPointerAxisEvent &event);
+    void handlePointerScrollEvent(const LPointerScrollEvent &event);
 
     /**
      * @brief Check if handling of Wayland pointer events is enabled.

@@ -12,6 +12,7 @@
 #include <LCursorRole.h>
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
+#include <LPointerScrollEvent.h>
 
 using namespace Louvre;
 
@@ -159,10 +160,13 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 //! [pointerButtonEvent]
 
 //! [pointerAxisEvent]
-void LPointer::pointerAxisEvent(const LPointerAxisEvent &event)
+void LPointer::pointerScrollEvent(const LPointerScrollEvent &event)
 {
     // Invert the scroll axis for natural scrolling
-    sendAxisEvent(event);
+    LPointerScrollEvent ev = event;
+    ev.invertX();
+    ev.invertY();
+    sendScrollEvent(ev);
 }
 //! [pointerAxisEvent]
 

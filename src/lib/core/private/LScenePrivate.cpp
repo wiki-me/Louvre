@@ -190,22 +190,22 @@ bool LScene::LScenePrivate::handlePointerButton(LView *view)
     return false;
 }
 
-bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view)
+bool LScene::LScenePrivate::handlePointerScrollEvent(LView *view)
 {
     if (listChanged)
         goto listChangedErr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerAxisEvent(*it))
+        if (!handlePointerScrollEvent(*it))
             return false;
 
-    if (view->imp()->state & LVS::PointerAxisDone)
+    if (view->imp()->state & LVS::PointerScrollDone)
         return true;
 
-    view->imp()->state |= LVS::PointerAxisDone;
+    view->imp()->state |= LVS::PointerScrollDone;
 
     if (view->imp()->hasFlag(LVS::PointerIsOver))
-        view->pointerAxisEvent(currentPointerAxisEvent);
+        view->pointerScrollEvent(currentPointerScrollEvent);
 
     if (listChanged)
         goto listChangedErr;
@@ -215,7 +215,7 @@ bool LScene::LScenePrivate::handlePointerAxisEvent(LView *view)
     // If a list was modified, start again, serials are used to prevent resend events
     listChangedErr:
     listChanged = false;
-    handlePointerAxisEvent(&this->view);
+    handlePointerScrollEvent(&this->view);
     return false;
 }
 

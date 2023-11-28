@@ -20,7 +20,7 @@ LPRIVATE_CLASS(LView)
          * the event to the same view */
         PointerMoveDone         = 1 << 0,
         PointerButtonDone       = 1 << 2,
-        PointerAxisDone         = 1 << 3,
+        PointerScrollDone       = 1 << 3,
         KeyDone                 = 1 << 4,
 
         RepaintCalled           = 1 << 5,

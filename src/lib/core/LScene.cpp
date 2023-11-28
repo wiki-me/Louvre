@@ -290,23 +290,23 @@ void LScene::handlePointerButtonEvent(const LPointerButtonEvent &event)
     }
 }
 
-void LScene::handlePointerAxisEvent(const LPointerAxisEvent &event)
+void LScene::handlePointerScrollEvent(const LPointerScrollEvent &event)
 {
     // Prevent recursive calls
-    if (imp()->handlingPointerAxisEvent)
+    if (imp()->handlingPointerScrollEvent)
         return;
 
-    imp()->currentPointerAxisEvent = event;
+    imp()->currentPointerScrollEvent = event;
     imp()->listChanged = false;
-    imp()->handlingPointerAxisEvent = true;
-    LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::PointerAxisDone);
-    imp()->handlePointerAxisEvent(mainView());
-    imp()->handlingPointerAxisEvent = false;
+    imp()->handlingPointerScrollEvent = true;
+    LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::PointerScrollDone);
+    imp()->handlePointerScrollEvent(mainView());
+    imp()->handlingPointerScrollEvent = false;
 
     if (!handleWaylandPointerEventsEnabled())
         return;
 
-    seat()->pointer()->sendAxisEvent(imp()->currentPointerAxisEvent);
+    seat()->pointer()->sendScrollEvent(imp()->currentPointerScrollEvent);
 }
 
 bool LScene::handleWaylandPointerEventsEnabled() const

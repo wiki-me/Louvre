@@ -10,6 +10,11 @@ LInputDevice::LInputDevice(const Interface &interface, void *backendData) :
 
 LInputDevice::~LInputDevice() {}
 
+LSeat::InputCapabilitiesFlags LInputDevice::capabilities() const
+{
+    return m_interface.capabilities(this);
+}
+
 const char *LInputDevice::name() const
 {
     return m_interface.name(this);
@@ -28,4 +33,14 @@ UInt32 LInputDevice::vendorId() const
 void *LInputDevice::backendData() const
 {
     return m_backendData;
+}
+
+void LInputDevice::notifyPlugged()
+{
+    seat()->inputDevicePlugged(this);
+}
+
+void LInputDevice::notifyUnplugged()
+{
+    seat()->inputDeviceUnplugged(this);
 }

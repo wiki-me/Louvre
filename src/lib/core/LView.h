@@ -736,11 +736,11 @@ public:
     virtual void pointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
-     * @brief Handle the pointer axis event within the view.
+     * @brief Handle the pointer scroll event within the view.
      *
      * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
      */
-    virtual void pointerAxisEvent(const LPointerAxisEvent &event);
+    virtual void pointerScrollEvent(const LPointerScrollEvent &event);
 
     /**
      * @brief Handle the key event within the view.

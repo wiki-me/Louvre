@@ -16,6 +16,7 @@
 
 static LInputDevice::Interface fakeInterface
 {
+    .capabilities = [](const LInputDevice*) -> LSeat::InputCapabilitiesFlags {return LSeat::Pointer | LSeat::Keyboard | LSeat::Touch;},
     .name = [](const LInputDevice*) -> const char * {return "Fake Device";},
     .vendorId = [](const LInputDevice*) -> UInt32 {return 0;},
     .productId = [](const LInputDevice*) -> UInt32 {return 0;}

@@ -11,7 +11,7 @@ public:
     Pointer(Params *params);
     void pointerMoveEvent(const LPointerMoveEvent &event) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
-    void pointerAxisEvent(const LPointerAxisEvent &event) override;
+    void pointerScrollEvent(const LPointerScrollEvent &event) override;
 
     void setCursorRequest(LCursorRole *cursorRole) override;
 

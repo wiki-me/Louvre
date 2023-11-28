@@ -4,7 +4,7 @@
 #include <LRegion.h>
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
-#include <LPointerAxisEvent.h>
+#include <LPointerScrollEvent.h>
 #include <LKeyboardKeyEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
@@ -25,14 +25,14 @@ LPRIVATE_CLASS(LScene)
     // Prevent recursive calls
     bool handlingPointerMove = false;
     bool handlingPointerButton = false;
-    bool handlingPointerAxisEvent = false;
+    bool handlingPointerScrollEvent = false;
     bool handlingKeyEvent = false;
 
     LView *pointerMoveEventFirstView;
     LPointF pointerMoveEventOutLocalPos;
     LPointerMoveEvent currentPointerMoveEvent;
     LPointerButtonEvent currentPointerButtonEvent;
-    LPointerAxisEvent currentPointerAxisEvent;
+    LPointerScrollEvent currentPointerScrollEvent;
     LKeyboardKeyEvent currentKeyboardKeyEvent;
 
     bool pointClippedByParent(LView *parent, const LPoint &point);
@@ -96,7 +96,7 @@ LPRIVATE_CLASS(LScene)
 
     bool handlePointerMove(LView *view);
     bool handlePointerButton(LView *view);
-    bool handlePointerAxisEvent(LView *view);
+    bool handlePointerScrollEvent(LView *view);
     bool handleKeyEvent(LView *view);
 };
 

@@ -1,6 +1,7 @@
 #include <private/LSeatPrivate.h>
 #include <private/LPointerPrivate.h>
 #include <private/LKeyboardPrivate.h>
+#include <private/LTouchPrivate.h>
 #include <private/LDNDManagerPrivate.h>
 #include <private/LCompositorPrivate.h>
 #include <private/LOutputPrivate.h>
@@ -35,30 +36,6 @@
 
 using namespace Louvre;
 
-const std::list<LInputDevice *> *LSeat::inputDevices() const
-{
-    return compositor()->imp()->inputBackend->getDevices();
-}
-
-void LSeat::inputDevicePlugged(LInputDevice *device)
-{
-    LLog::log("New device %d %d %s",
-              device->vendorId(),
-              device->productId(),
-              device->name());
-
-    L_UNUSED(device);
-}
-
-void LSeat::inputDeviceUnplugged(LInputDevice *device)
-{
-    LLog::log("Rem device %d %d %s",
-              device->vendorId(),
-              device->productId(),
-              device->name());
-    L_UNUSED(device);
-}
-
 LSeat::LSeat(Params *params) : LPRIVATE_INIT_UNIQUE(LSeat)
 {
     L_UNUSED(params);
@@ -72,6 +49,9 @@ LSeat::LSeat(Params *params) : LPRIVATE_INIT_UNIQUE(LSeat)
 
     LKeyboard::Params keyboardParams;
     imp()->keyboard = compositor()->createKeyboardRequest(&keyboardParams);
+
+    LTouch::Params touchParams;
+    imp()->touch = compositor()->createTouchRequest(&touchParams);
 
     imp()->enabled = true;
 }
@@ -112,6 +92,11 @@ const char *LSeat::name() const
     return "seat0";
 }
 
+const std::list<LInputDevice *> &LSeat::inputDevices() const
+{
+    return *compositor()->imp()->inputBackend->getDevices();
+}
+
 void *LSeat::inputBackendContextHandle() const
 {
     return compositor()->imp()->inputBackend->getContextHandle();
@@ -129,6 +114,9 @@ LSeat::InputCapabilitiesFlags LSeat::inputCapabilities() const
 
 void LSeat::setInputCapabilities(LSeat::InputCapabilitiesFlags capabilitiesFlags)
 {
+    if (capabilitiesFlags == imp()->capabilities)
+        return;
+
     imp()->capabilities = capabilitiesFlags;
 
     for (LClient *c : compositor()->clients())
@@ -151,6 +139,11 @@ LPointer *LSeat::pointer() const
 LKeyboard *LSeat::keyboard() const
 {
     return imp()->keyboard;
+}
+
+LTouch *LSeat::touch() const
+{
+    return imp()->touch;
 }
 
 LDataSource *LSeat::dataSelection() const

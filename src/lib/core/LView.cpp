@@ -453,5 +453,5 @@ void LView::pointerEnterEvent(const LPointerMoveEvent &) {}
 void LView::pointerMoveEvent(const LPointerMoveEvent &) {}
 void LView::pointerLeaveEvent(const LPointerMoveEvent &) {}
 void LView::pointerButtonEvent(const LPointerButtonEvent &) {}
-void LView::pointerAxisEvent(const LPointerAxisEvent &) {}
+void LView::pointerScrollEvent(const LPointerScrollEvent &) {}
 void LView::keyEvent(const LKeyboardKeyEvent &) {}
