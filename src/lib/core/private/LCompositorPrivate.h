@@ -20,7 +20,7 @@ LPRIVATE_CLASS_NO_COPY(LCompositor)
     struct RemovedGlobal
     {
         wl_global *global;
-        UChar8 iters;
+        UInt8 iters;
     };
     std::list<RemovedGlobal*>removedGlobals;
     void processRemovedGlobals();

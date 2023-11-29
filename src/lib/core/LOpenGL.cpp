@@ -148,7 +148,7 @@ LTexture *LOpenGL::loadTexture(const char *file)
 
     LSize size((Int32)FreeImage_GetWidth(convertedBitmap), (Int32)FreeImage_GetHeight(convertedBitmap));
     UInt32 pitch = FreeImage_GetPitch(convertedBitmap);
-    UChar8 *pixels = (UChar8*)FreeImage_GetBits(convertedBitmap);
+    UInt8 *pixels = (UInt8*)FreeImage_GetBits(convertedBitmap);
     LTexture *texture = new LTexture();
     texture->setDataB(size, pitch, DRM_FORMAT_ARGB8888, pixels);
     FreeImage_Unload(convertedBitmap);

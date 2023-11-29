@@ -1,5 +1,6 @@
 #include <protocols/Wayland/private/RKeyboardPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
+#include <protocols/Wayland/private/RTouchPrivate.h>
 #include <protocols/Wayland/private/RDataDevicePrivate.h>
 #include <protocols/Wayland/private/GSeatPrivate.h>
 #include <private/LClientPrivate.h>
@@ -41,6 +42,9 @@ GSeat::~GSeat()
     if (pointerResource())
         pointerResource()->imp()->gSeat = nullptr;
 
+    if (touchResource())
+        touchResource()->imp()->gSeat = nullptr;
+
     if (dataDeviceResource())
         dataDeviceResource()->imp()->gSeat = nullptr;
 }
@@ -53,6 +57,11 @@ RKeyboard *GSeat::keyboardResource() const
 RPointer *GSeat::pointerResource() const
 {
     return imp()->rPointer;
+}
+
+RTouch *GSeat::touchResource() const
+{
+    return imp()->rTouch;
 }
 
 RDataDevice *GSeat::dataDeviceResource() const

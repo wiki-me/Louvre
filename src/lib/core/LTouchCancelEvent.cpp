@@ -3,7 +3,9 @@
 
 using namespace Louvre;
 
-LTouchCancelEvent::LTouchCancelEvent() {}
+LTouchCancelEvent::LTouchCancelEvent() :
+    LInputEvent(LInputEvent::TouchCancel) {}
+
 LTouchCancelEvent::~LTouchCancelEvent() {}
 
 void LTouchCancelEvent::notify()

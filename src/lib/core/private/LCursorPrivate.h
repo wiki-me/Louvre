@@ -30,7 +30,7 @@ LPRIVATE_CLASS_NO_COPY(LCursor)
     LTexture *defaultTexture                            = nullptr;
     LTexture louvreTexture;
     GLuint glFramebuffer, glRenderbuffer;
-    UChar8 buffer[64*64*4];
+    UInt8 buffer[64*64*4];
 
     inline void setOutput(LOutput *out)
     {
@@ -219,7 +219,7 @@ inline static void texture2Buffer(LCursor *cursor, const LSizeF &size, LFramebuf
     {
         glReadPixels(0, 0, 64, 64, GL_RGBA , GL_UNSIGNED_BYTE, cursor->imp()->buffer);
 
-        UChar8 tmp;
+        UInt8 tmp;
 
         // Convert to RGBA8888
         for (Int32 i = 0; i < 64*64*4; i+=4)

@@ -6,6 +6,20 @@
 class Louvre::LInputEvent : public LObject
 {
 public:
+
+    enum Type : UInt8
+    {
+        PointerMove,
+        PointerButton,
+        PointerScroll,
+        KeyboardKey,
+        TouchDown,
+        TouchUp,
+        TouchMove,
+        TouchFrame,
+        TouchCancel
+    };
+
     inline void setDevice(LInputDevice *device)
     {
         m_device = device;
@@ -26,11 +40,16 @@ public:
         return m_time;
     }
 
+    inline Type type() const
+    {
+        return m_type;
+    }
 protected:
-    LInputEvent();
+    LInputEvent(Type type);
     ~LInputEvent();
     LInputDevice *m_device;
     UInt32 m_time;
+    Type m_type;
 };
 
 #endif // LINPUTEVENT_H

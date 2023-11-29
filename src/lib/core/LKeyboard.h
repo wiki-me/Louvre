@@ -54,7 +54,7 @@ public:
      *
      * Enum with the possible states of a key.
      */
-    enum KeyState : UChar8
+    enum KeyState : UInt8
     {
         /// The key is not being pressed
         Released = 0,

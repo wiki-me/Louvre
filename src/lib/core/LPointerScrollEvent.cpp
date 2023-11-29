@@ -3,7 +3,10 @@
 
 using namespace Louvre;
 
-LPointerScrollEvent::LPointerScrollEvent() : m_source(LPointer::ScrollEventSource::Continuous) {}
+LPointerScrollEvent::LPointerScrollEvent() :
+    LInputEvent(LInputEvent::PointerScroll),
+    m_source(LPointer::ScrollEventSource::Continuous) {}
+
 LPointerScrollEvent::~LPointerScrollEvent() {}
 
 void LPointerScrollEvent::notify()

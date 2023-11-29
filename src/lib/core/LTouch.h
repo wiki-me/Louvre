@@ -3,7 +3,7 @@
 
 #include <LInputEvent.h>
 
-class Louvre::LTouch : public LInputEvent
+class Louvre::LTouch : public LObject
 {
 public:
     struct Params;
@@ -15,6 +15,8 @@ public:
     /// @endcond
 
     virtual ~LTouch();
+
+    LSurface *surfaceAt(const LPoint &point);
 
     const std::list<LTouchPoint*> &touchPoints() const;
 

@@ -264,7 +264,7 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
             onlyPending.clip(0, texture->sizeB());
 
             UInt32 pixelSize = LTexture::formatBytesPerPixel(format);
-            UChar8 *buff = (UChar8 *)data;
+            UInt8 *buff = (UInt8 *)data;
 
             Int32 n, w, h;
             LBox *boxes = onlyPending.boxes(&n);

@@ -3,7 +3,9 @@
 
 using namespace Louvre;
 
-LTouchFrameEvent::LTouchFrameEvent() {}
+LTouchFrameEvent::LTouchFrameEvent() :
+    LInputEvent(LInputEvent::TouchFrame) {}
+
 LTouchFrameEvent::~LTouchFrameEvent() {}
 
 void LTouchFrameEvent::notify()

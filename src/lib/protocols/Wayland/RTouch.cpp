@@ -29,6 +29,12 @@ RTouch::RTouch
     gSeat->imp()->rTouch = this;
 }
 
+RTouch::~RTouch()
+{
+    if (seatGlobal())
+        seatGlobal()->imp()->rTouch = nullptr;
+}
+
 GSeat *RTouch::seatGlobal() const
 {
     return imp()->gSeat;

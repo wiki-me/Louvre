@@ -3,7 +3,10 @@
 
 using namespace Louvre;
 
-LTouchMoveEvent::LTouchMoveEvent() : m_id(0) {}
+LTouchMoveEvent::LTouchMoveEvent() :
+    LInputEvent(LInputEvent::TouchMove),
+    m_id(0) {}
+
 LTouchMoveEvent::~LTouchMoveEvent() {}
 
 void LTouchMoveEvent::notify()

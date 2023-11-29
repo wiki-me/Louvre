@@ -16,7 +16,8 @@ public:
     ~GSeat();
 
     RKeyboard *keyboardResource() const;
-    RPointer  *pointerResource() const;
+    RPointer *pointerResource() const;
+    RTouch *touchResource() const;
     RDataDevice *dataDeviceResource() const;
 
     // Since 1

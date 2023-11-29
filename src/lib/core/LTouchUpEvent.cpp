@@ -3,7 +3,10 @@
 
 using namespace Louvre;
 
-LTouchUpEvent::LTouchUpEvent() : m_id(0) {}
+LTouchUpEvent::LTouchUpEvent() :
+    LInputEvent(LInputEvent::TouchUp),
+    m_id(0) {}
+
 LTouchUpEvent::~LTouchUpEvent() {}
 
 void LTouchUpEvent::notify()

@@ -51,7 +51,7 @@ public:
     /* CURSOR */
 
     static bool hasHardwareCursorSupport(LOutput *output);
-    static void setCursorTexture(LOutput *output, UChar8 *buffer);
+    static void setCursorTexture(LOutput *output, UInt8 *buffer);
     static void setCursorPosition(LOutput *output, const LPoint &position);
 
     /* BUFFERS */

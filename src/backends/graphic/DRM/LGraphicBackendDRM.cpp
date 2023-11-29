@@ -550,7 +550,7 @@ bool LGraphicBackend::hasHardwareCursorSupport(LOutput *output)
     return srmConnectorHasHardwareCursor(bkndOutput->conn);
 }
 
-void LGraphicBackend::setCursorTexture(LOutput *output, UChar8 *buffer)
+void LGraphicBackend::setCursorTexture(LOutput *output, UInt8 *buffer)
 {
     Output *bkndOutput = (Output*)output->imp()->graphicBackendData;
     srmConnectorSetCursor(bkndOutput->conn, buffer);

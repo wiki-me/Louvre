@@ -3,7 +3,9 @@
 
 using namespace Louvre;
 
-LPointerButtonEvent::LPointerButtonEvent() {}
+LPointerButtonEvent::LPointerButtonEvent() :
+    LInputEvent(LInputEvent::PointerButton) {}
+
 LPointerButtonEvent::~LPointerButtonEvent() {}
 
 void LPointerButtonEvent::notify()

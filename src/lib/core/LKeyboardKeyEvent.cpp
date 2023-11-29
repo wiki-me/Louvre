@@ -4,7 +4,9 @@
 
 using namespace Louvre;
 
-LKeyboardKeyEvent::LKeyboardKeyEvent() {}
+LKeyboardKeyEvent::LKeyboardKeyEvent() :
+    LInputEvent(LInputEvent::KeyboardKey) {}
+
 LKeyboardKeyEvent::~LKeyboardKeyEvent() {}
 
 void LKeyboardKeyEvent::notify()

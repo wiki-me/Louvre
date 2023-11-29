@@ -56,7 +56,7 @@ LPRIVATE_CLASS(LTexture)
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
     }
 
-    inline static void readPixels(const LRect &src, const LPoint &dstOffset, Int32 dstWidth, GLenum format, GLenum type, UChar8 *buffer)
+    inline static void readPixels(const LRect &src, const LPoint &dstOffset, Int32 dstWidth, GLenum format, GLenum type, UInt8 *buffer)
     {
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glPixelStorei(GL_PACK_ROW_LENGTH, dstWidth);

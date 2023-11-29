@@ -88,7 +88,7 @@ void Clock::updateClockTexture()
     Int64 x_off;
     Int64 y_off;
 
-    UChar8 *buffer;
+    UInt8 *buffer;
     Int32 bufferWidth = 0;
     Int32 bufferHeight;
 
@@ -134,7 +134,7 @@ void Clock::updateClockTexture()
 
     if (bufferHeight*bufferWidth > 0)
     {
-        buffer = (UChar8*)calloc(1, bufferWidth*bufferHeight*4);
+        buffer = (UInt8*)calloc(1, bufferWidth*bufferHeight*4);
     }
     else
     {

@@ -165,6 +165,12 @@ namespace Louvre
     typedef int16_t         Int16;
 
     /// @brief 8 bits unsigned integer
+    typedef uint8_t         UInt8;
+
+    /// @brief 8 bits signed integer
+    typedef int8_t          Int8;
+
+    /// @brief 8 bits unsigned integer
     typedef unsigned char   UChar8;
 
     /// @brief 8 bits signed integer
@@ -435,7 +441,7 @@ namespace Louvre
         Int32 (*getOutputModeRefreshRate)(LOutputMode *mode);
         bool (*getOutputModeIsPreferred)(LOutputMode *mode);
         bool (*hasHardwareCursorSupport)(LOutput *output);
-        void (*setCursorTexture)(LOutput *output, UChar8 *buffer);
+        void (*setCursorTexture)(LOutput *output, UInt8 *buffer);
         void (*setCursorPosition)(LOutput *output, const LPoint &position);
 
         // Buffers
