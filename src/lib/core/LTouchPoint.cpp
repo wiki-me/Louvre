@@ -41,12 +41,13 @@ bool LTouchPoint::sendTouchUpEvent(const LTouchUpEvent &event)
         return false;
 
     m_isReleased = true;
+    UInt32 serial = LCompositor::nextSerial();
 
     for (GSeat *gSeat : surface()->client()->seatGlobals())
     {
         if (gSeat->touchResource())
         {
-            gSeat->touchResource()->imp()->serials.up = LCompositor::nextSerial();
+            gSeat->touchResource()->imp()->serials.up = serial;
             gSeat->touchResource()->up(
                 gSeat->touchResource()->imp()->serials.up,
                 event.time(),
@@ -63,6 +64,7 @@ LTouchPoint::LTouchPoint(const LTouchDownEvent &event, LSurface *surface, const 
 {
     seat()->touch()->imp()->touchPoints.push_back(this);
     m_link = std::prev(seat()->touch()->imp()->touchPoints.end());
+    m_serial = LCompositor::nextSerial();
 
     Float24 x = wl_fixed_from_double(localPos.x());
     Float24 y = wl_fixed_from_double(localPos.y());
@@ -71,7 +73,7 @@ LTouchPoint::LTouchPoint(const LTouchDownEvent &event, LSurface *surface, const 
     {
         if (gSeat->touchResource())
         {
-            gSeat->touchResource()->imp()->serials.down = LCompositor::nextSerial();
+            gSeat->touchResource()->imp()->serials.down = m_serial;
             gSeat->touchResource()->down(gSeat->touchResource()->imp()->serials.down,
                                          event.time(),
                                          surface->surfaceResource(),

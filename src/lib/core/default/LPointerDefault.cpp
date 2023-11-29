@@ -28,7 +28,9 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     cursor()->repaintOutputs(true);
 
     // Update the drag & drop icon position
-    if (seat()->dndManager()->icon())
+    bool pointerDND = seat()->dndManager()->eventSource() == InputEventSource::Pointer;
+
+    if (seat()->dndManager()->icon() && pointerDND)
     {
         seat()->dndManager()->icon()->surface()->setPos(cursor()->pos());
         seat()->dndManager()->icon()->surface()->repaintOutputs();
@@ -52,15 +54,10 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         return;
     }
 
-    // If we are in a drag & drop session, we call setDraggingSurface(nullptr)
-    // to prevent the current surface from retaining focus.
-    if (seat()->dndManager()->dragging())
-        setDraggingSurface(nullptr);
-
     // If a surface had the left pointer button held down
     if (draggingSurface())
     {
-        sendMoveEvent(event.time());
+        sendMoveEvent(cursor()->pos() - draggingSurface()->rolePos(), event.time());
         return;
     }
 
@@ -69,14 +66,29 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 
     if (surface)
     {
+        // Local surface pos
+        LPointF localPos = cursor()->pos() - surface->rolePos();
+
         if (focus() == surface)
-            sendMoveEvent(event.time());
+            sendMoveEvent(localPos, event.time());
         else
-            setFocus(surface);
+            setFocus(surface, localPos);
+
+        if (pointerDND)
+        {
+            if (seat()->dndManager()->focus() == surface)
+                seat()->dndManager()->sendMoveEvent(localPos, event.time());
+            else
+                seat()->dndManager()->setFocus(surface, localPos);
+        }
     }
     else
     {
         setFocus(nullptr);
+
+        if (pointerDND)
+            seat()->dndManager()->setFocus(nullptr, LPointF());
+
         cursor()->useDefault();
         cursor()->setVisible(true);
     }

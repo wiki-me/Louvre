@@ -353,6 +353,14 @@ namespace Louvre
         LInputBackendX11 = 1       ///< ID for the X11 input backend.
     };
 
+    enum class InputEventSource : UInt8
+    {
+        Unknown,
+        Pointer,
+        Keyboard,
+        Touch
+    };
+
     namespace Protocols
     {
         namespace Wayland

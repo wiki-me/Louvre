@@ -73,7 +73,7 @@ void RDataOffer::RDataOfferPrivate::finish(wl_client *client, wl_resource *resou
         seat()->dndManager()->source()->dataSourceResource()->dndFinished();
 
     if (seat()->dndManager()->focus())
-        seat()->dndManager()->focus()->client()->dataDevice().imp()->sendDNDLeaveEvent();
+        seat()->dndManager()->setFocus(nullptr, LPointF());
 
     seat()->dndManager()->imp()->clear();
 }

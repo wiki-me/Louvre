@@ -47,9 +47,6 @@ LPRIVATE_CLASS(LPointer)
         Float24 x = wl_fixed_from_double(localPos.x());
         Float24 y = wl_fixed_from_double(localPos.y());
 
-        if (seat()->dndManager()->focus())
-            seat()->dndManager()->focus()->client()->dataDevice().imp()->sendDNDMotionEventS(x, y);
-
         for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
         {
             if (s->pointerResource())

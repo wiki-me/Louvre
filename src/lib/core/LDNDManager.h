@@ -15,6 +15,12 @@ class Louvre::LDNDManager : public LObject
 public:
     struct Params;
 
+    void setFocus(LSurface *surface, const LPointF &localPos);
+    void sendMoveEvent(const LPointF &localPos, UInt32 time);
+    InputEventSource eventSource() const;
+    UInt32 serial() const;
+    Int32 touchPointId() const;
+
     /**
      * @brief Constructor of the LDNDManager class.
      *

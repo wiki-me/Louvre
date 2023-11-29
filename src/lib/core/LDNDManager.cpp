@@ -1,3 +1,5 @@
+#include <protocols/Wayland/private/RDataOfferPrivate.h>
+#include <protocols/Wayland/private/RDataDevicePrivate.h>
 #include <protocols/Wayland/GSeat.h>
 #include <protocols/Wayland/RDataDevice.h>
 #include <protocols/Wayland/RDataSource.h>
@@ -12,8 +14,109 @@
 #include <LSeat.h>
 #include <LPointer.h>
 #include <LTimer.h>
+#include <LSurface.h>
 
 using namespace Louvre;
+using namespace Louvre::Protocols::Wayland;
+
+void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
+{
+    if (!surface)
+    {
+        imp()->sendLeaveEvent(focus());
+        return;
+    }
+
+    if (surface == focus() || seat()->dndManager()->imp()->dropped)
+        return;
+    else
+    {
+        imp()->sendLeaveEvent(focus());
+        imp()->focus = surface;
+    }
+
+    Float24 x = wl_fixed_from_double(localPos.x());
+    Float24 y = wl_fixed_from_double(localPos.y());
+
+    if (source())
+    {
+        for (GSeat *gSeat : focus()->client()->seatGlobals())
+        {
+            if (gSeat->dataDeviceResource())
+            {
+                RDataOffer *rDataOffer = new RDataOffer(gSeat->dataDeviceResource(), 0);
+
+                rDataOffer->dataOffer()->imp()->usedFor = LDataOffer::DND;
+                gSeat->dataDeviceResource()->imp()->dataOffered = rDataOffer->dataOffer();
+                gSeat->dataDeviceResource()->dataOffer(rDataOffer);
+
+                for (const LDataSource::LSource &s : source()->sources())
+                    rDataOffer->offer(s.mimeType);
+
+                UInt32 serial = LCompositor::nextSerial();
+
+                gSeat->dataDeviceResource()->imp()->serials.enter = serial;
+                gSeat->dataDeviceResource()->enter(serial,
+                                               surface->surfaceResource(),
+                                               x,
+                                               y,
+                                               rDataOffer);
+
+                rDataOffer->sourceActions(source()->dndActions());
+            }
+        }
+    }
+    // If source is NULL, enter, leave and motion events are sent only to the client that
+    // initiated the drag and the client is expected to handle the data passing internally
+    else if (origin() == focus())
+    {
+        for (GSeat *gSeat : focus()->client()->seatGlobals())
+        {
+            UInt32 serial = LCompositor::nextSerial();
+
+            if (gSeat->dataDeviceResource())
+            {
+                gSeat->dataDeviceResource()->imp()->serials.enter = serial;
+                gSeat->dataDeviceResource()->enter(
+                    serial,
+                    surface->surfaceResource(),
+                    x,
+                    y,
+                    NULL);
+            }
+        }
+    }
+
+    focus()->client()->flush();
+}
+
+void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 time)
+{
+    if (!focus() || seat()->dndManager()->imp()->dropped)
+        return;
+
+    Float24 x = wl_fixed_from_double(localPos.x());
+    Float24 y = wl_fixed_from_double(localPos.y());
+
+    for (GSeat *gSeat : focus()->client()->seatGlobals())
+        if (gSeat->dataDeviceResource())
+            gSeat->dataDeviceResource()->motion(time, x, y);
+}
+
+InputEventSource LDNDManager::eventSource() const
+{
+    return imp()->eventSource;
+}
+
+UInt32 LDNDManager::serial() const
+{
+    return imp()->serial;
+}
+
+Int32 LDNDManager::touchPointId() const
+{
+    return imp()->touchId;
+}
 
 LDNDManager::LDNDManager(Params *params) : LPRIVATE_INIT_UNIQUE(LDNDManager)
 {
@@ -59,8 +162,7 @@ bool LDNDManager::dragging() const
 
 void LDNDManager::cancel()
 {
-    if (imp()->focus)
-        imp()->focus->client()->dataDevice().imp()->sendDNDLeaveEvent();
+    imp()->sendLeaveEvent(focus());
 
     if (source())
     {
@@ -74,6 +176,12 @@ void LDNDManager::cancel()
 
 void LDNDManager::drop()
 {
+    if (dragging() && !focus())
+    {
+        cancel();
+        return;
+    }
+
     if (dragging() && !imp()->dropped)
     {
         imp()->dropped = true;

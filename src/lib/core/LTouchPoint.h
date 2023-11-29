@@ -20,6 +20,11 @@ public:
     {
         return m_id;
     }
+
+    inline UInt32 serial() const
+    {
+        return m_serial;
+    }
 private:
     friend class LTouch;
     friend class Louvre::Protocols::Wayland::RSurface;
@@ -32,6 +37,7 @@ private:
 
     LSurface *m_surface = nullptr;
     Int32 m_id = 0;
+    UInt32 m_serial = 0;
     bool m_isReleased = false;
     std::list<LTouchPoint*>::iterator m_link;
 };

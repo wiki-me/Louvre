@@ -10,6 +10,8 @@
 #include <protocols/Wayland/GSeat.h>
 #include <protocols/Wayland/RPointer.h>
 #include <protocols/Wayland/RKeyboard.h>
+#include <protocols/Wayland/RTouch.h>
+#include <LTouchPoint.h>
 #include <LCompositor.h>
 #include <LLog.h>
 #include <string.h>
@@ -40,30 +42,58 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
     L_UNUSED(serial);
 
     RDataDevice *rDataDevice = (RDataDevice*)wl_resource_get_user_data(resource);
-
-    /* TODO: Use serial
-    if (!rDataDevice->seatGlobal()->pointerResource() || rDataDevice->seatGlobal()->pointerResource()->serials().button != serial)
-    {
-        LLog::debug("[RDataDevicePrivate::start_drag] Start drag request without input grab. Ignoring it.");
-        return;
-    }*/
-
     RSurface *rOriginSurface = (RSurface*)wl_resource_get_user_data(origin);
     LSurface *lOriginSurface = rOriginSurface->surface();
     LDNDManager *dndManager = seat()->dndManager();
 
-    // Cancel if there is dragging going on or if there is no focused surface from this client
-    if (dndManager->dragging() || seat()->pointer()->focus() != lOriginSurface)
+    // Cancel if there is dragging going
+    if (dndManager->dragging())
     {
         LLog::debug("[RDataDevicePrivate::start_drag] Invalid start drag request. Ignoring it.");
         return;
     }
 
-    seat()->pointer()->setDraggingSurface(nullptr);
+    InputEventSource eventSource = InputEventSource::Unknown;
+    Int32 touchId = -1;
+
+    if (rDataDevice->seatGlobal()->pointerResource() && rDataDevice->seatGlobal()->pointerResource()->serials().button == serial)
+    {
+        eventSource = InputEventSource::Pointer;
+        goto skipGrabCheck;
+    }
+    else if (rDataDevice->seatGlobal()->keyboardResource() && rDataDevice->seatGlobal()->keyboardResource()->serials().key == serial)
+    {
+        eventSource = InputEventSource::Keyboard;
+        goto skipGrabCheck;
+    }
+    else if (rDataDevice->seatGlobal()->touchResource() && rDataDevice->seatGlobal()->touchResource()->serials().down == serial)
+    {
+        eventSource = InputEventSource::Touch;
+
+        for (LTouchPoint *tp : seat()->touch()->touchPoints())
+        {
+            if (tp->serial() == serial)
+            {
+                touchId = tp->id();
+                break;
+            }
+        }
+
+        goto skipGrabCheck;
+    }
+
+    LLog::debug("[RDataDevicePrivate::start_drag] Start drag & drop request without serial match. Ignoring it.");
+    return;
+
+    skipGrabCheck:
+
     dndManager->imp()->dropped = false;
 
     // Removes pevious data source if any
     dndManager->cancel();
+    dndManager->imp()->eventSource = eventSource;
+    dndManager->imp()->serial = serial;
+    dndManager->imp()->touchId = touchId;
 
     // Check if there is an icon
     if (icon)
@@ -122,10 +152,6 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
 
     // Notify
     dndManager->startDragRequest();
-
-    if (dndManager->imp()->origin && seat()->pointer()->focus())
-        seat()->pointer()->focus()->client()->dataDevice().imp()->sendDNDEnterEventS(
-            seat()->pointer()->focus(), 0, 0);
 }
 
 void RDataDevice::RDataDevicePrivate::set_selection(wl_client *client, wl_resource *resource, wl_resource *source, UInt32 serial)

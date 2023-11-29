@@ -71,8 +71,6 @@ void LPointer::setFocus(LSurface *surface, const LPoint &localPos)
                 s->pointerResource()->frame();
             }
         }
-
-        surface->client()->dataDevice().imp()->sendDNDEnterEventS(surface, x, y);
     }
     else
     {
@@ -80,7 +78,6 @@ void LPointer::setFocus(LSurface *surface, const LPoint &localPos)
         imp()->sendLeaveEvent(focus());
         imp()->pointerFocusSurface = nullptr;
     }
-
 }
 
 void LPointer::sendMoveEvent(UInt32 time)
@@ -362,9 +359,6 @@ LSurface *LPointer::focus() const
 
 void LPointer::LPointerPrivate::sendLeaveEvent(LSurface *surface)
 {
-    if (seat()->dndManager()->focus() && seat()->dndManager()->focus() == surface)
-        seat()->dndManager()->focus()->client()->dataDevice().imp()->sendDNDLeaveEvent();
-
     if (!surface)
         return;
 
