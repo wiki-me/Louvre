@@ -2,6 +2,7 @@
 #define LKEYBOARD_H
 
 #include <LObject.h>
+#include <LKeyboardModifiersEvent.h>
 #include <xkbcommon/xkbcommon.h>
 
 /**
@@ -28,40 +29,6 @@ public:
      * Configuration parameters passed in the LCompositor::createKeyboardRequest() virtual constructor.
      */
     struct Params;
-
-    /**
-     * @brief Keyboard modifiers.
-     *
-     * Stores the status of keyboard modifiers (Ctrl, Shift, Alt, etc).
-     */
-    struct KeyboardModifiersState
-    {
-        /// Active modifiers when physically pressed
-        UInt32 depressed;
-
-        /// Hooked modifiers that will be disabled after a non-modifier key is pressed
-        UInt32 latched;
-
-        /// Active modifiers until they are pressed again (e.g. the Shift key)
-        UInt32 locked;
-
-        /// Group the above states (use this value if the source of a modifier change is not of your interest)
-        UInt32 group;
-    };
-
-    /**
-     * @brief Key states.
-     *
-     * Enum with the possible states of a key.
-     */
-    enum KeyState : UInt8
-    {
-        /// The key is not being pressed
-        Released = 0,
-
-        /// The key is pressed
-        Pressed = 1
-    };
 
     /**
      * @brief Constructor of the LKeyboard class.
@@ -139,11 +106,11 @@ public:
     Protocols::Wayland::RKeyboard* grabbingKeyboardResource() const;
 
     /**
-     * @brief State of the keyboard modifiers.
+     * @brief Current keyboard modifiers state.
      *
-     * @returns An instance of KeyboardModifiersState, which stores the state of the keyboard modifiers.
+     * @returns An instance of LKeyboardModifiersEvent::Modifiers, which stores the state of the keyboard modifiers.
      */
-    const KeyboardModifiersState &modifiersState() const;
+    const LKeyboardModifiersEvent::Modifiers &modifiers() const;
 
     /**
      * @brief Keyboard map file descriptor.

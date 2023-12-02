@@ -1,16 +1,14 @@
 #ifndef LPOINTERMOVEEVENT_H
 #define LPOINTERMOVEEVENT_H
 
-#include <LInputEvent.h>
+#include <LPointerEvent.h>
 #include <LPoint.h>
 #include <LTime.h>
 
-class Louvre::LPointerMoveEvent : public LInputEvent
+class Louvre::LPointerMoveEvent : public LPointerEvent
 {
 public:
-    LPointerMoveEvent(const LPointF &pos, bool absolute, UInt32 time = LTime::ms());
     LPointerMoveEvent();
-    ~LPointerMoveEvent();
 
     inline void setIsAbsolute(bool absolute)
     {
@@ -57,6 +55,8 @@ public:
     {
         return m_pos;
     }
+
+    mutable LPointF localPos;
 
 protected:
     bool m_isAbsolute = false;

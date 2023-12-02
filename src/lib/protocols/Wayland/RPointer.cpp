@@ -40,35 +40,50 @@ GSeat *RPointer::seatGlobal() const
     return imp()->gSeat;
 }
 
-const RPointer::LastEventSerials &RPointer::serials() const
+const RPointer::SerialEvents &RPointer::serialEvents() const
 {
-    return imp()->serials;
+    return imp()->serialEvents;
 }
 
-bool RPointer::enter(UInt32 serial, RSurface *rSurface, Float24 x, Float24 y)
+bool RPointer::enter(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Float32 x, Float32 y)
 {
+    imp()->serialEvents.enter.setDevice(device);
+    imp()->serialEvents.enter.setTime(time);
+    imp()->serialEvents.enter.setSerial(serial);
+    imp()->serialEvents.enter.localPos.setX(x);
+    imp()->serialEvents.enter.localPos.setY(y);
     wl_pointer_send_enter(resource(),
                           serial,
                           rSurface->resource(),
-                          x,
-                          y);
+                          wl_fixed_from_double(x),
+                          wl_fixed_from_double(y));
     return true;
 }
 
-bool RPointer::leave(UInt32 serial, RSurface *rSurface)
+bool RPointer::leave(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface)
 {
+    imp()->serialEvents.leave.setDevice(device);
+    imp()->serialEvents.leave.setTime(time);
+    imp()->serialEvents.leave.setSerial(serial);
     wl_pointer_send_leave(resource(), serial, rSurface->resource());
     return true;
 }
 
-bool RPointer::motion(UInt32 time, Float24 x, Float24 y)
+bool RPointer::motion(UInt32 time, Float32 x, Float32 y)
 {
-    wl_pointer_send_motion(resource(), time, x, y);
+    wl_pointer_send_motion(resource(), time,
+                           wl_fixed_from_double(x),
+                           wl_fixed_from_double(y));
     return true;
 }
 
-bool RPointer::button(UInt32 serial, UInt32 time, UInt32 button, UInt32 state)
+bool RPointer::button(LInputDevice *device, UInt32 time, UInt32 serial, UInt32 button, UInt32 state)
 {
+    imp()->serialEvents.button.setDevice(device);
+    imp()->serialEvents.button.setTime(time);
+    imp()->serialEvents.button.setSerial(serial);
+    imp()->serialEvents.button.setButton((LPointerButtonEvent::Button)button);
+    imp()->serialEvents.button.setState((LPointerButtonEvent::State) state);
     wl_pointer_send_button(resource(), serial, time, button, state);
     return true;
 }

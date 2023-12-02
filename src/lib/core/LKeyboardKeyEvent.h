@@ -1,15 +1,29 @@
 #ifndef LKEYBOARDKEYEVENT_H
 #define LKEYBOARDKEYEVENT_H
 
+#include <LKeyboardEvent.h>
 #include <LKeyboard.h>
-#include <LInputEvent.h>
 #include <LTime.h>
 
-class Louvre::LKeyboardKeyEvent : public LInputEvent
+class Louvre::LKeyboardKeyEvent : public LKeyboardEvent
 {
 public:
+
+    /**
+     * @brief Key states.
+     *
+     * Enum with the possible states of a key.
+     */
+    enum State : UInt32
+    {
+        /// The key is not being pressed
+        Released = 0,
+
+        /// The key is pressed
+        Pressed = 1
+    };
+
     LKeyboardKeyEvent();
-    ~LKeyboardKeyEvent();
 
     inline void setKeyCode(UInt32 keyCode)
     {
@@ -21,19 +35,19 @@ public:
         return m_key;
     }
 
-    inline void setState(LKeyboard::KeyState state)
+    inline void setState(State state)
     {
         m_state = state;
     }
 
-    inline LKeyboard::KeyState state() const
+    inline State state() const
     {
         return m_state;
     }
 
 protected:
     UInt32 m_key;
-    LKeyboard::KeyState m_state;
+    State m_state;
 private:
     friend class LInputBackend;
     void notify();

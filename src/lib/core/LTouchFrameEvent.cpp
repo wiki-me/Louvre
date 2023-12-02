@@ -1,12 +1,12 @@
 #include <LTouchFrameEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LTouchFrameEvent::LTouchFrameEvent() :
-    LInputEvent(LInputEvent::TouchFrame) {}
-
-LTouchFrameEvent::~LTouchFrameEvent() {}
+    LTouchEvent(Subtype::Frame, LCompositor::nextSerial(), LTime::ms(), nullptr)
+{}
 
 void LTouchFrameEvent::notify()
 {

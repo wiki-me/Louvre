@@ -3,6 +3,9 @@
 
 #include <LResource.h>
 #include <LPointer.h>
+#include <LPointerEnterEvent.h>
+#include <LPointerButtonEvent.h>
+#include <LPointerLeaveEvent.h>
 
 class Louvre::Protocols::Wayland::RPointer : public LResource
 {
@@ -11,21 +14,21 @@ public:
     LCLASS_NO_COPY(RPointer)
     ~RPointer();
 
-    struct LastEventSerials
+    struct SerialEvents
     {
-        UInt32 leave = 0;
-        UInt32 enter = 0;
-        UInt32 button = 0;
+        LPointerEnterEvent enter;
+        LPointerLeaveEvent leave;
+        LPointerButtonEvent button;
     };
 
     GSeat *seatGlobal() const;
-    const LastEventSerials &serials() const;
+    const SerialEvents &serialEvents() const;
 
     // Since 1
-    bool enter(UInt32 serial, RSurface *rSurface, Float24 x, Float24 y);
-    bool leave(UInt32 serial, RSurface *rSurface);
-    bool motion(UInt32 time, Float24 x, Float24 y);
-    bool button(UInt32 serial, UInt32 time, UInt32 button, UInt32 state);
+    bool enter(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Float32 x, Float32 y);
+    bool leave(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface);
+    bool motion(UInt32 time, Float32 x, Float32 y);
+    bool button(LInputDevice *device, UInt32 time, UInt32 serial, UInt32 button, UInt32 state);
     bool axis(UInt32 time, UInt32 axis, Float24 value);
 
     // Since 5

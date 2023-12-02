@@ -4,10 +4,16 @@
 
 using namespace Louvre;
 
-LInputEvent::LInputEvent(Type type) :
-    m_device(&compositor()->imp()->fakeDevice),
-    m_time(LTime::ms()),
-    m_type(type)
-{}
+void LInputEvent::setDevice(LInputDevice *device)
+{
+    if (device)
+        m_device = device;
+    else
+        m_device = &compositor()->imp()->fakeDevice;
+}
 
-LInputEvent::~LInputEvent() {}
+LInputEvent::LInputEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device) :
+    LEvent(type, subtype, serial, time)
+{
+    setDevice(device);
+}

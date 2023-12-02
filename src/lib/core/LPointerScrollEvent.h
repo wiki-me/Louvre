@@ -1,14 +1,33 @@
 #ifndef LPOINTERAXISEVENT_H
 #define LPOINTERAXISEVENT_H
 
-#include <LInputEvent.h>
+#include <LPointerEvent.h>
 #include <LPointer.h>
 
-class Louvre::LPointerScrollEvent : public LInputEvent
+class Louvre::LPointerScrollEvent : public LPointerEvent
 {
 public:
+    /**
+     * @brief Source of a scroll event
+     *
+     * Possible sources of a scroll event.
+     */
+    enum Source : UInt32
+    {
+        /// Mouse wheel (discrete)
+        Wheel = 0,
+
+        /// Trackpad swipe (continuous)
+        Finger = 1,
+
+        /// Continuous movement (with unspecified source)
+        Continuous = 2,
+
+        /// Side movement of a mouse wheel (since 6)
+        WheelTilt = 3
+    };
+
     LPointerScrollEvent();
-    ~LPointerScrollEvent();
 
     inline void setAxes(const LPointF &axes)
     {
@@ -78,12 +97,12 @@ public:
 
     //
 
-    inline void setSource(LPointer::ScrollEventSource source)
+    inline void setSource(Source source)
     {
         m_source = source;
     }
 
-    inline LPointer::ScrollEventSource source() const
+    inline Source source() const
     {
         return m_source;
     }
@@ -91,7 +110,7 @@ public:
 protected:
     LPointF m_axes;
     LPointF m_axes120;
-    LPointer::ScrollEventSource m_source;
+    Source m_source;
 private:
     friend class LInputBackend;
     void notify();

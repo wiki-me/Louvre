@@ -106,10 +106,10 @@ void ToplevelButton::update()
 
 void ToplevelButton::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.button() != LPointer::Button::Left)
+    if (event.button() != LPointerButtonEvent::Left)
         return;
 
-    if (pressed && event.state() == LPointer::Released)
+    if (pressed && event.state() == LPointerButtonEvent::Released)
     {
         if (buttonType == Close)
         {
@@ -145,7 +145,7 @@ void ToplevelButton::pointerButtonEvent(const LPointerButtonEvent &event)
         }
     }
 
-    pressed = event.state() == LPointer::Pressed;
+    pressed = event.state() == LPointerButtonEvent::Pressed;
 
     update();
 }

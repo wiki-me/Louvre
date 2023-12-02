@@ -40,19 +40,31 @@ GSeat *RTouch::seatGlobal() const
     return imp()->gSeat;
 }
 
-const RTouch::LastEventSerials &RTouch::serials() const
+const RTouch::SerialEvents &RTouch::serialEvents() const
 {
-    return imp()->serials;
+    return imp()->serialEvents;
 }
 
-bool RTouch::down(UInt32 serial, UInt32 time, RSurface *rSurface, Int32 id, Float24 x, Float24 y)
+bool RTouch::down(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Int32 id, Float32 x, Float32 y)
 {
-    wl_touch_send_down(resource(), serial, time, rSurface->resource(), id, x, y);
+    imp()->serialEvents.down.setDevice(device);
+    imp()->serialEvents.down.setTime(time);
+    imp()->serialEvents.down.setSerial(serial);
+    imp()->serialEvents.down.setId(id);
+    imp()->serialEvents.down.setX(x);
+    imp()->serialEvents.down.setY(y);
+    wl_touch_send_down(resource(), serial, time, rSurface->resource(), id,
+                       wl_fixed_from_double(x),
+                       wl_fixed_from_double(y));
     return true;
 }
 
-bool RTouch::up(UInt32 serial, UInt32 time, Int32 id)
+bool RTouch::up(LInputDevice *device, UInt32 time, UInt32 serial, Int32 id)
 {
+    imp()->serialEvents.up.setDevice(device);
+    imp()->serialEvents.up.setTime(time);
+    imp()->serialEvents.up.setSerial(serial);
+    imp()->serialEvents.up.setId(id);
     wl_touch_send_up(resource(), serial, time, id);
     return true;
 }

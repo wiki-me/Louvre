@@ -3,6 +3,7 @@
 #include <private/LDNDManagerPrivate.h>
 #include <LSurface.h>
 #include <LClient.h>
+#include <LEvent.h>
 
 using namespace Louvre::Protocols::Wayland;
 
@@ -15,9 +16,12 @@ void LDNDManager::LDNDManagerPrivate::clear()
     srcDataDevice = nullptr;
     dstClient = nullptr;
     matchedMimeType = false;
-    eventSource = InputEventSource::Unknown;
-    serial = 0;
-    touchId = -1;
+
+    if (startDragEvent)
+    {
+        delete startDragEvent;
+        startDragEvent = nullptr;
+    }
 }
 
 void LDNDManager::LDNDManagerPrivate::sendLeaveEvent(LSurface *surface)

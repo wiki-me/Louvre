@@ -16,9 +16,7 @@ LPRIVATE_CLASS(LDNDManager)
 
     // Since 3
     Action preferredAction                                      = NoAction;
-    InputEventSource eventSource                                = InputEventSource::Unknown;
-    UInt32 serial                                               = 0;
-    Int32 touchId                                               = -1;
+    LEvent *startDragEvent                                      = nullptr;
     LDNDIconRole *icon                                          = nullptr;
     LSurface *origin                                            = nullptr;
     LSurface *focus                                             = nullptr;
@@ -28,8 +26,6 @@ LPRIVATE_CLASS(LDNDManager)
 
     bool dropped                                                = false;
     bool matchedMimeType                                        = false;
-    //UInt32 destDidNotRequestReceive                             = 0;
-
 
     void sendLeaveEvent(LSurface *surface);
 };

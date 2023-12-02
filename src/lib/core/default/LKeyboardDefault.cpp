@@ -20,7 +20,7 @@ void LKeyboard::keyEvent(const LKeyboardKeyEvent &event)
     bool mods = isKeyCodePressed(KEY_LEFTALT) && L_CTRL;
     xkb_keysym_t sym = keySymbol(event.keyCode());
 
-    if (event.state() == Released)
+    if (event.state() == LKeyboardKeyEvent::Released)
     {
         // Launches weston-terminal
         if (event.keyCode() == KEY_F1 && !mods)

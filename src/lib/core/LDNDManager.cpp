@@ -40,6 +40,8 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
 
     if (source())
     {
+        UInt32 serial = LCompositor::nextSerial();
+
         for (GSeat *gSeat : focus()->client()->seatGlobals())
         {
             if (gSeat->dataDeviceResource())
@@ -52,8 +54,6 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
 
                 for (const LDataSource::LSource &s : source()->sources())
                     rDataOffer->offer(s.mimeType);
-
-                UInt32 serial = LCompositor::nextSerial();
 
                 gSeat->dataDeviceResource()->imp()->serials.enter = serial;
                 gSeat->dataDeviceResource()->enter(serial,
@@ -70,10 +70,10 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
     // initiated the drag and the client is expected to handle the data passing internally
     else if (origin() == focus())
     {
+        UInt32 serial = LCompositor::nextSerial();
+
         for (GSeat *gSeat : focus()->client()->seatGlobals())
         {
-            UInt32 serial = LCompositor::nextSerial();
-
             if (gSeat->dataDeviceResource())
             {
                 gSeat->dataDeviceResource()->imp()->serials.enter = serial;
@@ -86,8 +86,6 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
             }
         }
     }
-
-    focus()->client()->flush();
 }
 
 void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 time)
@@ -103,19 +101,9 @@ void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 time)
             gSeat->dataDeviceResource()->motion(time, x, y);
 }
 
-InputEventSource LDNDManager::eventSource() const
+const LEvent *LDNDManager::startDragEvent() const
 {
-    return imp()->eventSource;
-}
-
-UInt32 LDNDManager::serial() const
-{
-    return imp()->serial;
-}
-
-Int32 LDNDManager::touchPointId() const
-{
-    return imp()->touchId;
+    return imp()->startDragEvent;
 }
 
 LDNDManager::LDNDManager(Params *params) : LPRIVATE_INIT_UNIQUE(LDNDManager)

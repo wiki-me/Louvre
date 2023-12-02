@@ -12,7 +12,7 @@ LPRIVATE_CLASS(RKeyboard)
 #endif
 
     GSeat *gSeat;
-    LastEventSerials serials;
+    SerialEvents serialEvents;
 };
 
 #endif // RKEYBOARDPRIVATE_H

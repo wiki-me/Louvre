@@ -3,6 +3,8 @@
 
 #include <LResource.h>
 #include <LTouch.h>
+#include <LTouchDownEvent.h>
+#include <LTouchUpEvent.h>
 
 class Louvre::Protocols::Wayland::RTouch : public LResource
 {
@@ -11,18 +13,18 @@ public:
     LCLASS_NO_COPY(RTouch)
     ~RTouch();
 
-    struct LastEventSerials
+    struct SerialEvents
     {
-        UInt32 down = 0;
-        UInt32 up = 0;
+        LTouchDownEvent down;
+        LTouchUpEvent up;
     };
 
     GSeat *seatGlobal() const;
-    const LastEventSerials &serials() const;
+    const SerialEvents &serialEvents() const;
 
     // Since 1
-    bool down(UInt32 serial, UInt32 time, RSurface *rSurface, Int32 id, Float24 x, Float24 y);
-    bool up(UInt32 serial, UInt32 time, Int32 id);
+    bool down(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Int32 id, Float32 x, Float32 y);
+    bool up(LInputDevice *device, UInt32 time, UInt32 serial, Int32 id);
     bool motion(UInt32 time, Int32 id, Float24 x, Float24 y);
     bool frame();
     bool cancel();

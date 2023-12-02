@@ -1,13 +1,13 @@
 #include <private/LKeyboardPrivate.h>
 #include <LKeyboardKeyEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LKeyboardKeyEvent::LKeyboardKeyEvent() :
-    LInputEvent(LInputEvent::KeyboardKey) {}
-
-LKeyboardKeyEvent::~LKeyboardKeyEvent() {}
+    LKeyboardEvent(Subtype::Key, LCompositor::nextSerial(), LTime::ms(), nullptr)
+{}
 
 void LKeyboardKeyEvent::notify()
 {
@@ -34,7 +34,7 @@ void LKeyboardKeyEvent::notify()
         }
     }
 
-    if (state() == LKeyboard::Pressed)
+    if (state() == State::Pressed)
         keyboard->pressedKeys.push_back(keyCode());
     else
         keyboard->pressedKeys.remove(keyCode());

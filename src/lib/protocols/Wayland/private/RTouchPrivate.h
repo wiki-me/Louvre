@@ -12,7 +12,7 @@ static void release(wl_client *client, wl_resource *resource);
 #endif
 
 GSeat *gSeat;
-LastEventSerials serials;
+SerialEvents serialEvents;
 };
 
 #endif // RTOUCHPRIVATE_H

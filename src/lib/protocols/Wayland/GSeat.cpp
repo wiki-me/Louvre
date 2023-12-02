@@ -1,3 +1,4 @@
+#include "LLog.h"
 #include <protocols/Wayland/private/RKeyboardPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/private/RTouchPrivate.h>
@@ -5,6 +6,7 @@
 #include <protocols/Wayland/private/GSeatPrivate.h>
 #include <private/LClientPrivate.h>
 #include <LCompositor.h>
+#include <LTouchPoint.h>
 
 GSeat::GSeat
 (
@@ -47,6 +49,59 @@ GSeat::~GSeat()
 
     if (dataDeviceResource())
         dataDeviceResource()->imp()->gSeat = nullptr;
+}
+
+LEvent *GSeat::findSerialEventMatch(UInt32 serial) const
+{
+    if (pointerResource())
+    {
+        if (pointerResource()->imp()->serialEvents.enter.serial() == serial)
+        {
+            return new LPointerEnterEvent(pointerResource()->imp()->serialEvents.enter);
+        }
+        else if (pointerResource()->imp()->serialEvents.leave.serial() == serial)
+        {
+            return new LPointerLeaveEvent(pointerResource()->imp()->serialEvents.leave);
+        }
+        else if (pointerResource()->imp()->serialEvents.button.serial() == serial)
+        {
+            return new LPointerButtonEvent(pointerResource()->imp()->serialEvents.button);
+        }
+    }
+
+    if (keyboardResource())
+    {
+        if (keyboardResource()->imp()->serialEvents.enter.serial() == serial)
+        {
+            return new LKeyboardEnterEvent(keyboardResource()->imp()->serialEvents.enter);
+        }
+        else if (keyboardResource()->imp()->serialEvents.leave.serial() == serial)
+        {
+            return new LKeyboardLeaveEvent(keyboardResource()->imp()->serialEvents.leave);
+        }
+        else if (keyboardResource()->imp()->serialEvents.key.serial() == serial)
+        {
+            return new LKeyboardKeyEvent(keyboardResource()->imp()->serialEvents.key);
+        }
+        else if (keyboardResource()->imp()->serialEvents.modifiers.serial() == serial)
+        {
+            return new LKeyboardModifiersEvent(keyboardResource()->imp()->serialEvents.modifiers);
+        }
+    }
+
+    if (touchResource())
+    {
+        if (touchResource()->imp()->serialEvents.down.serial() == serial)
+        {
+            return new LTouchDownEvent(touchResource()->imp()->serialEvents.down);
+        }
+        else if (touchResource()->imp()->serialEvents.up.serial() == serial)
+        {
+            return new LTouchUpEvent(touchResource()->imp()->serialEvents.up);
+        }
+    }
+
+    return nullptr;
 }
 
 RKeyboard *GSeat::keyboardResource() const

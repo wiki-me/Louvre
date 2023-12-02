@@ -161,7 +161,12 @@ void Output::paintGL()
 
     // Check if surface moved under cursor
     if (seat()->pointer()->surfaceAt(cursor()->pos()) != seat()->pointer()->focus())
-        seat()->pointer()->pointerMoveEvent(LPointerMoveEvent(cursor()->pos(), true));
+    {
+        LPointerMoveEvent fakeEvent;
+        fakeEvent.setIsAbsolute(true);
+        fakeEvent.setPos(cursor()->pos());
+        seat()->pointer()->pointerMoveEvent(fakeEvent);
+    }
 
     Compositor *c = (Compositor*)compositor();
     LPainter *p = painter();

@@ -241,7 +241,7 @@ LSurface *LKeyboard::focus() const
     return imp()->keyboardFocusSurface;
 }
 
-const LKeyboard::KeyboardModifiersState &LKeyboard::modifiersState() const
+const LKeyboardModifiersEvent::Modifiers &LKeyboard::modifiers() const
 {
     return imp()->currentModifiersState;
 }
@@ -262,13 +262,13 @@ void LKeyboard::setFocus(LSurface *surface)
             if (focus())
             {
                 UInt32 serial = LCompositor::nextSerial();
+                UInt32 time = LTime::ms();
 
                 for (Wayland::GSeat *s : focus()->client()->seatGlobals())
                 {
                     if (s->keyboardResource())
                     {
-                        s->keyboardResource()->imp()->serials.leave = serial;
-                        s->keyboardResource()->leave(serial, focus()->surfaceResource());
+                        s->keyboardResource()->leave(nullptr, time, serial, focus()->surfaceResource());
                         break;
                     }
                 }
@@ -281,6 +281,7 @@ void LKeyboard::setFocus(LSurface *surface)
             imp()->keyboardFocusSurface = nullptr;
 
             UInt32 serial = LCompositor::nextSerial();
+            UInt32 time = LTime::ms();
 
             // Pack currently pressed keys
             wl_array keys;
@@ -297,15 +298,15 @@ void LKeyboard::setFocus(LSurface *surface)
                 if (s->keyboardResource())
                 {
                     imp()->keyboardFocusSurface = surface;
-                    s->keyboardResource()->imp()->serials.enter = serial;
-                    s->keyboardResource()->enter(serial, surface->surfaceResource(), &keys);
-                    s->keyboardResource()->imp()->serials.modifiers = serial;
+                    s->keyboardResource()->enter(nullptr, time, serial, surface->surfaceResource(), &keys);
                     s->keyboardResource()->modifiers(
+                        nullptr,
+                        time,
                         serial,
-                        modifiersState().depressed,
-                        modifiersState().latched,
-                        modifiersState().locked,
-                        modifiersState().group);
+                        modifiers().depressed,
+                        modifiers().latched,
+                        modifiers().locked,
+                        modifiers().group);
                 }
             }
 
@@ -318,14 +319,11 @@ void LKeyboard::setFocus(LSurface *surface)
         if (focus())
         {
             UInt32 serial = LCompositor::nextSerial();
+            UInt32 time = LTime::ms();
+
             for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-            {
                 if (s->keyboardResource())
-                {
-                    s->keyboardResource()->imp()->serials.leave = serial;
-                    s->keyboardResource()->leave(serial, focus()->surfaceResource());
-                }
-            }
+                    s->keyboardResource()->leave(nullptr, time, serial, focus()->surfaceResource());
         }
         imp()->keyboardFocusSurface = nullptr;
     }
@@ -339,22 +337,20 @@ void LKeyboard::sendKeyEvent(const LKeyboardKeyEvent &event)
     if (!focus())
         return;
 
-    UInt32 serial = LCompositor::nextSerial();
-
     if (grabbingSurface())
     {
-        grabbingKeyboardResource()->imp()->serials.key = serial;
-        grabbingKeyboardResource()->key(serial, event.time(), event.keyCode(), event.state());
+        grabbingKeyboardResource()->key(event.device(), event.time(), event.serial(), event.keyCode(), event.state());
 
         if (imp()->modifiersChanged)
         {
-            grabbingKeyboardResource()->imp()->serials.modifiers = serial;
             grabbingKeyboardResource()->modifiers(
-                serial,
-                modifiersState().depressed,
-                modifiersState().latched,
-                modifiersState().locked,
-                modifiersState().group);
+                event.device(),
+                event.time(),
+                LCompositor::nextSerial(),
+                modifiers().depressed,
+                modifiers().latched,
+                modifiers().locked,
+                modifiers().group);
         }
 
         return;
@@ -364,18 +360,18 @@ void LKeyboard::sendKeyEvent(const LKeyboardKeyEvent &event)
     {
         if (s->keyboardResource())
         {
-            s->keyboardResource()->imp()->serials.key = serial;
-            s->keyboardResource()->key(serial, event.time(), event.keyCode(), event.state());
+            s->keyboardResource()->key(event.device(), event.time(), event.serial(), event.keyCode(), event.state());
 
             if (imp()->modifiersChanged)
             {
-                s->keyboardResource()->imp()->serials.modifiers = serial;
                 s->keyboardResource()->modifiers(
-                    serial,
-                    modifiersState().depressed,
-                    modifiersState().latched,
-                    modifiersState().locked,
-                    modifiersState().group);
+                    event.device(),
+                    event.time(),
+                    LCompositor::nextSerial(),
+                    modifiers().depressed,
+                    modifiers().latched,
+                    modifiers().locked,
+                    modifiers().group);
             }
         }
     }

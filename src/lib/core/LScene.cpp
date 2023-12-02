@@ -144,14 +144,21 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
     if (seat()->dndManager()->dragging())
         seat()->pointer()->setDraggingSurface(nullptr);
 
+    LPointerMoveEvent moveEvent = imp()->currentPointerMoveEvent;
+
     // If there was a surface holding the left pointer button
     if (seat()->pointer()->draggingSurface())
     {
         if (seat()->pointer()->draggingSurface()->imp()->lastPointerEventView)
-            seat()->pointer()->sendMoveEvent(imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos()),
-                                             imp()->currentPointerMoveEvent.time());
+        {
+            moveEvent.setPos(imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos()));
+            seat()->pointer()->sendMoveEvent(moveEvent);
+        }
         else
-            seat()->pointer()->sendMoveEvent(imp()->currentPointerMoveEvent.time());
+        {
+            moveEvent.setPos(cursor()->pos() - seat()->pointer()->draggingSurface()->rolePos());
+            seat()->pointer()->sendMoveEvent(moveEvent);
+        }
 
         return imp()->pointerMoveEventFirstView;
     }
@@ -163,7 +170,10 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
         surface->imp()->lastPointerEventView = (LSurfaceView*)imp()->pointerMoveEventFirstView;
 
         if (seat()->pointer()->focus() == surface)
-            seat()->pointer()->sendMoveEvent(localPos, imp()->currentPointerMoveEvent.time());
+        {
+            moveEvent.setPos(localPos);
+            seat()->pointer()->sendMoveEvent(moveEvent);
+        }
         else
             seat()->pointer()->setFocus(surface, localPos);
     }
@@ -187,8 +197,8 @@ void LScene::handlePointerButtonEvent(const LPointerButtonEvent &event)
     if (!handleWaylandPointerEventsEnabled())
         return;
 
-    if (imp()->currentPointerButtonEvent.button() == LPointer::Left &&
-        imp()->currentPointerButtonEvent.state() == LPointer::Released)
+    if (imp()->currentPointerButtonEvent.button() == LPointerButtonEvent::Left &&
+        imp()->currentPointerButtonEvent.state() == LPointerButtonEvent::Released)
         seat()->dndManager()->drop();
 
     if (!seat()->pointer()->focus())
@@ -228,11 +238,11 @@ void LScene::handlePointerButtonEvent(const LPointerButtonEvent &event)
 
     seat()->pointer()->sendButtonEvent(imp()->currentPointerButtonEvent);
 
-    if (imp()->currentPointerButtonEvent.button() != LPointer::Button::Left)
+    if (imp()->currentPointerButtonEvent.button() != LPointerButtonEvent::Left)
         return;
 
     // Left button pressed
-    if (imp()->currentPointerButtonEvent.state() == LPointer::ButtonState::Pressed)
+    if (imp()->currentPointerButtonEvent.state() == LPointerButtonEvent::Pressed)
     {
         /* We save the pointer focus surface in order to continue sending events to it even when the cursor
          * is outside of it (while the left button is being held down)*/
@@ -342,7 +352,7 @@ void LScene::handleKeyEvent(const LKeyboardKeyEvent &event)
     bool L_SHIFT = seat()->keyboard()->isKeyCodePressed(KEY_LEFTSHIFT);
     bool mods = seat()->keyboard()->isKeyCodePressed(KEY_LEFTALT) && L_CTRL;
 
-    if (imp()->currentKeyboardKeyEvent.state() == LKeyboard::Released)
+    if (imp()->currentKeyboardKeyEvent.state() == LKeyboardKeyEvent::Released)
     {
         // Terminates client connection
         if (L_CTRL && seat()->keyboard()->keySymbol(imp()->currentKeyboardKeyEvent.keyCode()) == XKB_KEY_q)

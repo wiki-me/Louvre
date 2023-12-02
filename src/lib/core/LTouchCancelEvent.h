@@ -1,13 +1,12 @@
 #ifndef LTOUCHCANCELEVENT_H
 #define LTOUCHCANCELEVENT_H
 
-#include <LInputEvent.h>
+#include <LTouchEvent.h>
 
-class Louvre::LTouchCancelEvent : public LInputEvent
+class Louvre::LTouchCancelEvent : public LTouchEvent
 {
 public:
     LTouchCancelEvent();
-    ~LTouchCancelEvent();
 
 private:
     friend class LInputBackend;

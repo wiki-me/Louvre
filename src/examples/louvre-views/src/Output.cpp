@@ -346,7 +346,10 @@ void Output::paintGL()
     // Check pointer events before painting
     if (G::compositor()->updatePointerBeforePaint)
     {
-        seat()->pointer()->pointerMoveEvent(LPointerMoveEvent(cursor()->pos(), true));
+        LPointerMoveEvent fakeEvent;
+        fakeEvent.setIsAbsolute(true);
+        fakeEvent.setPos(cursor()->pos());
+        seat()->pointer()->pointerMoveEvent(fakeEvent);
         G::compositor()->updatePointerBeforePaint = false;
     }
 

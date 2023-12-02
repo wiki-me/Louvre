@@ -19,21 +19,24 @@ using namespace Louvre;
 //! [pointerMoveEvent]
 void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 {
+    // Update the cursor position
     if (event.isAbsolute())
         cursor()->setPos(event.pos());
     else
         cursor()->move(event.pos());
 
-    // Repaint outputs that intersect with the cursor if hardware composition is not supported.
+    // Schedule repaint on outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);
 
-    // Update the drag & drop icon position
-    bool pointerDND = seat()->dndManager()->eventSource() == InputEventSource::Pointer;
+    LDNDManager *dnd = seat()->dndManager();
 
-    if (seat()->dndManager()->icon() && pointerDND)
+    // Update the drag & drop icon position
+    bool pointerDND = dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Pointer;
+
+    if (dnd->icon() && pointerDND)
     {
-        seat()->dndManager()->icon()->surface()->setPos(cursor()->pos());
-        seat()->dndManager()->icon()->surface()->repaintOutputs();
+        dnd->icon()->surface()->setPos(cursor()->pos());
+        dnd->icon()->surface()->repaintOutputs();
     }
 
     if (resizingToplevel())
@@ -57,7 +60,8 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     // If a surface had the left pointer button held down
     if (draggingSurface())
     {
-        sendMoveEvent(cursor()->pos() - draggingSurface()->rolePos(), event.time());
+        event.localPos = cursor()->pos() - draggingSurface()->rolePos();
+        sendMoveEvent(event);
         return;
     }
 
@@ -66,20 +70,19 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 
     if (surface)
     {
-        // Local surface pos
-        LPointF localPos = cursor()->pos() - surface->rolePos();
+        event.localPos = cursor()->pos() - surface->rolePos();
 
         if (focus() == surface)
-            sendMoveEvent(localPos, event.time());
+            sendMoveEvent(event);
         else
-            setFocus(surface, localPos);
+            setFocus(surface, event.localPos);
 
         if (pointerDND)
         {
             if (seat()->dndManager()->focus() == surface)
-                seat()->dndManager()->sendMoveEvent(localPos, event.time());
+                seat()->dndManager()->sendMoveEvent(event.localPos, event.time());
             else
-                seat()->dndManager()->setFocus(surface, localPos);
+                seat()->dndManager()->setFocus(surface, event.localPos);
         }
     }
     else
@@ -98,7 +101,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 //! [pointerButtonEvent]
 void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.state() == Released && event.button() == Left)
+    if (event.state() == LPointerButtonEvent::Released && event.button() == LPointerButtonEvent::Left)
         seat()->dndManager()->drop();
 
     if (!focus())
@@ -125,11 +128,11 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 
     sendButtonEvent(event);
 
-    if (event.button() != Left)
+    if (event.button() != LPointerButtonEvent::Left)
         return;
 
     // Left button pressed
-    if (event.state() == Pressed)
+    if (event.state() == LPointerButtonEvent::Pressed)
     {
         // We save the pointer focus surface to continue sending events to it even when the cursor
         // is outside of it (while the left button is being held down)

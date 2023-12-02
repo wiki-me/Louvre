@@ -14,6 +14,7 @@
 #include <LDNDManager.h>
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
+#include <LPointerMoveEvent.h>
 
 using namespace Louvre;
 using namespace Louvre::Protocols;
@@ -53,21 +54,20 @@ void LPointer::setFocus(LSurface *surface, const LPoint &localPos)
 
         imp()->sendLeaveEvent(focus());
 
-        Float24 x = wl_fixed_from_int(localPos.x());
-        Float24 y = wl_fixed_from_int(localPos.y());
+        UInt32 serial = LCompositor::nextSerial();
         imp()->pointerFocusSurface = nullptr;
 
         for (Wayland::GSeat *s : surface->client()->seatGlobals())
         {
             if (s->pointerResource())
             {
-                UInt32 serial = LCompositor::nextSerial();
                 imp()->pointerFocusSurface = surface;
-                s->pointerResource()->imp()->serials.enter = serial;
-                s->pointerResource()->enter(serial,
+                s->pointerResource()->enter(nullptr,
+                                            LTime::ms(),
+                                            serial,
                                             surface->surfaceResource(),
-                                            x,
-                                            y);
+                                            localPos.x(),
+                                            localPos.y());
                 s->pointerResource()->frame();
             }
         }
@@ -80,28 +80,39 @@ void LPointer::setFocus(LSurface *surface, const LPoint &localPos)
     }
 }
 
-void LPointer::sendMoveEvent(UInt32 time)
+void LPointer::sendMoveEvent(const LPointerMoveEvent &event)
 {
-    if (focus())
-        imp()->sendMoveEvent(cursor()->pos() - focus()->rolePos(), time);
-}
+    if (!focus())
+        return;
 
-void LPointer::sendMoveEvent(const LPoint &localPos, UInt32 time)
-{
-    if (focus())
-        imp()->sendMoveEvent(localPos, time);
-}
-
-void LPointer::sendButtonEvent(Button button, ButtonState state, UInt32 time)
-{
-    if (focus())
-        imp()->sendButtonEvent(button, state, time);
+    for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
+    {
+        if (s->pointerResource())
+        {
+            s->pointerResource()->motion(event.time(), event.localPos.x(), event.localPos.y());
+            s->pointerResource()->frame();
+        }
+    }
 }
 
 void LPointer::sendButtonEvent(const LPointerButtonEvent &event)
 {
-    if (focus())
-        imp()->sendButtonEvent(event.button(), event.state(), event.time());
+    if (!focus())
+        return;
+
+    for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
+    {
+        if (s->pointerResource())
+        {
+            s->pointerResource()->button(
+                event.device(),
+                event.time(),
+                event.serial(),
+                event.button(),
+                event.state());
+            s->pointerResource()->frame();
+        }
+    }
 }
 
 void LPointer::startResizingToplevel(LToplevelRole *toplevel,
@@ -296,7 +307,7 @@ void LPointer::sendScrollEvent(const LPointerScrollEvent &event)
                 if (s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_HORIZONTAL_SCROLL, 0 /* 0 = IDENTICAL */))
                     s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_VERTICAL_SCROLL, 0 /* 0 = IDENTICAL */);
 
-                if (event.source() == LPointer::ScrollEventSource::Wheel)
+                if (event.source() == LPointerScrollEvent::Wheel)
                 {
                     if (!s->pointerResource()->axisValue120(WL_POINTER_AXIS_HORIZONTAL_SCROLL, dX))
                     {
@@ -362,15 +373,17 @@ void LPointer::LPointerPrivate::sendLeaveEvent(LSurface *surface)
     if (!surface)
         return;
 
+    UInt32 serial = LCompositor::nextSerial();
+    UInt32 time = LTime::ms();
+
     for (Wayland::GSeat *s : surface->client()->seatGlobals())
     {
         if (s->pointerResource())
-        {
-            UInt32 serial = LCompositor::nextSerial();
-            s->pointerResource()->imp()->serials.leave = serial;
-            s->pointerResource()->leave(serial,
+        {  
+            s->pointerResource()->leave(nullptr,
+                                        time,
+                                        serial,
                                         surface->surfaceResource());
-
             s->pointerResource()->frame();
         }
     }

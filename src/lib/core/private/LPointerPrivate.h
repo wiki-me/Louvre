@@ -41,36 +41,6 @@ LPRIVATE_CLASS(LPointer)
     // Cursor
     LCursorRole *lastCursorRequest = nullptr;
     bool lastCursorRequestWasHide = false;
-
-    inline void sendMoveEvent(const LPointF &localPos, UInt32 time)
-    {
-        Float24 x = wl_fixed_from_double(localPos.x());
-        Float24 y = wl_fixed_from_double(localPos.y());
-
-        for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
-        {
-            if (s->pointerResource())
-            {
-                s->pointerResource()->motion(time, x, y);
-                s->pointerResource()->frame();
-            }
-        }
-    }
-
-    inline void sendButtonEvent(Button button, ButtonState state, UInt32 time)
-    {
-        for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
-        {
-            if (s->pointerResource())
-            {
-                s->pointerResource()->imp()->serials.button = LCompositor::nextSerial();
-                s->pointerResource()->button(
-                    s->pointerResource()->imp()->serials.button,
-                    time, button, state);
-                s->pointerResource()->frame();
-            }
-        }
-    }
 };
 
 #endif // LPOINTERPRIVATE_H

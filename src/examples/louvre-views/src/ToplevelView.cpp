@@ -113,7 +113,7 @@ static void onPointerLeaveResizeArea(InputRect *rect, void *data)
     }
 }
 
-static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointer::Button button, LPointer::ButtonState state)
+static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointerButtonEvent::Button button, LPointerButtonEvent::State state)
 {
     ToplevelView *view = (ToplevelView*)rect->parent();
     Pointer *pointer = (Pointer*)view->seat()->pointer();
@@ -122,10 +122,10 @@ static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointer::But
     if (toplevel->fullscreen())
         return;
 
-    if (button != LPointer::Left)
+    if (button != LPointerButtonEvent::Left)
         return;
 
-    if (state == LPointer::Pressed)
+    if (state == LPointerButtonEvent::Pressed)
     {
         pointer->setFocus(toplevel->surface());
         view->seat()->keyboard()->setFocus(toplevel->surface());

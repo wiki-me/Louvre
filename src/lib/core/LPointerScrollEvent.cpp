@@ -1,13 +1,13 @@
 #include <LPointerScrollEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LPointerScrollEvent::LPointerScrollEvent() :
-    LInputEvent(LInputEvent::PointerScroll),
-    m_source(LPointer::ScrollEventSource::Continuous) {}
+    LPointerEvent(Subtype::Scroll, LCompositor::nextSerial(), LTime::ms(), nullptr),
+    m_source(Source::Continuous) {}
 
-LPointerScrollEvent::~LPointerScrollEvent() {}
 
 void LPointerScrollEvent::notify()
 {

@@ -1,5 +1,5 @@
+#include <private/LTouchPointPrivate.h>
 #include <private/LTouchPrivate.h>
-#include <LTouchPoint.h>
 #include <LTouchDownEvent.h>
 #include <LSeat.h>
 #include <LPointer.h>
@@ -24,43 +24,52 @@ const std::list<LTouchPoint *> &LTouch::touchPoints() const
     return imp()->touchPoints;
 }
 
-const LTouchPoint *LTouch::sendTouchDownEvent(const LTouchDownEvent &event, LSurface *surface, const LPointF &localPos)
+LTouchPoint *LTouch::createTouchPoint(const LTouchDownEvent &event)
 {
-    if (!surface)
-        return nullptr;
-
-    // Stop if the id is already used
     for (LTouchPoint *tp : touchPoints())
         if (tp->id() == event.id())
-        {
-            if (surface == tp->surface())
-            {
-                tp->m_isReleased = false;
-                return tp;
-            }
-            return nullptr;
-        }
+            return tp;
 
-    return new LTouchPoint(event, surface, localPos);
+    return new LTouchPoint(event);
 }
 
-void LTouch::sendTouchFrameEvent(const LTouchFrameEvent &event)
+LTouchPoint *LTouch::findTouchPoint(Int32 id) const
 {
+    for (LTouchPoint *tp : touchPoints())
+        if (tp->id() == id)
+            return tp;
+
+    return nullptr;
+}
+
+void LTouch::sendFrameEvent(const LTouchFrameEvent &event)
+{
+    L_UNUSED(event);
+
+    LTouchPoint *tp;
     for (std::list<LTouchPoint*>::iterator it = imp()->touchPoints.begin(); it != imp()->touchPoints.end(); it++)
     {
-        (*it)->sendTouchFrameEvent(event);
+        tp = *it;
+        tp->imp()->sendTouchFrameEvent();
 
-        if ((*it)->m_isReleased)
-            it = (*it)->destroy();
+        if (!tp->isPressed())
+        {
+            it = imp()->touchPoints.erase(tp->imp()->link);
+            delete tp;
+        }
     }
 }
 
-void LTouch::sendTouchCancelEvent(const LTouchCancelEvent &event)
+void LTouch::sendCancelEvent(const LTouchCancelEvent &event)
 {
+    L_UNUSED(event);
+
+    LTouchPoint *tp;
     while (!touchPoints().empty())
     {
-        LTouchPoint *tp = touchPoints().back();
-        tp->sendTouchCancelEvent(event);
-        tp->destroy();
+        tp = touchPoints().back();
+        tp->imp()->sendTouchCancelEvent();
+        imp()->touchPoints.pop_back();
+        delete tp;
     }
 }

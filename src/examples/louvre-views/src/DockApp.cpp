@@ -45,6 +45,6 @@ void DockApp::pointerEnterEvent(const LPointerMoveEvent &)
 
 void DockApp::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.button() == LPointer::Left && event.state() == LPointer::Released)
+    if (event.button() == LPointerButtonEvent::Left && event.state() == LPointerButtonEvent::Released)
         app->clicked();
 }

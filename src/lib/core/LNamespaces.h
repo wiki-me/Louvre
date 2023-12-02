@@ -94,11 +94,23 @@ namespace Louvre
     class LCursor;
     class LXCursor;
     class LInputDevice;
+    class LEvent;
     class LInputEvent;
+
+    class LPointerEvent;
+    class LPointerEnterEvent;
+    class LPointerLeaveEvent;
     class LPointerMoveEvent;
     class LPointerButtonEvent;
     class LPointerScrollEvent;
+
+    class LKeyboardEvent;
+    class LKeyboardEnterEvent;
+    class LKeyboardLeaveEvent;
     class LKeyboardKeyEvent;
+    class LKeyboardModifiersEvent;
+
+    class LTouchEvent;
     class LTouchDownEvent;
     class LTouchMoveEvent;
     class LTouchUpEvent;
@@ -351,14 +363,6 @@ namespace Louvre
     {
         LInputBackendLibinput = 0, ///< ID for the Libinput input backend.
         LInputBackendX11 = 1       ///< ID for the X11 input backend.
-    };
-
-    enum class InputEventSource : UInt8
-    {
-        Unknown,
-        Pointer,
-        Keyboard,
-        Touch
     };
 
     namespace Protocols

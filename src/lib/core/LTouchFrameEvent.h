@@ -1,13 +1,12 @@
 #ifndef LTOUCHFRAMEEVENT_H
 #define LTOUCHFRAMEEVENT_H
 
-#include <LInputEvent.h>
+#include <LTouchEvent.h>
 
-class Louvre::LTouchFrameEvent : public LInputEvent
+class Louvre::LTouchFrameEvent : public LTouchEvent
 {
 public:
     LTouchFrameEvent();
-    ~LTouchFrameEvent();
 
 private:
     friend class LInputBackend;

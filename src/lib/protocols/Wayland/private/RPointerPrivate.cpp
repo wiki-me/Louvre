@@ -26,7 +26,7 @@ void RPointer::RPointerPrivate::set_cursor(wl_client *client, wl_resource *resou
         return;
     }
 
-    if (serial != rPointer->serials().enter)
+    if (serial != rPointer->serialEvents().enter.serial())
         return;
 
     if (!seat()->pointer()->focus() ||

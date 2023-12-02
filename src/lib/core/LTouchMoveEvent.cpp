@@ -1,13 +1,12 @@
 #include <LTouchMoveEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LTouchMoveEvent::LTouchMoveEvent() :
-    LInputEvent(LInputEvent::TouchMove),
+    LTouchEvent(Subtype::Move, LCompositor::nextSerial(), LTime::ms(), nullptr),
     m_id(0) {}
-
-LTouchMoveEvent::~LTouchMoveEvent() {}
 
 void LTouchMoveEvent::notify()
 {

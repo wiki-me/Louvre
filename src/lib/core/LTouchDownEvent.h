@@ -1,14 +1,13 @@
 #ifndef LTOUCHDOWNEVENT_H
 #define LTOUCHDOWNEVENT_H
 
-#include <LInputEvent.h>
+#include <LTouchEvent.h>
 #include <LPoint.h>
 
-class Louvre::LTouchDownEvent : public LInputEvent
+class Louvre::LTouchDownEvent : public LTouchEvent
 {
 public:
     LTouchDownEvent();
-    ~LTouchDownEvent();
 
     inline void setPos(const LPointF &pos)
     {
@@ -45,6 +44,8 @@ public:
     {
         return m_id;
     }
+
+    mutable LPointF localPos;
 
 protected:
     LPointF m_pos;

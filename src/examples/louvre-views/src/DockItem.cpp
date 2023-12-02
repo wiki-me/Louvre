@@ -47,10 +47,10 @@ void DockItem::pointerLeaveEvent(const LPointerMoveEvent &)
 
 void DockItem::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.button() != LPointer::Button::Left)
+    if (event.button() != LPointerButtonEvent::Left)
         return;
 
-    if (event.state() == LPointer::Pressed)
+    if (event.state() == LPointerButtonEvent::Pressed)
         setOpacity(0.7f);
     else
     {

@@ -1,13 +1,12 @@
 #ifndef LTOUCHUPEVENT_H
 #define LTOUCHUPEVENT_H
 
-#include <LInputEvent.h>
+#include <LTouchEvent.h>
 
-class Louvre::LTouchUpEvent : public LInputEvent
+class Louvre::LTouchUpEvent : public LTouchEvent
 {
 public:
     LTouchUpEvent();
-    ~LTouchUpEvent();
 
     inline void setId(Int32 id)
     {

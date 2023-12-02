@@ -65,7 +65,7 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 
 void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.button() == Left && event.state() == Released)
+    if (event.button() == LPointerButtonEvent::Left && event.state() == LPointerButtonEvent::Released)
     {
         G::enableDocks(true);
         G::compositor()->updatePointerBeforePaint = true;

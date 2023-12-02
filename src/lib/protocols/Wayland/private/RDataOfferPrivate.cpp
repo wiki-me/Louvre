@@ -43,8 +43,8 @@ void RDataOffer::RDataOfferPrivate::accept(wl_client *client, wl_resource *resou
 
     if (seat()->dndManager()->source())
     {
-        seat()->dndManager()->source()->dataSourceResource()->target(mime_type);
         seat()->dndManager()->imp()->matchedMimeType = mime_type != NULL;
+        seat()->dndManager()->source()->dataSourceResource()->target(mime_type);
     }
 }
 

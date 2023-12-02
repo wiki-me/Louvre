@@ -1,12 +1,12 @@
 #include <LPointerButtonEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LPointerButtonEvent::LPointerButtonEvent() :
-    LInputEvent(LInputEvent::PointerButton) {}
-
-LPointerButtonEvent::~LPointerButtonEvent() {}
+    LPointerEvent(Subtype::Button, LCompositor::nextSerial(), LTime::ms(), nullptr)
+{}
 
 void LPointerButtonEvent::notify()
 {

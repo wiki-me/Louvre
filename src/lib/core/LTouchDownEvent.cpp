@@ -1,13 +1,12 @@
 #include <LTouchDownEvent.h>
 #include <LCompositor.h>
+#include <LTime.h>
 
 using namespace Louvre;
 
 LTouchDownEvent::LTouchDownEvent() :
-    LInputEvent(LInputEvent::TouchDown),
+    LTouchEvent(Subtype::Down, LCompositor::nextSerial(), LTime::ms(), nullptr),
     m_id(0) {}
-
-LTouchDownEvent::~LTouchDownEvent() {}
 
 void LTouchDownEvent::notify()
 {

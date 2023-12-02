@@ -22,7 +22,7 @@ void Keyboard::keyEvent(const LKeyboardKeyEvent &event)
 {
     Output *output = (Output*)cursor()->output();
 
-    if (event.state() == Pressed)
+    if (event.state() == LKeyboardKeyEvent::Pressed)
     {
         if (isKeyCodePressed(KEY_LEFTCTRL))
         {

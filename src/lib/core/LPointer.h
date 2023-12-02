@@ -4,6 +4,7 @@
 #include <LObject.h>
 #include <LPoint.h>
 #include <LToplevelRole.h>
+#include <LPointerButtonEvent.h>
 #include <linux/input-event-codes.h>
 #include <limits>
 
@@ -29,74 +30,6 @@ public:
      * Configuration parameters provided in the virtual LCompositor::createPointerRequest() virtual constructor.
      */
     struct Params;
-
-    /**
-     * @brief Pointer buttons.
-     *
-     * Enumeration of common pointer buttons.
-     *
-     * You can find the complete list of pointer button codes in the [`<linux/input-event-codes.h>`](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h) header.
-     */
-    enum Button : UInt32
-    {
-        /// Left button
-        Left = BTN_LEFT,
-
-        /// Right button
-        Right = BTN_RIGHT,
-
-        /// Middle button
-        Middle = BTN_MIDDLE,
-
-        /// Side button
-        Side = BTN_SIDE,
-
-        /// Extra button
-        Extra = BTN_EXTRA,
-
-        /// Forward button
-        Forward = BTN_FORWARD,
-
-        /// Back button
-        Back = BTN_BACK,
-
-        /// Task button
-        Task = BTN_TASK
-    };
-
-    /**
-     * @brief Pointer button states.
-     *
-     * Possible states of a pointer button.
-     */
-    enum ButtonState : UInt32
-    {
-        /// Button released
-        Released = 0,
-
-        /// Button pressed
-        Pressed = 1
-    };
-
-    /**
-     * @brief Source of a scroll event
-     *
-     * Possible sources of a scroll event.
-     */
-    enum ScrollEventSource : UInt32
-    {
-        /// Mouse wheel (discrete)
-        Wheel = 0,
-
-        /// Trackpad swipe (continuous)
-        Finger = 1,
-
-        /// Continuous movement (with unspecified source)
-        Continuous = 2,
-
-        /// Side movement of a mouse wheel (since 6)
-        WheelTilt = 3
-    };
 
     /**
      * @brief Edge constraint when resizing a Toplevel
@@ -249,33 +182,12 @@ public:
     /**
      * @brief Send a pointer move event to the surface with focus.
      *
-     * This method sends the current pointer position to the surface with pointer focus.\n
-     *
-     * @note This method internally transforms the LCursor position to the local coordinates of the focused surface,
-     *       taking into account the surface's role position.
-     *
-     * @param time Time the event was generated with millisecond granularity and undefined base.
-     */
-    void sendMoveEvent(UInt32 time);
-
-    /**
-     * @brief Send a pointer move event to the surface with focus.
-     *
      * This method sends the current pointer position, provided as 'localPos', to the surface with pointer focus.
      *
      * @param localPos Pointer position relative to the top-left corner of the surface in surface coordinates.
      * @param time Time the event was generated with millisecond granularity and undefined base.
      */
-    void sendMoveEvent(const LPoint &localPos, UInt32 time);
-
-    /**
-     * @brief Send a pointer button event to the surface with focus.
-     *
-     * @param button Button code.
-     * @param state State of the button.
-     * @param time Time the event was generated with millisecond granularity and undefined base.
-     */
-    void sendButtonEvent(Button button, ButtonState state, UInt32 time);
+    void sendMoveEvent(const LPointerMoveEvent &event);
 
     /**
      * @brief Send a pointer button event to the surface with focus.

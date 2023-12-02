@@ -27,8 +27,8 @@ LPRIVATE_CLASS(LKeyboard)
     Int32 xkbKeymapFd = -1;
     UInt32 keymapFormat;
 
-    KeyboardModifiersState currentModifiersState;
-    KeyboardModifiersState prevModifiersState;
+    LKeyboardModifiersEvent::Modifiers currentModifiersState;
+    LKeyboardModifiersEvent::Modifiers prevModifiersState;
     bool modifiersChanged = true;
 
     std::list<UInt32>pressedKeys;

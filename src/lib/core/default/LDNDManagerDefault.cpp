@@ -4,34 +4,45 @@
 #include <LCompositor.h>
 #include <LDataSource.h>
 #include <LTouchPoint.h>
+#include <LTouchDownEvent.h>
+#include <LCursor.h>
+#include <LOutput.h>
 
 using namespace Louvre;
 
 //! [startDragRequest]
 void LDNDManager::startDragRequest()
 {
-    switch (eventSource())
+    if (startDragEvent()->type() == LEvent::Type::Pointer && seat()->pointer()->focus() && seat()->pointer()->focus()->client() == origin()->client())
     {
-    case InputEventSource::Pointer:
-        if (origin()->hasPointerFocus())
-            seat()->pointer()->setDraggingSurface(nullptr);
-        else
-            cancel();
-        break;
-    case InputEventSource::Touch:
-        for (LTouchPoint *tp : seat()->touch()->touchPoints())
+        if (startDragEvent()->subtype() == LEvent::Subtype::Button)
         {
-            if (tp->id() == touchPointId())
-                break;
+            LPointerButtonEvent *pointerButtonEvent = (LPointerButtonEvent*)startDragEvent();
+
+            if (pointerButtonEvent->button() == LPointerButtonEvent::Left && pointerButtonEvent->state() == LPointerButtonEvent::Pressed)
+            {
+                seat()->pointer()->setDraggingSurface(nullptr);
+
+                if (icon())
+                    icon()->surface()->setPos(cursor()->pos());
+                return;
+            }
         }
-        cancel();
-        break;
-    case InputEventSource::Keyboard:
-        cancel();
-        break;
-    default:
-        break;
     }
+    else if (startDragEvent()->type() == LEvent::Type::Touch && startDragEvent()->subtype() == LEvent::Subtype::Down)
+    {
+        LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)startDragEvent();
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent->id());
+
+        if (tp && tp->surface() && tp->surface()->client() == origin()->client())
+        {
+            if (icon())
+                icon()->surface()->setPos(cursor()->output()->pos() + cursor()->output()->size() * tp->lastDownEvent().pos());
+            return;
+        }
+    }
+
+    cancel();
 }
 //! [startDragRequest]
 

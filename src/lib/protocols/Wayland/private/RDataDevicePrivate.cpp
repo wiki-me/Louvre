@@ -43,7 +43,6 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
 
     RDataDevice *rDataDevice = (RDataDevice*)wl_resource_get_user_data(resource);
     RSurface *rOriginSurface = (RSurface*)wl_resource_get_user_data(origin);
-    LSurface *lOriginSurface = rOriginSurface->surface();
     LDNDManager *dndManager = seat()->dndManager();
 
     // Cancel if there is dragging going
@@ -53,47 +52,20 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
         return;
     }
 
-    InputEventSource eventSource = InputEventSource::Unknown;
-    Int32 touchId = -1;
+    LEvent *event = rDataDevice->seatGlobal()->findSerialEventMatch(serial);
 
-    if (rDataDevice->seatGlobal()->pointerResource() && rDataDevice->seatGlobal()->pointerResource()->serials().button == serial)
+    if (!event)
     {
-        eventSource = InputEventSource::Pointer;
-        goto skipGrabCheck;
+        LLog::warning("[RDataDevicePrivate::start_drag] Start drag & drop request without serial match. Ignoring it.");
+        return;
     }
-    else if (rDataDevice->seatGlobal()->keyboardResource() && rDataDevice->seatGlobal()->keyboardResource()->serials().key == serial)
-    {
-        eventSource = InputEventSource::Keyboard;
-        goto skipGrabCheck;
-    }
-    else if (rDataDevice->seatGlobal()->touchResource() && rDataDevice->seatGlobal()->touchResource()->serials().down == serial)
-    {
-        eventSource = InputEventSource::Touch;
-
-        for (LTouchPoint *tp : seat()->touch()->touchPoints())
-        {
-            if (tp->serial() == serial)
-            {
-                touchId = tp->id();
-                break;
-            }
-        }
-
-        goto skipGrabCheck;
-    }
-
-    LLog::debug("[RDataDevicePrivate::start_drag] Start drag & drop request without serial match. Ignoring it.");
-    return;
-
-    skipGrabCheck:
 
     dndManager->imp()->dropped = false;
 
     // Removes pevious data source if any
     dndManager->cancel();
-    dndManager->imp()->eventSource = eventSource;
-    dndManager->imp()->serial = serial;
-    dndManager->imp()->touchId = touchId;
+
+    dndManager->imp()->startDragEvent = event;
 
     // Check if there is an icon
     if (icon)
@@ -103,6 +75,7 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
 
         if (lIcon->imp()->pending.role || (lIcon->roleId() != LSurface::Role::Undefined && lIcon->roleId() != LSurface::Role::DNDIcon))
         {
+            dndManager->cancel();
             wl_resource_post_error(resource, WL_DATA_DEVICE_ERROR_ROLE, "Given wl_surface has another role.");
             return;
         }
@@ -129,7 +102,7 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
     else
         dndManager->imp()->icon = nullptr;
 
-    dndManager->imp()->origin = lOriginSurface;
+    dndManager->imp()->origin = rOriginSurface->surface();
 
     // If source is null all drag events are sent only to the origin surface
     if (source)

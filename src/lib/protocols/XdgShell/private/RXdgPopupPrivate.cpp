@@ -50,8 +50,8 @@ void RXdgPopup::RXdgPopupPrivate::grab(wl_client *client, wl_resource *resource,
     RXdgPopup *rXdgPopup = (RXdgPopup*)wl_resource_get_user_data(resource);
     Wayland::GSeat *lGSeat = (Wayland::GSeat*)wl_resource_get_user_data(seat);
 
-    if ((lGSeat->pointerResource() && (lGSeat->pointerResource()->serials().button >= serial || lGSeat->pointerResource()->serials().enter == serial)) ||
-        (lGSeat->keyboardResource() && (lGSeat->keyboardResource()->serials().key >= serial || lGSeat->keyboardResource()->serials().enter == serial)))
+    if ((lGSeat->pointerResource() && (lGSeat->pointerResource()->serialEvents().button.serial() >= serial || lGSeat->pointerResource()->serialEvents().enter.serial() == serial)) ||
+        (lGSeat->keyboardResource() && (lGSeat->keyboardResource()->serialEvents().key.serial() >= serial || lGSeat->keyboardResource()->serialEvents().enter.serial() == serial)))
     {
         /*
         LSurface *parent = rXdgPopup->popupRole()->surface()->parent();

@@ -15,6 +15,8 @@ public:
     LCLASS_NO_COPY(GSeat)
     ~GSeat();
 
+    LEvent *findSerialEventMatch(UInt32 serial) const;
+
     RKeyboard *keyboardResource() const;
     RPointer *pointerResource() const;
     RTouch *touchResource() const;

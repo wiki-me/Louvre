@@ -88,10 +88,13 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     if (seat()->dndManager()->dragging())
         setDraggingSurface(nullptr);
 
+    LPointerMoveEvent moveEvent = event;
+
     // If there was a surface holding the left pointer button
     if (draggingSurface())
     {
-        sendMoveEvent(event.time());
+        moveEvent.setPos(cursor()->pos() - draggingSurface()->rolePos());
+        sendMoveEvent(moveEvent);
         return;
     }
 
@@ -110,7 +113,10 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     else
     {
         if (focus() == surface)
-            sendMoveEvent(event.time());
+        {
+            moveEvent.setPos(cursor()->pos() - focus()->rolePos());
+            sendMoveEvent(moveEvent);
+        }
         else
             setFocus(surface);
     }
@@ -122,7 +128,7 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
 
     bool pointerOverTerminalIcon = cursorOutput->terminalIconRect.containsPoint(cursor()->pos());
 
-    if (event.state() == Released && event.button() == Left)
+    if (event.state() == LPointerButtonEvent::Released && event.button() == LPointerButtonEvent::Left)
     {
         seat()->dndManager()->drop();
 
@@ -164,11 +170,11 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
 
     sendButtonEvent(event);
 
-    if (event.button() != Left)
+    if (event.button() != LPointerButtonEvent::Left)
         return;
 
     // Left button pressed
-    if (event.state() == Pressed)
+    if (event.state() == LPointerButtonEvent::Pressed)
     {
         if (pointerOverTerminalIcon)
         {

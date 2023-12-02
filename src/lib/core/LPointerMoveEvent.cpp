@@ -1,18 +1,12 @@
-#include <private/LCompositorPrivate.h>
+#include <LCompositor.h>
 #include <LPointerMoveEvent.h>
+#include <LTime.h>
 
-LPointerMoveEvent::LPointerMoveEvent(const LPointF &pos, bool absolute, UInt32 time) :
-    LInputEvent(LInputEvent::PointerMove),
-    m_isAbsolute(absolute),
-    m_pos(pos)
-{
-    setTime(time);
-}
+using namespace Louvre;
 
-Louvre::LPointerMoveEvent::LPointerMoveEvent() :
-    LInputEvent(LInputEvent::PointerMove) {}
-
-LPointerMoveEvent::~LPointerMoveEvent() {}
+LPointerMoveEvent::LPointerMoveEvent() :
+    LPointerEvent(Subtype::Move, LCompositor::nextSerial(), LTime::ms(), nullptr)
+{}
 
 void LPointerMoveEvent::notify()
 {
