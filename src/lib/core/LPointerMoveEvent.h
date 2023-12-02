@@ -10,6 +10,9 @@ class Louvre::LPointerMoveEvent : public LPointerEvent
 public:
     LPointerMoveEvent();
 
+    virtual ~LPointerMoveEvent() {}
+    virtual LEvent *copy() const override;
+
     inline void setIsAbsolute(bool absolute)
     {
         m_isAbsolute = absolute;

@@ -41,14 +41,22 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
     L_UNUSED(client);
     L_UNUSED(serial);
 
+    RDataSource *rDataSource = nullptr;
     RDataDevice *rDataDevice = (RDataDevice*)wl_resource_get_user_data(resource);
     RSurface *rOriginSurface = (RSurface*)wl_resource_get_user_data(origin);
     LDNDManager *dndManager = seat()->dndManager();
+
+    if (source)
+        rDataSource = (RDataSource*)wl_resource_get_user_data(source);
 
     // Cancel if there is dragging going
     if (dndManager->dragging())
     {
         LLog::debug("[RDataDevicePrivate::start_drag] Invalid start drag request. Ignoring it.");
+
+        if (rDataSource)
+            rDataSource->cancelled();
+
         return;
     }
 
@@ -57,6 +65,10 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
     if (!event)
     {
         LLog::warning("[RDataDevicePrivate::start_drag] Start drag & drop request without serial match. Ignoring it.");
+
+        if (rDataSource)
+            rDataSource->cancelled();
+
         return;
     }
 

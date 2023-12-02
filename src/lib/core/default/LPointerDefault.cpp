@@ -28,15 +28,12 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     // Schedule repaint on outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);
 
-    LDNDManager *dnd = seat()->dndManager();
+    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->startDragEvent()->type() != LEvent::Type::Touch;
 
-    // Update the drag & drop icon position
-    bool pointerDND = dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Pointer;
-
-    if (dnd->icon() && pointerDND)
+    if (seat()->dndManager()->icon() && activeDND)
     {
-        dnd->icon()->surface()->setPos(cursor()->pos());
-        dnd->icon()->surface()->repaintOutputs();
+        seat()->dndManager()->icon()->surface()->setPos(cursor()->pos());
+        seat()->dndManager()->icon()->surface()->repaintOutputs();
     }
 
     if (seat()->resizingToplevel())
@@ -77,7 +74,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         else
             setFocus(surface, event.localPos);
 
-        if (pointerDND)
+        if (activeDND)
         {
             if (seat()->dndManager()->focus() == surface)
                 seat()->dndManager()->sendMoveEvent(event.localPos, event.time());
@@ -89,7 +86,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     {
         setFocus(nullptr);
 
-        if (pointerDND)
+        if (activeDND)
             seat()->dndManager()->setFocus(nullptr, LPointF());
 
         cursor()->useDefault();
@@ -101,7 +98,9 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 //! [pointerButtonEvent]
 void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    if (event.state() == LPointerButtonEvent::Released && event.button() == LPointerButtonEvent::Left)
+    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->startDragEvent()->type() != LEvent::Type::Touch;
+
+    if (activeDND && event.state() == LPointerButtonEvent::Released && event.button() == LPointerButtonEvent::Left)
         seat()->dndManager()->drop();
 
     if (!focus())

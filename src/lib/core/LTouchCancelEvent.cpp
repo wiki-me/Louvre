@@ -8,6 +8,11 @@ LTouchCancelEvent::LTouchCancelEvent() :
     LTouchEvent(Subtype::Cancel, LCompositor::nextSerial(), LTime::ms(), nullptr)
 {}
 
+LEvent *LTouchCancelEvent::copy() const
+{
+    return new LTouchCancelEvent(*this);
+}
+
 void LTouchCancelEvent::notify()
 {
     if (compositor()->state() == LCompositor::Initialized)

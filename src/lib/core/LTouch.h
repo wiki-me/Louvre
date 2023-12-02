@@ -8,41 +8,136 @@ class Louvre::LTouch : public LObject
 public:
     struct Params;
 
+    /**
+     * @brief Constructor of the LTouch class.
+     *
+     * @param params Internal parameters of the library provided in the virtual constructor LCompositor::createTouchRequest().
+     */
     LTouch(Params *params);
 
     /// @cond OMIT
     LCLASS_NO_COPY(LTouch)
     /// @endcond
 
+    /**
+     * @brief Destructor of the LTouch class.
+     *
+     * Invoked after LCompositor::destroyTouchRequest().
+     */
     virtual ~LTouch();
 
-    // Returns the first surface which contains the given point, considering they role position and input region.
-    // If no surface is found this returns nullptr.
+    /**
+     * @brief Look for a surface.
+     *
+     * This method looks for the first mapped surface that contains the point given by the `point` parameter.\n
+     * It takes into account the surfaces role position (LSurface::rolePos()), their input region (LSurface::inputRegion()) and the order
+     * given by the list of surfaces of the compositor (LCompositor::surfaces()).\n
+     * Some surface roles do not have an input region such as LCursorRole or LDNDIconRole so these surfaces are always ignored.
+     *
+     * @param point Point in compositor coordinates.
+     * @returns Returns the first surface that contains the point or `nullptr` if no surface is found.
+     */
     LSurface *surfaceAt(const LPoint &point);
 
-    // List of all currently active touchpoints.
-    // Each touchpoint has a unique id.
+    /**
+     * @brief List of currently active touchpoints.
+     *
+     * This method returns a list of containing all active touchpoints.
+     * Each touchpoint has a unique identifier and can be associated with a single surface at a time or none at all.
+     *
+     * @return A constant reference to the list of currently active touchpoints.
+     */
     const std::list<LTouchPoint*> &touchPoints() const;
 
-    // Creates a new touch point. If there is already a touch point with the same id, that touchpoint is returned.
+    /**
+     * @brief Creates a new touch point or returns an existing one with the same id.
+     *
+     * This method generates a new touch point based on the provided touch down event id.
+     * If a touch point with the same id already exists, that existing touchpoint is returned.
+     * Newly created touchpoints are initially marked as pressed.
+     *
+     * @param event The touch down event used to create the touch point.
+     * @return A pointer to the newly created or existing touch point.
+     */
     LTouchPoint *createTouchPoint(const LTouchDownEvent &event);
 
-    // Finds and returns the touch point that matches the id. Nullptr is returns if no touch point is found.
+    /**
+     * @brief Get the touch point that matches the specified id.
+     *
+     * This method searches for a touch point with the given id. If found, a pointer to the matching touch point is returned;
+     * otherwise, `nullptr` is returned.
+     *
+     * @param id The unique identifier of the touch point to be found.
+     * @return A pointer to the matching touch point or `nullptr` if no touch point with the id is found.
+     */
     LTouchPoint *findTouchPoint(Int32 id) const;
 
-    // Send a frame events to all clients whith surfaces assigned a touch point.
-    // Clients wait for this event before processing the previous sent touch events.
-    // Touch points that are no longer pressed are destroyed after this.
+    /**
+     * @brief Send a frame event to all clients with surfaces assigned to touch points.
+     *
+     * Clients are expected to wait for this event before processing previously sent touch events.
+     * After this frame event, touch points that are no longer pressed are destroyed.
+     *
+     * @param event The frame event to be sent to clients.
+     */
     void sendFrameEvent(const LTouchFrameEvent &event);
 
-    // Sends a cancel event to clients with surfaces assigned a touchpoint.
-    // All current touchpoints are destroyed after this.
+    /**
+     * @brief Send a cancel event to clients with surfaces assigned to touchpoints.
+     *
+     * This method notifies clients of a cancel event, and subsequently, all current touchpoints are destroyed.
+     *
+     * @param event The touch cancel event to be sent to clients.
+     */
     void sendCancelEvent(const LTouchCancelEvent &event);
 
+    /**
+     * @brief Triggered by the input backend when a new touch point is created.
+     *
+     * This virtual method is called when a touch-down event occurs, signaling the creation of a new touch point.
+     *
+     * @param event The touch-down event providing details about the new touch point.
+     */
     virtual void touchDownEvent(const LTouchDownEvent &event);
+
+    /**
+     * @brief Triggered by the input backend when a pressed touchpoint moves.
+     *
+     * This virtual method is called when a touch-move event occurs, indicating the movement of a pressed touchpoint.
+     *
+     * @param event The touch-move event providing details about the moving touchpoint.
+     */
     virtual void touchMoveEvent(const LTouchMoveEvent &event);
+
+    /**
+     * @brief Triggered by the input backend when a touchpoint is no longer pressed.
+     *
+     * This virtual method is called when a touch-up event occurs, indicating that a touchpoint is no longer pressed.
+     *
+     * @param event The touch-up event providing details about the released touchpoint.
+     */
     virtual void touchUpEvent(const LTouchUpEvent &event);
+
+    /**
+     * @brief Triggered by the input backend after sending down, move, and up events that logically belong together
+     *        and should be processed atomically.
+     *
+     * This virtual method is called when a touch frame event occurs, signifying the completion of a set of related
+     * touch events (down, move, up) that should be processed as a single atomic unit.
+     *
+     * @param event The touch frame event providing details about the synchronized touch events.
+     */
     virtual void touchFrameEvent(const LTouchFrameEvent &event);
+
+    /**
+     * @brief Triggered by the input backend when all active touchpoints are cancelled, typically
+     *        in response to an unavailable touch input device.
+     *
+     * This virtual method is called when a touch cancel event occurs, indicating the cancellation of all active
+     * touchpoints, often triggered by the unavailability of a touch input device.
+     *
+     * @param event The touch cancel event providing details about the cancellation.
+     */
     virtual void touchCancelEvent(const LTouchCancelEvent &event);
 
     LPRIVATE_IMP_UNIQUE(LTouch)

@@ -9,6 +9,8 @@ protected:
     inline LTouchEvent(Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device) :
         LInputEvent(Type::Touch, subtype, serial, time, device)
     {}
+    virtual ~LTouchEvent() {}
+    virtual LEvent *copy() const override;
 };
 
 #endif // LTOUCHEVENT_H

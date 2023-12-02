@@ -8,6 +8,11 @@ LPointerMoveEvent::LPointerMoveEvent() :
     LPointerEvent(Subtype::Move, LCompositor::nextSerial(), LTime::ms(), nullptr)
 {}
 
+LEvent *LPointerMoveEvent::copy() const
+{
+    return new LPointerMoveEvent(*this);
+}
+
 void LPointerMoveEvent::notify()
 {
     if (compositor()->state() == LCompositor::Initialized)

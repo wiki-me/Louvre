@@ -6,6 +6,8 @@
 class Louvre::LInputEvent : public LEvent
 {
 public:
+    virtual ~LInputEvent() {}
+    virtual LEvent *copy() const override;
 
     void setDevice(LInputDevice *device);
 

@@ -24,6 +24,8 @@ public:
     };
 
     LKeyboardKeyEvent();
+    virtual ~LKeyboardKeyEvent() {}
+    virtual LEvent *copy() const override;
 
     inline void setKeyCode(UInt32 keyCode)
     {
@@ -44,7 +46,6 @@ public:
     {
         return m_state;
     }
-
 protected:
     UInt32 m_key;
     State m_state;

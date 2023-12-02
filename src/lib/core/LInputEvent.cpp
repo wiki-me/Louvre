@@ -12,6 +12,11 @@ void LInputEvent::setDevice(LInputDevice *device)
         m_device = &compositor()->imp()->fakeDevice;
 }
 
+LEvent *LInputEvent::copy() const
+{
+    return new LInputEvent(*this);
+}
+
 LInputEvent::LInputEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device) :
     LEvent(type, subtype, serial, time)
 {

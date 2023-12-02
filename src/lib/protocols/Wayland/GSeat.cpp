@@ -56,49 +56,31 @@ LEvent *GSeat::findSerialEventMatch(UInt32 serial) const
     if (pointerResource())
     {
         if (pointerResource()->imp()->serialEvents.enter.serial() == serial)
-        {
-            return new LPointerEnterEvent(pointerResource()->imp()->serialEvents.enter);
-        }
+            return pointerResource()->imp()->serialEvents.enter.copy();
         else if (pointerResource()->imp()->serialEvents.leave.serial() == serial)
-        {
-            return new LPointerLeaveEvent(pointerResource()->imp()->serialEvents.leave);
-        }
+            return pointerResource()->imp()->serialEvents.leave.copy();
         else if (pointerResource()->imp()->serialEvents.button.serial() == serial)
-        {
-            return new LPointerButtonEvent(pointerResource()->imp()->serialEvents.button);
-        }
+            return pointerResource()->imp()->serialEvents.button.copy();
     }
 
     if (keyboardResource())
     {
         if (keyboardResource()->imp()->serialEvents.enter.serial() == serial)
-        {
-            return new LKeyboardEnterEvent(keyboardResource()->imp()->serialEvents.enter);
-        }
+            return keyboardResource()->imp()->serialEvents.enter.copy();
         else if (keyboardResource()->imp()->serialEvents.leave.serial() == serial)
-        {
-            return new LKeyboardLeaveEvent(keyboardResource()->imp()->serialEvents.leave);
-        }
+            return keyboardResource()->imp()->serialEvents.leave.copy();
         else if (keyboardResource()->imp()->serialEvents.key.serial() == serial)
-        {
-            return new LKeyboardKeyEvent(keyboardResource()->imp()->serialEvents.key);
-        }
+            return keyboardResource()->imp()->serialEvents.key.copy();
         else if (keyboardResource()->imp()->serialEvents.modifiers.serial() == serial)
-        {
-            return new LKeyboardModifiersEvent(keyboardResource()->imp()->serialEvents.modifiers);
-        }
+            return keyboardResource()->imp()->serialEvents.modifiers.copy();
     }
 
     if (touchResource())
     {
         if (touchResource()->imp()->serialEvents.down.serial() == serial)
-        {
-            return new LTouchDownEvent(touchResource()->imp()->serialEvents.down);
-        }
+            return touchResource()->imp()->serialEvents.down.copy();
         else if (touchResource()->imp()->serialEvents.up.serial() == serial)
-        {
-            return new LTouchUpEvent(touchResource()->imp()->serialEvents.up);
-        }
+            return touchResource()->imp()->serialEvents.up.copy();
     }
 
     return nullptr;

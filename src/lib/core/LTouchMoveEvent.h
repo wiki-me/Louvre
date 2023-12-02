@@ -8,6 +8,8 @@ class Louvre::LTouchMoveEvent : public LTouchEvent
 {
 public:
     LTouchMoveEvent();
+    virtual ~LTouchMoveEvent() {}
+    virtual LEvent *copy() const override;
 
     inline void setPos(const LPointF &pos)
     {

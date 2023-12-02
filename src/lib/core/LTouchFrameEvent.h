@@ -7,6 +7,8 @@ class Louvre::LTouchFrameEvent : public LTouchEvent
 {
 public:
     LTouchFrameEvent();
+    virtual ~LTouchFrameEvent() {}
+    virtual LEvent *copy() const override;
 
 private:
     friend class LInputBackend;

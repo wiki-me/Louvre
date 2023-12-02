@@ -8,6 +8,8 @@ class Louvre::LPointerEnterEvent : public LPointerEvent
 {
 public:
     LPointerEnterEvent();
+    virtual ~LPointerEnterEvent() {}
+    virtual LEvent *copy() const override;
     mutable LPointF localPos;
 };
 

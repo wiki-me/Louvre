@@ -8,6 +8,10 @@ LPointerScrollEvent::LPointerScrollEvent() :
     LPointerEvent(Subtype::Scroll, LCompositor::nextSerial(), LTime::ms(), nullptr),
     m_source(Source::Continuous) {}
 
+LEvent *LPointerScrollEvent::copy() const
+{
+    return new LPointerScrollEvent(*this);
+}
 
 void LPointerScrollEvent::notify()
 {

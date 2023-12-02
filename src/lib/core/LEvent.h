@@ -6,6 +6,7 @@
 class Louvre::LEvent : public LObject
 {
 public:
+    virtual ~LEvent() {};
 
     enum class Type : UInt8
     {
@@ -58,6 +59,8 @@ public:
     {
         return m_time;
     }
+
+    virtual LEvent *copy() const = 0;
 
 protected:
     inline LEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time) :

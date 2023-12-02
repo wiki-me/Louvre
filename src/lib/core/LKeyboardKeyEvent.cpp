@@ -9,6 +9,11 @@ LKeyboardKeyEvent::LKeyboardKeyEvent() :
     LKeyboardEvent(Subtype::Key, LCompositor::nextSerial(), LTime::ms(), nullptr)
 {}
 
+LEvent *LKeyboardKeyEvent::copy() const
+{
+    return new LKeyboardKeyEvent(*this);
+}
+
 void LKeyboardKeyEvent::notify()
 {
     LKeyboard::LKeyboardPrivate *keyboard = seat()->keyboard()->imp();

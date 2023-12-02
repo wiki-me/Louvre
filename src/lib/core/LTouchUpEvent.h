@@ -7,6 +7,8 @@ class Louvre::LTouchUpEvent : public LTouchEvent
 {
 public:
     LTouchUpEvent();
+    virtual ~LTouchUpEvent() {}
+    virtual LEvent *copy() const override;
 
     inline void setId(Int32 id)
     {

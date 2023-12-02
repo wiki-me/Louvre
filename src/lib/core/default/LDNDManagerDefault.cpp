@@ -1,3 +1,4 @@
+#include "LLog.h"
 #include <LDNDManager.h>
 #include <LSeat.h>
 #include <LPointer.h>
@@ -13,6 +14,7 @@ using namespace Louvre;
 //! [startDragRequest]
 void LDNDManager::startDragRequest()
 {
+    // Left pointer button click
     if (startDragEvent()->type() == LEvent::Type::Pointer && seat()->pointer()->focus() && seat()->pointer()->focus()->client() == origin()->client())
     {
         if (startDragEvent()->subtype() == LEvent::Subtype::Button)
@@ -29,6 +31,18 @@ void LDNDManager::startDragRequest()
             }
         }
     }
+    // Keyboard focus event
+    else if (startDragEvent()->type() == LEvent::Type::Keyboard && startDragEvent()->subtype() == LEvent::Subtype::Enter &&
+               seat()->keyboard()->focus() && seat()->keyboard()->focus()->client() == origin()->client())
+    {
+        seat()->pointer()->setDraggingSurface(nullptr);
+
+        if (icon())
+            icon()->surface()->setPos(cursor()->pos());
+
+        return;
+    }
+    // Touch down event
     else if (startDragEvent()->type() == LEvent::Type::Touch && startDragEvent()->subtype() == LEvent::Subtype::Down)
     {
         LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)startDragEvent();

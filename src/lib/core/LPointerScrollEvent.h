@@ -28,6 +28,8 @@ public:
     };
 
     LPointerScrollEvent();
+    virtual ~LPointerScrollEvent() {}
+    virtual LEvent *copy() const override;
 
     inline void setAxes(const LPointF &axes)
     {

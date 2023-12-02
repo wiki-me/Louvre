@@ -57,6 +57,8 @@ public:
     };
 
     LPointerButtonEvent();
+    virtual ~LPointerButtonEvent() {}
+    virtual LEvent *copy() const override;
 
     inline void setButton(Button button)
     {
@@ -77,6 +79,7 @@ public:
     {
         return m_state;
     }
+
 protected:
     Button m_button;
     State m_state;

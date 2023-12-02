@@ -28,6 +28,8 @@ public:
     };
 
     LKeyboardModifiersEvent();
+    virtual ~LKeyboardModifiersEvent() {};
+    virtual LEvent *copy() const override;
 
     inline void setModifiers(const Modifiers &modifiers)
     {
