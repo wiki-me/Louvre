@@ -38,11 +38,11 @@ LToplevelRole::~LToplevelRole()
         surface()->imp()->setMapped(false);
 
     // Remove focus
-    if (seat()->pointer()->resizingToplevel() == this)
-        seat()->pointer()->stopResizingToplevel();
+    if (seat()->resizingToplevel() == this)
+        seat()->stopResizingToplevel();
 
-    if (seat()->pointer()->movingToplevel() == this)
-        seat()->pointer()->stopMovingToplevel();
+    if (seat()->movingToplevel() == this)
+        seat()->stopMovingToplevel();
 
     if (seat()->activeToplevel() == this)
         seat()->imp()->activeToplevel = nullptr;
@@ -240,11 +240,11 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
 
         surface()->imp()->setParent(nullptr);
 
-        if (seat()->pointer()->movingToplevel() == this)
-            seat()->pointer()->stopMovingToplevel();
+        if (seat()->movingToplevel() == this)
+            seat()->stopMovingToplevel();
 
-        if (seat()->pointer()->resizingToplevel() == this)
-            seat()->pointer()->stopResizingToplevel();
+        if (seat()->resizingToplevel() == this)
+            seat()->stopResizingToplevel();
 
         if (seat()->activeToplevel() == this)
             seat()->imp()->activeToplevel = nullptr;

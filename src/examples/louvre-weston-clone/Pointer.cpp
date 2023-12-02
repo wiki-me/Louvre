@@ -65,21 +65,21 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     }
 
     // Update the toplevel size (if there was one being resized)
-    if (resizingToplevel())
+    if (seat()->resizingToplevel())
     {
-        updateResizingToplevelSize(cursor()->pos());
+        seat()->updateResizingToplevelSize(cursor()->pos());
         return;
     }
 
     // Update the toplevel pos (if there was one being moved interactively)
-    if (movingToplevel())
+    if (seat()->movingToplevel())
     {
-        updateMovingToplevelPos(cursor()->pos());
+        seat()->updateMovingToplevelPos(cursor()->pos());
 
-        movingToplevel()->surface()->repaintOutputs();
+        seat()->movingToplevel()->surface()->repaintOutputs();
 
-        if (movingToplevel()->maximized())
-            movingToplevel()->configure(movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
+        if (seat()->movingToplevel()->maximized())
+            seat()->movingToplevel()->configure(seat()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
 
         return;
     }
@@ -88,13 +88,11 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     if (seat()->dndManager()->dragging())
         setDraggingSurface(nullptr);
 
-    LPointerMoveEvent moveEvent = event;
-
     // If there was a surface holding the left pointer button
     if (draggingSurface())
     {
-        moveEvent.setPos(cursor()->pos() - draggingSurface()->rolePos());
-        sendMoveEvent(moveEvent);
+        event.localPos = cursor()->pos() - draggingSurface()->rolePos();
+        sendMoveEvent(event);
         return;
     }
 
@@ -114,8 +112,8 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     {
         if (focus() == surface)
         {
-            moveEvent.setPos(cursor()->pos() - focus()->rolePos());
-            sendMoveEvent(moveEvent);
+            event.localPos = cursor()->pos() - focus()->rolePos();
+            sendMoveEvent(event);
         }
         else
             setFocus(surface);
@@ -223,8 +221,8 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
             return;
         }
 
-        stopResizingToplevel();
-        stopMovingToplevel();
+        seat()->stopResizingToplevel();
+        seat()->stopMovingToplevel();
 
         // We stop sending events to the surface on which the left button was being held down
         setDraggingSurface(nullptr);

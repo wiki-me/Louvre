@@ -32,6 +32,7 @@
 using namespace Louvre::Protocols::Wayland;
 
 static LCompositor *s_compositor = nullptr;
+static UInt32 serial = 0;
 
 LCompositor::LCompositor() : LPRIVATE_INIT_UNIQUE(LCompositor)
 {
@@ -423,7 +424,7 @@ const std::list<LClient *> &LCompositor::clients() const
 
 UInt32 LCompositor::nextSerial()
 {
-    return wl_display_next_serial(LCompositor::compositor()->display());
+    return ++serial;
 }
 
 EGLDisplay LCompositor::eglDisplay()

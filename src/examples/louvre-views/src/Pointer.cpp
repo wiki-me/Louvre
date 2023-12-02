@@ -23,10 +23,10 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
     LView *view = G::scene()->handlePointerMoveEvent(event);
 
-    if (movingToplevel() || resizingToplevel())
+    if (seat()->movingToplevel() || seat()->resizingToplevel())
         cursor()->output()->repaint();
 
-    if (resizingToplevel() || cursorOwner)
+    if (seat()->resizingToplevel() || cursorOwner)
         return;
 
     // Let the client set the cursor during DND
@@ -84,7 +84,7 @@ void Pointer::pointerScrollEvent(const LPointerScrollEvent &event)
 
 void Pointer::setCursorRequest(LCursorRole *cursorRole)
 {
-    if (resizingToplevel() || cursorOwner)
+    if (seat()->resizingToplevel() || cursorOwner)
         return;
 
     if (cursorRole)

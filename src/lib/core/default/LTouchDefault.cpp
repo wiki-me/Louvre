@@ -1,4 +1,5 @@
 #include <private/LTouchPrivate.h>
+#include <LKeyboard.h>
 #include <LDNDManager.h>
 #include <LDNDIconRole.h>
 #include <LInputDevice.h>
@@ -30,6 +31,8 @@ void LTouch::touchDownEvent(const LTouchDownEvent &event)
     {
         event.localPos = globalPos - surface->rolePos();
         tp->sendDownEvent(event, surface);
+        seat()->keyboard()->setFocus(surface);
+        surface->raise();
     }
     else
         tp->sendDownEvent(event);

@@ -79,12 +79,12 @@ void Toplevel::startResizeRequest(ResizeEdge edge)
         return;
 
     G::enableDocks(false);
-    seat()->pointer()->startResizingToplevel(this,
-                                             edge,
-                                             cursor()->pos(),
-                                             LSize(128, 128),
-                                             LPointer::EdgeDisabled,
-                                             TOPBAR_HEIGHT);
+    seat()->startResizingToplevel(this,
+                                 edge,
+                                 cursor()->pos(),
+                                 LSize(128, 128),
+                                 LSeat::EdgeDisabled,
+                                 TOPBAR_HEIGHT);
 }
 
 void Toplevel::startMoveRequest()
@@ -94,7 +94,7 @@ void Toplevel::startMoveRequest()
         return;
 
     G::enableDocks(false);
-    seat()->pointer()->startMovingToplevel(this, cursor()->pos(), LPointer::EdgeDisabled, TOPBAR_HEIGHT);
+    seat()->startMovingToplevel(this, cursor()->pos(), LSeat::EdgeDisabled, TOPBAR_HEIGHT);
 }
 
 void Toplevel::setMaximizedRequest()
@@ -149,7 +149,7 @@ void Toplevel::maximizedChanged()
         surface()->setPos(dstRect.pos());
     else
     {
-        if (!seat()->pointer()->movingToplevel() && !seat()->pointer()->resizingToplevel())
+        if (!seat()->movingToplevel() && !seat()->resizingToplevel())
             surface()->setPos(prevRect.pos());
     }
 

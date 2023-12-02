@@ -121,21 +121,21 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
     }
 
     // Update the toplevel size (if there was one being resized)
-    if (seat()->pointer()->resizingToplevel())
+    if (seat()->resizingToplevel())
     {
-        seat()->pointer()->updateResizingToplevelSize(cursor()->pos());
+        seat()->updateResizingToplevelSize(cursor()->pos());
         return imp()->pointerMoveEventFirstView;
     }
 
     // Update the toplevel pos (if there was one being moved interactively)
-    if (seat()->pointer()->movingToplevel())
+    if (seat()->movingToplevel())
     {
-        seat()->pointer()->updateMovingToplevelPos(cursor()->pos());
+        seat()->updateMovingToplevelPos(cursor()->pos());
 
-        seat()->pointer()->movingToplevel()->surface()->repaintOutputs();
+        seat()->movingToplevel()->surface()->repaintOutputs();
 
-        if (seat()->pointer()->movingToplevel()->maximized())
-            seat()->pointer()->movingToplevel()->configure(seat()->pointer()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
+        if (seat()->movingToplevel()->maximized())
+            seat()->movingToplevel()->configure(seat()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
 
         return imp()->pointerMoveEventFirstView;
     }
@@ -144,20 +144,18 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
     if (seat()->dndManager()->dragging())
         seat()->pointer()->setDraggingSurface(nullptr);
 
-    LPointerMoveEvent moveEvent = imp()->currentPointerMoveEvent;
-
     // If there was a surface holding the left pointer button
     if (seat()->pointer()->draggingSurface())
     {
         if (seat()->pointer()->draggingSurface()->imp()->lastPointerEventView)
         {
-            moveEvent.setPos(imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos()));
-            seat()->pointer()->sendMoveEvent(moveEvent);
+            imp()->currentPointerMoveEvent.localPos = imp()->viewLocalPos(seat()->pointer()->draggingSurface()->imp()->lastPointerEventView, cursor()->pos());
+            seat()->pointer()->sendMoveEvent(imp()->currentPointerMoveEvent);
         }
         else
         {
-            moveEvent.setPos(cursor()->pos() - seat()->pointer()->draggingSurface()->rolePos());
-            seat()->pointer()->sendMoveEvent(moveEvent);
+            imp()->currentPointerMoveEvent.localPos = cursor()->pos() - seat()->pointer()->draggingSurface()->rolePos();
+            seat()->pointer()->sendMoveEvent(imp()->currentPointerMoveEvent);
         }
 
         return imp()->pointerMoveEventFirstView;
@@ -171,8 +169,8 @@ LView *LScene::handlePointerMoveEvent(const LPointerMoveEvent &event, LPointF *o
 
         if (seat()->pointer()->focus() == surface)
         {
-            moveEvent.setPos(localPos);
-            seat()->pointer()->sendMoveEvent(moveEvent);
+            imp()->currentPointerMoveEvent.localPos = localPos;
+            seat()->pointer()->sendMoveEvent(imp()->currentPointerMoveEvent);
         }
         else
             seat()->pointer()->setFocus(surface, localPos);
@@ -275,8 +273,8 @@ void LScene::handlePointerButtonEvent(const LPointerButtonEvent &event)
     // Left button released
     else
     {
-        seat()->pointer()->stopResizingToplevel();
-        seat()->pointer()->stopMovingToplevel();
+        seat()->stopResizingToplevel();
+        seat()->stopMovingToplevel();
 
         // We stop sending events to the surface on which the left button was being held down
         seat()->pointer()->setDraggingSurface(nullptr);

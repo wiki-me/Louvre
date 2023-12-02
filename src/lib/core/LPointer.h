@@ -32,15 +32,6 @@ public:
     struct Params;
 
     /**
-     * @brief Edge constraint when resizing a Toplevel
-     */
-    enum ResizeEdgeSize : Int32
-    {
-        /// Disables the constraint on the specified edge.
-        EdgeDisabled = std::numeric_limits<Int32>::min()
-    };
-
-    /**
      * @brief LPointer class constructor.
      *
      * There is a single instance of LPointer, which can be accessed from LSeat::pointer().
@@ -69,34 +60,6 @@ public:
      * @return A pointer to the focused surface, or `nullptr` if no surface has pointer focus.
      */
     LSurface *focus() const;
-
-    /**
-     * @brief Set the pointer focus to a specific surface.
-     *
-     * This method assigns the pointer focus to the specified surface at the given local surface position within the surface.\n
-     * If a surface already had pointer focus, it will lose it.
-     *
-     * Passing `nullptr` removes pointer focus from all surfaces.
-     *
-     * @param surface Surface to which the pointer focus will be assigned, or `nullptr` to remove focus from all surfaces.
-     * @param localPos Local position within the surface where the pointer enters.
-     */
-    void setFocus(LSurface *surface, const LPoint &localPos);
-
-    /**
-     * @brief Set the pointer focus to a specific surface.
-     *
-     * This method sets the pointer focus to the provided surface based on the current LCursor position.\n
-     * If a surface already had pointer focus, it will lose it.
-     *
-     * Passing `nullptr` removes pointer focus from all surfaces.
-     *
-     * @note This method internally transforms the LCursor position to the local coordinates of the focused surface,
-     *       taking into account the surface's role position.
-     *
-     * @param surface The surface to which you want to assign the pointer focus or `nullptr` to remove focus from all surfaces.
-     */
-    void setFocus(LSurface *surface);
 
     /**
      * @brief Keep track of the surface pressed by the left pointer button.
@@ -180,189 +143,58 @@ public:
 ///@{
 
     /**
-     * @brief Send a pointer move event to the surface with focus.
+     * @brief Assign or remove pointer focus.
      *
-     * This method sends the current pointer position, provided as 'localPos', to the surface with pointer focus.
+     * This method sets the pointer focus to the provided surface based on the current LCursor position.\n
+     * If a surface already had pointer focus, it will lose it.
      *
-     * @param localPos Pointer position relative to the top-left corner of the surface in surface coordinates.
-     * @param time Time the event was generated with millisecond granularity and undefined base.
+     * Passing `nullptr` removes pointer focus from all surfaces.
+     *
+     * @note This method internally transforms the LCursor position to the local coordinates of the focused surface,
+     *       taking into account the surface's role position.
+     *
+     * @param surface The surface to which you want to assign the pointer focus or `nullptr` to remove focus from all surfaces.
+     */
+    void setFocus(LSurface *surface);
+
+    /**
+     * @brief Assign or remove pointer focus.
+     *
+     * This method assigns the pointer focus to the specified surface at the given local position within the surface.\n
+     * If another surface already has pointer focus, it will lose it.
+     *
+     * Passing `nullptr` removes pointer focus from all surfaces.
+     *
+     * @param surface Surface to which the pointer focus will be assigned, or `nullptr` to remove focus from all surfaces.
+     * @param localPos Local position within the surface where the pointer enters.
+     */
+    void setFocus(LSurface *surface, const LPointF &localPos);
+
+    /**
+     * @brief Send a pointer move event.
+     *
+     * This method sends the current pointer position to the surface with pointer focus.
+     * If no surface has pointer focus calling this method is a no-op.
+     *
+     * The the position must be in surface local coordinates and is stracted from the
+     * LPointerMoveEvent::localPos mutable variable of the event. Make sure to assign its
+     * value properly.
      */
     void sendMoveEvent(const LPointerMoveEvent &event);
 
     /**
-     * @brief Send a pointer button event to the surface with focus.
+     * @brief Send a pointer button event.
+     *
+     * This method sends a pointer button event to the surface with focus
      */
     void sendButtonEvent(const LPointerButtonEvent &event);
 
     /**
-     * @brief Send a scroll event to the focused surface.
+     * @brief Send a scroll event.
      *
      * This method sends a scroll event to the currently focused surface.
      */
     void sendScrollEvent(const LPointerScrollEvent &event);
-
-///@}
-
-    /**
-     * @name Interactive Toplevel Resizing
-     *
-     * These utility methods simplify the management of interactive toplevel resizing sessions.
-     *
-     * @note Using these methods is optional.
-     *
-     * @see LToplevelRole::startResizeRequest()
-     * @see LToplevelRole::geometryChanged()
-     */
-
-///@{
-
-    /**
-     * @brief Start an interactive toplevel resizing session.
-     *
-     * This method starts an interactive resizing session on a toplevel surface from one of its edges or corners.\n
-     * You can restrict the space in which the surface expands by defining a rectangle given by the L, T, R, and B values.\n
-     * If you do not want to restrict an edge, assign its value to LPointer::EdgeDisabled.
-     *
-     * To update the position and size of the Toplevel, call updateResizingToplevelSize() when the pointer moves and
-     * updateResizingToplevelPos() when the toplevel size changes.\n
-     * Once finished, call stopResizingToplevel() to end the session.
-     *
-     * @note The session will automatically cease if the toplevel is destroyed.
-     *
-     * @see See an example of its use in LToplevelRole::startResizeRequest().
-     *
-     * @param toplevel Toplevel that will change size.
-     * @param edge Edge or corner from which the resizing will be performed.
-     * @param pointerPos Current pointer position.
-     * @param minSize Minimum toplevel size.
-     * @param L Restriction of the left edge.
-     * @param T Restriction of the top edge.
-     * @param R Restriction of the right edge.
-     * @param B Restriction of the bottom edge.
-     */
-    void startResizingToplevel(LToplevelRole *toplevel,
-                               LToplevelRole::ResizeEdge edge,
-                               const LPoint &pointerPos,
-                               const LSize &minSize = LSize(0, 0),
-                               Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
-                               Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
-
-    /**
-     * @brief Update the size of a toplevel during an interactive resizing session.
-     *
-     * This method should be called each time the pointer position changes.
-     *
-     * @param pointerPos Current pointer position.
-     *
-     * @see See an example of its use in the default implementation of pointerPosChangeEvent().
-     */
-    void updateResizingToplevelSize(const LPoint &pointerPos);
-
-    /**
-     * @brief Update the position of a toplevel during an interactive resizing session.
-     *
-     * This method should be called each time the toplevel size changes.
-     *
-     * @see See an example of its use in the default implementation of LToplevelRole::geometryChanged().
-     */
-    void updateResizingToplevelPos();
-
-    /**
-     * @brief End an interactive toplevel resizing session.
-     *
-     * This method is used to end the resizing session. Should be used for example when releasing the left pointer button.
-     *
-     * @see See an example of its use in the default implementation of pointerButtonEvent().
-     */
-    void stopResizingToplevel();
-
-    /**
-     * @brief Get the current toplevel in an interactive resizing session.
-     *
-     * @return A pointer to the current toplevel being resized, or `nullptr` if there is no active resizing session.
-     */
-    LToplevelRole *resizingToplevel() const;
-
-///@}
-
-    /**
-     * @name Interactive toplevel Movement
-     *
-     * These utility methods simplify the management of interactive toplevel moving sessions.
-     *
-     * @note Using these methods is optional.
-     *
-     * @see LToplevelRole::startMoveRequest()
-     */
-
-///@{
-
-    /**
-     * @brief Initiate an interactive toplevel moving session.
-     *
-     * This method initiates an interactive moving session for a toplevel surface.\n
-     * You can confine the Toplevel's placement within a rectangle by specifying values for L, T, R, and B.\n
-     * If you don't wish to restrict any edges, set their values to LPointer::EdgeDisabled.
-     *
-     * To update the Toplevel's position, use the updateMovingToplevelPos() method.
-     * Once the position change is complete, use the stopMovingToplevel() method to conclude the session.
-     *
-     * @note The session will automatically cease if the toplevel is destroyed.
-     *
-     * @see See an example of its use in LToplevelRole::startMoveRequest().
-     *
-     * @param toplevel The toplevel whose size will change.
-     * @param pointerPos Current pointer position.
-     * @param L Restriction for the left edge.
-     * @param T Restriction for the top edge.
-     * @param R Restriction for the right edge.
-     * @param B Restriction for the bottom edge.
-     */
-    void startMovingToplevel(LToplevelRole *toplevel,
-                             const LPoint &pointerPos,
-                             Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
-                             Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
-
-    /**
-     * @brief Update the position of a toplevel during an interactive moving session.
-     *
-     * Call this method when the pointer position changes.
-     *
-     * @see See an example of its usage in the default implementation of pointerPosChangeEvent().
-     *
-     * @param pointerPos The current pointer position.
-     */
-    void updateMovingToplevelPos(const LPoint &pointerPos);
-
-     /**
-     * @brief Conclude an interactive moving session.
-     *
-     * Use this method to conclude a moving toplevel session, for example, when releasing the left pointer button.
-     *
-     * @see See an example of its usage in the default implementation of pointerButtonEvent().
-     */
-    void stopMovingToplevel();
-
-    /**
-     * @brief Get the toplevel surface involved in an interactive moving session.
-     *
-     * @return A pointer to the toplevel surface, or `nullptr` if there is no ongoing interactive moving session.
-     */
-    LToplevelRole *movingToplevel() const;
-
-    /**
-     * @brief Retrieve the initial position of a toplevel during an interactive moving session.
-     *
-     * This method provides the initial position of a toplevel surface when an interactive moving session begins.
-     */
-    const LPoint &movingToplevelInitPos() const;
-
-    /**
-     * @brief Retrieve the initial pointer position during a toplevel interactive moving session.
-     *
-     * This method provides the initial pointer position when an interactive moving session of a toplevel surface starts.
-     */
-    const LPoint &movingToplevelInitPointerPos() const;
 
 ///@}
 

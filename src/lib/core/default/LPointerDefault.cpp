@@ -39,20 +39,20 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         dnd->icon()->surface()->repaintOutputs();
     }
 
-    if (resizingToplevel())
+    if (seat()->resizingToplevel())
     {
-        updateResizingToplevelSize(cursor()->pos());
+        seat()->updateResizingToplevelSize(cursor()->pos());
         return;
     }
 
-    if (movingToplevel())
+    if (seat()->movingToplevel())
     {
-        updateMovingToplevelPos(cursor()->pos());
+        seat()->updateMovingToplevelPos(cursor()->pos());
 
-        movingToplevel()->surface()->repaintOutputs();
+        seat()->movingToplevel()->surface()->repaintOutputs();
 
-        if (movingToplevel()->maximized())
-            movingToplevel()->configure(movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
+        if (seat()->movingToplevel()->maximized())
+            seat()->movingToplevel()->configure(seat()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
 
         return;
     }
@@ -158,8 +158,8 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
     // Left button released
     else
     {
-        stopResizingToplevel();
-        stopMovingToplevel();
+        seat()->stopResizingToplevel();
+        seat()->stopMovingToplevel();
 
         // We stop sending events to the surface on which the left button was being held down
         setDraggingSurface(nullptr);

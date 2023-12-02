@@ -27,7 +27,7 @@ static void onPointerEnterResizeArea(InputRect *rect, void *data, const LPoint &
     Pointer *pointer = (Pointer*)view->seat()->pointer();
     LXCursor *cursor = (LXCursor*)data;
 
-    if (pointer->resizingToplevel() || pointer->movingToplevel())
+    if (LCompositor::compositor()->seat()->resizingToplevel() || LCompositor::compositor()->seat()->movingToplevel())
         return;
 
     if (data)
@@ -314,7 +314,7 @@ ToplevelView::ToplevelView(Toplevel *toplevel) :
         ToplevelView *view = (ToplevelView*)data;
         Pointer *pointer = (Pointer*)view->seat()->pointer();
 
-        if (view->seat()->pointer()->resizingToplevel())
+        if (view->seat()->resizingToplevel())
             return;
 
         view->closeButton->update();
@@ -329,7 +329,7 @@ ToplevelView::ToplevelView(Toplevel *toplevel) :
     {
         ToplevelView *view = (ToplevelView*)data;
 
-        if (view->seat()->pointer()->resizingToplevel())
+        if (view->seat()->resizingToplevel())
             return;
 
         view->closeButton->update();

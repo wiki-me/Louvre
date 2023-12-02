@@ -23,12 +23,17 @@ LPRIVATE_CLASS(LSeat)
     Int32 ttyNumber = -1;
 
     // Wayland
+    InputCapabilitiesFlags capabilities             = Pointer | Keyboard;
     LPointer *pointer                               = nullptr;
     LKeyboard *keyboard                             = nullptr;
     LTouch *touch                                   = nullptr;
 
     LToplevelRole *activeToplevel                   = nullptr;
-    InputCapabilitiesFlags capabilities             = Pointer | Keyboard;
+    LToplevelRole *movingToplevel = nullptr;
+    LToplevelRole *resizingToplevel = nullptr;
+    LPoint movingToplevelInitPos;
+    LPoint movingToplevelInitPointerPos;
+    LRect movingToplevelConstraintBounds;
 
     // Data device
     LDataSource *dataSelection                      = nullptr;

@@ -25,13 +25,6 @@ LPRIVATE_CLASS(LPointer)
     // Wayland
     LSurface *pointerFocusSurface = nullptr;
     LSurface *draggingSurface = nullptr;
-    LToplevelRole *movingToplevel = nullptr;
-    LToplevelRole *resizingToplevel = nullptr;
-
-    // Toplevel Moving
-    LPoint movingToplevelInitPos;
-    LPoint movingToplevelInitPointerPos;
-    LRect movingToplevelConstraintBounds;
 
     Float64 axisXprev;
     Float64 axisYprev;
