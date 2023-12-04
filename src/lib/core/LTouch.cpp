@@ -55,17 +55,33 @@ LPointF LTouch::toGlobal(LOutput *output, const LPointF &touchPointPos)
     case LFramebuffer::Normal:
         point = output->size() * touchPointPos;
         break;
+    case LFramebuffer::Clock270:
+        point.setX(output->size().w() * (1.f - touchPointPos.y()));
+        point.setY(output->size().h() * touchPointPos.x());
+        break;
+    case LFramebuffer::Clock90:
+        point.setX(output->size().w() * touchPointPos.y());
+        point.setY(output->size().h() * (1.f - touchPointPos.x()));
+        break;
+    case LFramebuffer::Clock180:
+        point.setX(output->size().w() * (1.f - touchPointPos.x()));
+        point.setY(output->size().h() * (1.f - touchPointPos.y()));
+        break;
+    case LFramebuffer::Flipped180:
+        point.setX(output->size().w() * touchPointPos.x());
+        point.setY(output->size().h() * (1.f - touchPointPos.y()));
+        break;
     case LFramebuffer::Flipped:
         point.setX(output->size().w() * (1.f - touchPointPos.x()));
         point.setY(output->size().h() * touchPointPos.y());
         break;
-    case LFramebuffer::Clock90:
+    case LFramebuffer::Flipped90:
         point.setX(output->size().w() * (1.f - touchPointPos.y()));
-        point.setY(output->size().h() * touchPointPos.x());
+        point.setY(output->size().h() * (1.f - touchPointPos.x()));
         break;
-    case LFramebuffer::Clock180:
-        point.setX(output->size().w() * touchPointPos.x());
-        point.setY(output->size().h() * (1.f - touchPointPos.y()));
+    case LFramebuffer::Flipped270:
+        point.setX(output->size().w() * touchPointPos.y());
+        point.setY(output->size().h() * touchPointPos.x());
         break;
     }
 
