@@ -21,8 +21,6 @@ void LTouch::touchDownEvent(const LTouchDownEvent &event)
     // Transform touch position to global position
     LPointF globalPos = toGlobal(cursor()->output(), event.pos());
 
-    cursor()->setPos(globalPos);
-
     // Check if a surface was touched
     LSurface *surface = surfaceAt(globalPos);
 
@@ -44,16 +42,13 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
     if (!tp)
         return;
 
-    // For simplicity we use the output where the cursor is positioned
-    LOutput *output = cursor()->output();
-
     // Transform touch position to global position
-    LPointF globalPos = output->pos() + (output->size() * event.pos());
+    LPointF globalPos = toGlobal(cursor()->output(), event.pos());
 
     // Handle DND session
     LDNDManager *dnd = seat()->dndManager();
 
-    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch && dnd->startDragEvent()->subtype() == LEvent::Subtype::Down)
+    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch)
     {
         LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)dnd->startDragEvent();
 
@@ -98,7 +93,7 @@ void LTouch::touchUpEvent(const LTouchUpEvent &event)
 
     LDNDManager *dnd = seat()->dndManager();
 
-    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch && dnd->startDragEvent()->subtype() == LEvent::Subtype::Down)
+    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch)
     {
         LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)dnd->startDragEvent();
 

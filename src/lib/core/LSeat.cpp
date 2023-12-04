@@ -63,7 +63,8 @@ LSeat::~LSeat()
     {
         libseat_close_seat(imp()->libseatHandle);
         imp()->libseatHandle = nullptr;
-    }}
+    }
+}
 
 const std::list<LOutput *> &LSeat::outputs() const
 {

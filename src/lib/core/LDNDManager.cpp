@@ -19,6 +19,20 @@
 using namespace Louvre;
 using namespace Louvre::Protocols::Wayland;
 
+LDNDManager::LDNDManager(Params *params) : LPRIVATE_INIT_UNIQUE(LDNDManager)
+{
+    L_UNUSED(params);
+}
+
+LDNDManager::~LDNDManager()
+{
+    if (startDragEvent())
+    {
+        delete imp()->startDragEvent;
+        imp()->startDragEvent = nullptr;
+    }
+}
+
 void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
 {
     if (!surface)
@@ -105,13 +119,6 @@ const LEvent *LDNDManager::startDragEvent() const
 {
     return imp()->startDragEvent;
 }
-
-LDNDManager::LDNDManager(Params *params) : LPRIVATE_INIT_UNIQUE(LDNDManager)
-{
-    L_UNUSED(params);
-}
-
-LDNDManager::~LDNDManager() {}
 
 LDNDIconRole *LDNDManager::icon() const
 {

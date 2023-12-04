@@ -98,7 +98,7 @@ public:
     LTouchPoint *findTouchPoint(Int32 id) const;
 
     /**
-     * @brief Transforms a touch point to global coordinates.
+     * @brief Transforms a touch point position to global coordinates.
      *
      * This method enables the conversion of a touch point position, defined within the range of 0 to 1
      * for both x and y axes, to a global position. The transformation takes into account the specified output's position,

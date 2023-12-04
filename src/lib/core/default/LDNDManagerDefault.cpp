@@ -51,7 +51,7 @@ void LDNDManager::startDragRequest()
         if (tp && tp->surface() && tp->surface()->client() == origin()->client())
         {
             if (icon())
-                icon()->surface()->setPos(cursor()->output()->pos() + cursor()->output()->size() * tp->lastDownEvent().pos());
+                icon()->surface()->setPos(LTouch::toGlobal(cursor()->output(), tp->pos()));
             return;
         }
     }

@@ -54,6 +54,11 @@ const LTouchUpEvent &LTouchPoint::lastUpEvent() const
     return imp()->lastUpEvent;
 }
 
+const LPointF &LTouchPoint::pos() const
+{
+    return imp()->pos;
+}
+
 bool LTouchPoint::sendDownEvent(const LTouchDownEvent &event, LSurface *surface)
 {
     if (event.id() != id())
@@ -61,6 +66,7 @@ bool LTouchPoint::sendDownEvent(const LTouchDownEvent &event, LSurface *surface)
 
     imp()->isPressed = true;
     imp()->lastDownEvent = event;
+    imp()->pos = event.pos();
 
     // Detach prev sourface
     if (imp()->surface && (!surface || imp()->surface != surface))
@@ -91,6 +97,7 @@ bool LTouchPoint::sendMoveEvent(const LTouchMoveEvent &event)
         return false;
 
     imp()->lastMoveEvent = event;
+    imp()->pos = event.pos();
 
     if (!surface())
         return true;

@@ -13,7 +13,16 @@ LTouch::LTouch(Params *params) :
     L_UNUSED(params);
 }
 
-LTouch::~LTouch() {}
+LTouch::~LTouch()
+{
+    LTouchPoint *tp;
+    while (!touchPoints().empty())
+    {
+        tp = touchPoints().back();
+        imp()->touchPoints.pop_back();
+        delete tp;
+    }
+}
 
 LSurface *LTouch::surfaceAt(const LPoint &point)
 {

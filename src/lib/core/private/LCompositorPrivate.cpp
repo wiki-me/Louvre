@@ -475,6 +475,9 @@ void LCompositor::LCompositorPrivate::unitSeat()
     {
         // Notify first
 
+        if (seat->touch())
+            LCompositor::compositor()->destroyTouchRequest(seat->touch());
+
         if (seat->keyboard())
             LCompositor::compositor()->destroyKeyboardRequest(seat->keyboard());
 
@@ -487,6 +490,13 @@ void LCompositor::LCompositorPrivate::unitSeat()
         LCompositor::compositor()->destroySeatRequest(seat);
 
         // Then destroy
+
+        if (seat->touch())
+        {
+            delete seat->imp()->touch;
+            seat->imp()->touch = nullptr;
+            LLog::debug("[LCompositorPrivate::unitSeat] Touch uninitialized successfully.");
+        }
 
         if (seat->keyboard())
         {

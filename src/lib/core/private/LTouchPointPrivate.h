@@ -19,6 +19,8 @@ LTouchDownEvent lastDownEvent;
 LTouchMoveEvent lastMoveEvent;
 LTouchUpEvent lastUpEvent;
 
+LPointF pos;
+
 std::list<LTouchPoint*>::iterator link;
 
 void resetSerials();
