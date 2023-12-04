@@ -18,11 +18,10 @@ void LTouch::touchDownEvent(const LTouchDownEvent &event)
     // Creates or returns an existing touch point with the event id
     LTouchPoint *tp = createTouchPoint(event);
 
-    // For simplicity we use the output where the cursor is positioned
-    LOutput *output = cursor()->output();
-
     // Transform touch position to global position
-    LPointF globalPos = output->pos() + (output->size() * event.pos());
+    LPointF globalPos = toGlobal(cursor()->output(), event.pos());
+
+    cursor()->setPos(globalPos);
 
     // Check if a surface was touched
     LSurface *surface = surfaceAt(globalPos);

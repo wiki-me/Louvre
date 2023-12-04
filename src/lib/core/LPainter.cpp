@@ -626,8 +626,6 @@ void LPainter::clearScreen()
 {
     glDisable(GL_BLEND);
     setViewport(imp()->fb->rect());
-    glScissor(0, 0, imp()->fb->sizeB().w(), imp()->fb->sizeB().h());
-    glViewport(0, 0, imp()->fb->sizeB().w(), imp()->fb->sizeB().h());
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
 }

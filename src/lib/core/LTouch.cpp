@@ -3,6 +3,7 @@
 #include <LTouchDownEvent.h>
 #include <LSeat.h>
 #include <LPointer.h>
+#include <LOutput.h>
 
 using namespace Louvre;
 
@@ -40,6 +41,35 @@ LTouchPoint *LTouch::findTouchPoint(Int32 id) const
             return tp;
 
     return nullptr;
+}
+
+LPointF LTouch::toGlobal(LOutput *output, const LPointF &touchPointPos)
+{
+    if (!output)
+        return touchPointPos;
+
+    LPointF point;
+
+    switch (output->transform())
+    {
+    case LFramebuffer::Normal:
+        point = output->size() * touchPointPos;
+        break;
+    case LFramebuffer::Flipped:
+        point.setX(output->size().w() * (1.f - touchPointPos.x()));
+        point.setY(output->size().h() * touchPointPos.y());
+        break;
+    case LFramebuffer::Clock90:
+        point.setX(output->size().w() * (1.f - touchPointPos.y()));
+        point.setY(output->size().h() * touchPointPos.x());
+        break;
+    case LFramebuffer::Clock180:
+        point.setX(output->size().w() * touchPointPos.x());
+        point.setY(output->size().h() * (1.f - touchPointPos.y()));
+        break;
+    }
+
+    return point + output->pos();
 }
 
 void LTouch::sendFrameEvent(const LTouchFrameEvent &event)

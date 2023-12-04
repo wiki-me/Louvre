@@ -68,6 +68,7 @@ void LCompositor::initialized()
     for (LOutput *output : seat()->outputs())
     {
         // Set scale 2 to outputs with DPI >= 200
+        output->setTransform(LFramebuffer::Clock90);
         output->setScale(output->dpi() >= 200 ? 2 : 1);
         output->setPos(LPoint(totalWidth, 0));
         totalWidth += output->size().w();
