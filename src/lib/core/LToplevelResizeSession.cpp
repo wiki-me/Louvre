@@ -82,7 +82,7 @@ LToplevelRole *LToplevelResizeSession::toplevel() const
     return imp()->toplevel;
 }
 
-const LEvent *LToplevelResizeSession::triggeringEvent() const
+const LEvent &LToplevelResizeSession::triggeringEvent() const
 {
-    return imp()->triggeringEvent;
+    return *imp()->triggeringEvent;
 }

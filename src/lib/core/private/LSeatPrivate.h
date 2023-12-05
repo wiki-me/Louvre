@@ -30,10 +30,7 @@ LPRIVATE_CLASS(LSeat)
 
     LToplevelRole *activeToplevel                   = nullptr;
     std::list<LToplevelResizeSession*> resizeSessions;
-    LToplevelRole *movingToplevel = nullptr;
-    LPoint movingToplevelInitPos;
-    LPoint movingToplevelInitPointerPos;
-    LRect movingToplevelConstraintBounds;
+    std::list<LToplevelMoveSession*> moveSessions;
 
     // Data device
     LDataSource *dataSelection                      = nullptr;

@@ -1,13 +1,14 @@
 #include <protocols/XdgShell/private/RXdgSurfacePrivate.h>
 #include <protocols/XdgShell/RXdgToplevel.h>
 #include <private/LBaseSurfaceRolePrivate.h>
+#include <LToplevelResizeSession.h>
+#include <LToplevelMoveSession.h>
 #include <LCompositor.h>
 #include <LCursor.h>
 #include <LOutput.h>
 #include <LSeat.h>
 #include <LPointer.h>
 #include <LKeyboard.h>
-#include <LToplevelResizeSession.h>
 #include <LTouchDownEvent.h>
 #include <LTouchPoint.h>
 
@@ -22,10 +23,40 @@ const LPoint &LToplevelRole::rolePos() const
 //! [rolePos]
 
 //! [startMoveRequest]
-void LToplevelRole::startMoveRequest()
+void LToplevelRole::startMoveRequest(const LEvent &triggeringEvent)
 {
-    if (!fullscreen() && seat()->pointer()->focus() == surface())
-        seat()->startMovingToplevel(this, cursor()->pos());
+    // Left pointer button click
+    if (triggeringEvent.type() == LEvent::Type::Pointer && surface()->hasPointerFocus())
+    {
+        if (triggeringEvent.subtype() == LEvent::Subtype::Button)
+        {
+            LPointerButtonEvent &pointerButtonEvent = (LPointerButtonEvent&)triggeringEvent;
+
+            if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
+            {
+                startMoveSession(triggeringEvent, cursor()->pos());
+                return;
+            }
+        }
+    }
+    // Keyboard focus event
+    else if (triggeringEvent.type() == LEvent::Type::Keyboard && triggeringEvent.subtype() == LEvent::Subtype::Enter && surface()->hasKeyboardFocus())
+    {
+        startMoveSession(triggeringEvent, cursor()->pos());
+        return;
+    }
+    // Touch down event
+    else if (triggeringEvent.type() == LEvent::Type::Touch && triggeringEvent.subtype() == LEvent::Subtype::Down)
+    {
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)triggeringEvent;
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent.id());
+
+        if (tp && tp->surface() == surface())
+        {
+            startMoveSession(triggeringEvent, LTouch::toGlobal(cursor()->output(), tp->pos()));
+            return;
+        }
+    }
 }
 //! [startMoveRequest]
 
@@ -41,7 +72,7 @@ void LToplevelRole::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge
 
             if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
             {
-                startResizingSession(triggeringEvent, edge, cursor()->pos());
+                startResizeSession(triggeringEvent, edge, cursor()->pos());
                 return;
             }
         }
@@ -49,7 +80,7 @@ void LToplevelRole::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge
     // Keyboard focus event
     else if (triggeringEvent.type() == LEvent::Type::Keyboard && triggeringEvent.subtype() == LEvent::Subtype::Enter && surface()->hasKeyboardFocus())
     {
-        startResizingSession(triggeringEvent, edge, cursor()->pos());
+        startResizeSession(triggeringEvent, edge, cursor()->pos());
         return;
     }
     // Touch down event
@@ -60,7 +91,7 @@ void LToplevelRole::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge
 
         if (tp && tp->surface() == surface())
         {
-            startResizingSession(triggeringEvent, edge, LTouch::toGlobal(cursor()->output(), tp->pos()));
+            startResizeSession(triggeringEvent, edge, LTouch::toGlobal(cursor()->output(), tp->pos()));
             return;
         }
     }
@@ -223,8 +254,8 @@ void LToplevelRole::setMinimizedRequest()
     if (surface() == seat()->keyboard()->focus())
         seat()->keyboard()->setFocus(nullptr);
 
-    if (this == seat()->movingToplevel())
-        seat()->stopMovingToplevel();
+    if (moveSession())
+        moveSession()->stop();
 
     if (resizeSession())
         resizeSession()->stop();

@@ -42,6 +42,11 @@ const std::list<LToplevelResizeSession *> &LSeat::resizeSessions() const
     return imp()->resizeSessions;
 }
 
+const std::list<LToplevelMoveSession *> &LSeat::moveSessions() const
+{
+    return imp()->moveSessions;
+}
+
 LSeat::LSeat(Params *params) : LPRIVATE_INIT_UNIQUE(LSeat)
 {
     L_UNUSED(params);
@@ -156,56 +161,6 @@ LTouch *LSeat::touch() const
 LDataSource *LSeat::dataSelection() const
 {
     return imp()->dataSelection;
-}
-
-void LSeat::startMovingToplevel(LToplevelRole *toplevel, const LPoint &pointerPos, Int32 L, Int32 T, Int32 R, Int32 B)
-{
-    imp()->movingToplevelConstraintBounds = LRect(L,T,B,R);
-    imp()->movingToplevelInitPos = toplevel->surface()->pos();
-    imp()->movingToplevelInitPointerPos = pointerPos;
-    imp()->movingToplevel = toplevel;
-}
-
-void LSeat::updateMovingToplevelPos(const LPoint &pointerPos)
-{
-    if (movingToplevel())
-    {
-        LPoint newPos = movingToplevelInitPos() - movingToplevelInitPointerPos() + pointerPos;
-
-        if (imp()->movingToplevelConstraintBounds.w() != LToplevelRole::EdgeDisabled && newPos.x() > imp()->movingToplevelConstraintBounds.w())
-            newPos.setX(imp()->movingToplevelConstraintBounds.w());
-
-        if (imp()->movingToplevelConstraintBounds.x() != LToplevelRole::EdgeDisabled && newPos.x() < imp()->movingToplevelConstraintBounds.x())
-            newPos.setX(imp()->movingToplevelConstraintBounds.x());
-
-        if (imp()->movingToplevelConstraintBounds.h() != LToplevelRole::EdgeDisabled && newPos.y() > imp()->movingToplevelConstraintBounds.h())
-            newPos.setY(imp()->movingToplevelConstraintBounds.h());
-
-        if (imp()->movingToplevelConstraintBounds.y() != LToplevelRole::EdgeDisabled && newPos.y() < imp()->movingToplevelConstraintBounds.y())
-            newPos.setY(imp()->movingToplevelConstraintBounds.y());
-
-        movingToplevel()->surface()->setPos(newPos);
-    }
-}
-
-void LSeat::stopMovingToplevel()
-{
-    imp()->movingToplevel = nullptr;
-}
-
-LToplevelRole *LSeat::movingToplevel() const
-{
-    return imp()->movingToplevel;
-}
-
-const LPoint &LSeat::movingToplevelInitPos() const
-{
-    return imp()->movingToplevelInitPos;
-}
-
-const LPoint &LSeat::movingToplevelInitPointerPos() const
-{
-    return imp()->movingToplevelInitPointerPos;
 }
 
 LDNDManager *LSeat::dndManager() const

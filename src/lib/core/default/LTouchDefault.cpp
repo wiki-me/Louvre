@@ -79,11 +79,11 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
 
     for (LToplevelResizeSession *session : seat()->resizeSessions())
     {
-        if (session->triggeringEvent()->type() == LEvent::Type::Touch && session->triggeringEvent()->subtype() == LEvent::Subtype::Down)
+        if (session->triggeringEvent().type() == LEvent::Type::Touch && session->triggeringEvent().subtype() == LEvent::Subtype::Down)
         {
-            LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)session->triggeringEvent();
+            LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)session->triggeringEvent();
 
-            if (touchDownEvent->id() == tp->id())
+            if (touchDownEvent.id() == tp->id())
             {
                 activeResizing = true;
                 session->setResizePointPos(globalPos);

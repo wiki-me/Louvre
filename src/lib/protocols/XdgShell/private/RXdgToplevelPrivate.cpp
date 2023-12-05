@@ -77,14 +77,21 @@ void RXdgToplevel::RXdgToplevelPrivate::show_window_menu(wl_client *client, wl_r
 void RXdgToplevel::RXdgToplevelPrivate::move(wl_client *client, wl_resource *resource, wl_resource *seat, UInt32 serial)
 {
     L_UNUSED(client);
-    L_UNUSED(seat);
-    L_UNUSED(serial);
+
     RXdgToplevel *rXdgToplevel = (RXdgToplevel*)wl_resource_get_user_data(resource);
 
     if (!rXdgToplevel->toplevelRole()->surface()->toplevel())
         return;
 
-    rXdgToplevel->toplevelRole()->startMoveRequest();
+    GSeat *gSeat = (GSeat*)wl_resource_get_user_data(seat);
+
+    LEvent *triggeringEvent = gSeat->findSerialEventMatch(serial);
+
+    if (!triggeringEvent)
+        return;
+
+    rXdgToplevel->toplevelRole()->startMoveRequest(*triggeringEvent);
+    delete triggeringEvent;
 }
 
 void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *resource, wl_resource *seat, UInt32 serial, UInt32 edges)

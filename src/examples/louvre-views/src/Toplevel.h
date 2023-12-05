@@ -25,7 +25,7 @@ public:
     void configureRequest() override;
 
     void startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge) override;
-    void startMoveRequest() override;
+    void startMoveRequest(const LEvent &triggeringEvent) override;
 
     void setMaximizedRequest() override;
     void unsetMaximizedRequest() override;

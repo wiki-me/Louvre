@@ -11,6 +11,7 @@ public:
     Pointer(Params *params);
 
     bool isResizeSessionActive() const;
+    bool isMoveSessionActive() const;
 
     void pointerMoveEvent(const LPointerMoveEvent &event) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;

@@ -14,6 +14,7 @@
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
 #include <LToplevelResizeSession.h>
+#include <LToplevelMoveSession.h>
 
 using namespace Louvre;
 
@@ -38,7 +39,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 
     for (LToplevelResizeSession *session : seat()->resizeSessions())
     {
-        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+        if (session->triggeringEvent().type() != LEvent::Type::Touch)
         {
             activeResizing = true;
             session->setResizePointPos(cursor()->pos());
@@ -48,17 +49,23 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     if (activeResizing)
         return;
 
-    if (seat()->movingToplevel())
+    bool activeMoving = false;
+
+    for (LToplevelMoveSession *session : seat()->moveSessions())
     {
-        seat()->updateMovingToplevelPos(cursor()->pos());
+        if (session->triggeringEvent().type() != LEvent::Type::Touch)
+        {
+            activeMoving = true;
+            session->setMovePointPos(cursor()->pos());
+            session->toplevel()->surface()->repaintOutputs();
 
-        seat()->movingToplevel()->surface()->repaintOutputs();
-
-        if (seat()->movingToplevel()->maximized())
-            seat()->movingToplevel()->configure(seat()->movingToplevel()->pendingState() &~ LToplevelRole::Maximized);
-
-        return;
+            if (session->toplevel()->maximized())
+                session->toplevel()->configure(session->toplevel()->pendingState() &~ LToplevelRole::Maximized);
+        }
     }
+
+    if (activeMoving)
+        return;
 
     // If a surface had the left pointer button held down
     if (draggingSurface())
@@ -165,10 +172,13 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
     {
         // Stop pointer toplevel resizing sessions
         for (std::list<LToplevelResizeSession*>::const_iterator it = seat()->resizeSessions().begin(); it != seat()->resizeSessions().end(); it++)
-            if ((*it)->triggeringEvent()->type() != LEvent::Type::Touch)
+            if ((*it)->triggeringEvent().type() != LEvent::Type::Touch)
                 it = (*it)->stop();
 
-        seat()->stopMovingToplevel();
+        // Stop pointer toplevel moving sessions
+        for (std::list<LToplevelMoveSession*>::const_iterator it = seat()->moveSessions().begin(); it != seat()->moveSessions().end(); it++)
+            if ((*it)->triggeringEvent().type() != LEvent::Type::Touch)
+                it = (*it)->stop();
 
         // We stop sending events to the surface on which the left button was being held down
         setDraggingSurface(nullptr);

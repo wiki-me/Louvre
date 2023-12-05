@@ -184,17 +184,46 @@ public:
     const LRect &windowGeometry() const;
 
     /**
-     * @brief Size during a resizing session
+     * @name Interactive toplevel Movement
      *
-     * Utility method to calculate the toplevel size during an interactive resizing session.\n
+     * These utility methods simplify the management of interactive toplevel moving sessions.
      *
-     * @param cursorPosDelta Initial pointer position minus the current one
-     * @param initialSize Initial toplevel position
-     * @param edge Edge or corner used in the resizing
+     * @note Using these methods is optional.
      *
-     * @returns The toplevel size given the current parameters
+     * @see LToplevelRole::startMoveRequest()
      */
-    LSize calculateResizeSize(const LPoint &cursorPosDelta, const LSize &initialSize, ResizeEdge edge);
+
+    ///@{
+
+    /**
+     * @brief Initiate an interactive toplevel moving session.
+     *
+     * This method initiates an interactive moving session for a toplevel surface.\n
+     * You can confine the Toplevel's placement within a rectangle by specifying values for L, T, R, and B.\n
+     * If you don't wish to restrict any edges, set their values to LPointer::EdgeDisabled.
+     *
+     * To update the Toplevel's position, use the updateMovingToplevelPos() method.
+     * Once the position change is complete, use the stopMovingToplevel() method to conclude the session.
+     *
+     * @note The session will automatically cease if the toplevel is destroyed.
+     *
+     * @see See an example of its use in LToplevelRole::startMoveRequest().
+     *
+     * @param toplevel The toplevel whose size will change.
+     * @param movePointPos Current move point position (cursor position, touch point position, etc).
+     * @param L Restriction for the left edge.
+     * @param T Restriction for the top edge.
+     * @param R Restriction for the right edge.
+     * @param B Restriction for the bottom edge.
+     */
+    bool startMoveSession(const LEvent &triggerigEvent,
+                          const LPoint &movePointPos,
+                          Int32 L = LToplevelRole::EdgeDisabled, Int32 T = LToplevelRole::EdgeDisabled,
+                          Int32 R = LToplevelRole::EdgeDisabled, Int32 B = LToplevelRole::EdgeDisabled);
+
+    LToplevelMoveSession *moveSession() const;
+
+    ///@}
 
     /**
      * @name Interactive Toplevel Resizing
@@ -233,14 +262,28 @@ public:
      * @param R Restriction of the right edge.
      * @param B Restriction of the bottom edge.
      */
-    bool startResizingSession(const LEvent &triggeringEvent,
-                               LToplevelRole::ResizeEdge edge,
-                               const LPoint &resizePointPos,
-                               const LSize &minSize = LSize(0, 0),
-                               Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
-                               Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
+    bool startResizeSession(const LEvent &triggeringEvent,
+                           LToplevelRole::ResizeEdge edge,
+                           const LPoint &resizePointPos,
+                           const LSize &minSize = LSize(0, 0),
+                           Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
+                           Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
+
 
     LToplevelResizeSession *resizeSession() const;
+
+    /**
+     * @brief Size during a resizing session
+     *
+     * Utility method to calculate the toplevel size during an interactive resizing session.\n
+     *
+     * @param resizePointDelta Initial resize point position minus the current one
+     * @param initialSize Initial toplevel position
+     * @param edge Edge or corner used in the resizing
+     *
+     * @returns The toplevel size given the current parameters
+     */
+    LSize calculateResizeSize(const LPoint &resizePointDelta, const LSize &initialSize, ResizeEdge edge);
 
     /**
      * @brief Get the application ID associated with the toplevel window.
@@ -368,7 +411,7 @@ public:
      * #### Default Implementation
      * @snippet LToplevelRoleDefault.cpp startMoveRequest
      */
-    virtual void startMoveRequest();
+    virtual void startMoveRequest(const LEvent &triggeringEvent);
 
     /**
      * @brief Request to start an interactive resize session

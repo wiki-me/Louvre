@@ -1,6 +1,1 @@
-#include "LToplevelMoveSessionPrivate.h"
-
-LToplevelMoveSessionPrivate::LToplevelMoveSessionPrivate()
-{
-
-}
+#include <private/LToplevelMoveSessionPrivate.h>

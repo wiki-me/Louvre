@@ -27,7 +27,7 @@ static void onPointerEnterResizeArea(InputRect *rect, void *data, const LPoint &
     Pointer *pointer = (Pointer*)view->seat()->pointer();
     LXCursor *cursor = (LXCursor*)data;
 
-    if (G::pointer()->isResizeSessionActive() || LCompositor::compositor()->seat()->movingToplevel())
+    if (G::pointer()->isResizeSessionActive() || G::pointer()->isMoveSessionActive())
         return;
 
     if (data)
@@ -137,7 +137,7 @@ static void onPointerButtonResizeArea(InputRect *rect, void *data, const LPointe
         if (data)
             toplevel->startResizeRequest(event, (LToplevelRole::ResizeEdge)rect->id);
         else
-            toplevel->startMoveRequest();
+            toplevel->startMoveRequest(event);
     }
     // Maximize / unmaximize on topbar double click
     else if (!data)

@@ -9,7 +9,7 @@ public:
     void setResizePointPos(const LPoint &pos);
     const std::list<LToplevelResizeSession*>::iterator stop();
     LToplevelRole *toplevel() const;
-    const LEvent *triggeringEvent() const;
+    const LEvent &triggeringEvent() const;
 
     LPRIVATE_IMP_UNIQUE(LToplevelResizeSession)
     friend class LToplevelRole;

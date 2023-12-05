@@ -11,6 +11,7 @@
 #include "ToplevelView.h"
 #include "Output.h"
 #include "Workspace.h"
+#include "Pointer.h"
 
 #define WORSPACE_ANIM_MS 400
 #define WORSPACE_ANIM_EASE 4.f
@@ -79,22 +80,22 @@ void Toplevel::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge
         return;
 
     G::enableDocks(false);
-    startResizingSession(triggeringEvent,
-                         edge,
-                         cursor()->pos(),
-                         LSize(128, 128),
-                         EdgeDisabled,
-                         TOPBAR_HEIGHT);
+    startResizeSession(triggeringEvent,
+                     edge,
+                     cursor()->pos(),
+                     LSize(128, 128),
+                     EdgeDisabled,
+                     TOPBAR_HEIGHT);
 }
 
-void Toplevel::startMoveRequest()
+void Toplevel::startMoveRequest(const LEvent &triggeringEvent)
 {
     // Disable interactive moving in fullscreen mode
     if (fullscreen())
         return;
 
     G::enableDocks(false);
-    seat()->startMovingToplevel(this, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
+    startMoveSession(triggeringEvent, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
 }
 
 void Toplevel::setMaximizedRequest()
@@ -149,7 +150,7 @@ void Toplevel::maximizedChanged()
         surface()->setPos(dstRect.pos());
     else
     {
-        if (!seat()->movingToplevel() && seat()->resizeSessions().empty())
+        if (!G::pointer()->isMoveSessionActive() && seat()->resizeSessions().empty())
             surface()->setPos(prevRect.pos());
     }
 

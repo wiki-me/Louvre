@@ -1,6 +1,7 @@
 #include <protocols/XdgDecoration/private/RXdgToplevelDecorationPrivate.h>
 #include <protocols/XdgShell/private/RXdgSurfacePrivate.h>
 #include <protocols/XdgShell/RXdgToplevel.h>
+#include <private/LToplevelMoveSessionPrivate.h>
 #include <private/LToplevelResizeSessionPrivate.h>
 #include <private/LToplevelRolePrivate.h>
 #include <private/LBaseSurfaceRolePrivate.h>
@@ -42,8 +43,8 @@ LToplevelRole::~LToplevelRole()
     if (resizeSession())
         resizeSession()->imp()->destroy();
 
-    if (seat()->movingToplevel() == this)
-        seat()->stopMovingToplevel();
+    if (moveSession())
+        moveSession()->stop();
 
     if (seat()->activeToplevel() == this)
         seat()->imp()->activeToplevel = nullptr;
@@ -244,8 +245,8 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
 
         surface()->imp()->setParent(nullptr);
 
-        if (seat()->movingToplevel() == this)
-            seat()->stopMovingToplevel();
+        if (moveSession())
+            moveSession()->stop();
 
         if (resizeSession())
             resizeSession()->imp()->destroy();
@@ -326,6 +327,27 @@ const LRect &LToplevelRole::windowGeometry() const
     return xdgSurfaceResource()->imp()->currentWindowGeometry;
 }
 
+bool LToplevelRole::startMoveSession(const LEvent &triggerigEvent, const LPoint &movePointPos, Int32 L, Int32 T, Int32 R, Int32 B)
+{
+    if (moveSession())
+        return false;
+
+    imp()->moveSession = new LToplevelMoveSession();
+    imp()->moveSession->imp()->toplevel = this;
+    imp()->moveSession->imp()->triggeringEvent = triggerigEvent.copy();
+    imp()->moveSession->imp()->initMovePointPos = movePointPos;
+    imp()->moveSession->imp()->initToplevelPos = surface()->pos();
+    imp()->moveSession->imp()->bounds = {L, T, R, B};
+    seat()->imp()->moveSessions.push_back(imp()->moveSession);
+    imp()->moveSession->imp()->link = std::prev(seat()->imp()->moveSessions.end());
+    return true;
+}
+
+LToplevelMoveSession *LToplevelRole::moveSession() const
+{
+    return imp()->moveSession;
+}
+
 void LToplevelRole::configure(const LSize &size, UInt32 stateFlags)
 {
     imp()->configure(size.w(), size.h(), stateFlags);
@@ -388,7 +410,7 @@ LSize LToplevelRole::calculateResizeSize(const LPoint &cursorPosDelta, const LSi
         return newSize;
 }
 
-bool LToplevelRole::startResizingSession(const LEvent &triggeringEvent, ResizeEdge edge, const LPoint &resizePointPos, const LSize &minSize, Int32 L, Int32 T, Int32 R, Int32 B)
+bool LToplevelRole::startResizeSession(const LEvent &triggeringEvent, ResizeEdge edge, const LPoint &resizePointPos, const LSize &minSize, Int32 L, Int32 T, Int32 R, Int32 B)
 {
     if (resizeSession())
     {

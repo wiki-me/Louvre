@@ -64,6 +64,7 @@ LPRIVATE_CLASS(LToplevelRole)
 
     // Interactive sessions
     LToplevelResizeSession *resizeSession = nullptr;
+    LToplevelMoveSession *moveSession = nullptr;
 
     inline void applyPendingChanges()
     {

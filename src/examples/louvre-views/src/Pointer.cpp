@@ -13,6 +13,7 @@
 #include <LPointerScrollEvent.h>
 #include <LInputDevice.h>
 #include <LToplevelResizeSession.h>
+#include <LToplevelMoveSession.h>
 
 #include "Global.h"
 #include "Pointer.h"
@@ -23,7 +24,15 @@ Pointer::Pointer(Params *params) : LPointer(params) {}
 bool Pointer::isResizeSessionActive() const
 {
     for (LToplevelResizeSession *session : seat()->resizeSessions())
-        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+        if (session->triggeringEvent().type() != LEvent::Type::Touch)
+            return true;
+    return false;
+}
+
+bool Pointer::isMoveSessionActive() const
+{
+    for (LToplevelMoveSession *session : seat()->moveSessions())
+        if (session->triggeringEvent().type() != LEvent::Type::Touch)
             return true;
     return false;
 }
@@ -32,16 +41,9 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
     LView *view = G::scene()->handlePointerMoveEvent(event);
 
-    bool activeResizing = false;
+    bool activeResizing = isResizeSessionActive();
 
-    for (LToplevelResizeSession *session : seat()->resizeSessions())
-        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
-        {
-            activeResizing = true;
-            break;
-        }
-
-    if (seat()->movingToplevel() || activeResizing)
+    if (isMoveSessionActive() || activeResizing)
         cursor()->output()->repaint();
 
     if (activeResizing || cursorOwner)

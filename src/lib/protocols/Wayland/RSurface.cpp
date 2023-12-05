@@ -14,6 +14,7 @@
 #include <private/LSubsurfaceRolePrivate.h>
 #include <private/LTouchPointPrivate.h>
 #include <private/LToplevelResizeSessionPrivate.h>
+#include <LToplevelMoveSession.h>
 
 using namespace Protocols::Wayland;
 
@@ -125,8 +126,8 @@ RSurface::~RSurface()
             seat()->imp()->activeToplevel = nullptr;
 
         // Clear moving toplevel
-        if (seat()->imp()->movingToplevel == lSurface->toplevel())
-            seat()->imp()->movingToplevel = nullptr;
+        if (lSurface->toplevel()->moveSession())
+            lSurface->toplevel()->moveSession()->stop();
 
         // Clear resizing toplevel
         if (lSurface->toplevel()->resizeSession())
