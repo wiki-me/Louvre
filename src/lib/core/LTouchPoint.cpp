@@ -75,7 +75,7 @@ bool LTouchPoint::sendDownEvent(const LTouchDownEvent &event, LSurface *surface)
         {
             if (gSeat->touchResource())
             {
-                gSeat->touchResource()->up(event.device(), event.time(), LCompositor::nextSerial(), event.id());
+                gSeat->touchResource()->up(LTouchUpEvent(id(), LTime::nextSerial(), event.ms(), event.us(), event.device()));
                 gSeat->touchResource()->frame();
             }
         }
@@ -108,7 +108,7 @@ bool LTouchPoint::sendMoveEvent(const LTouchMoveEvent &event)
     for (GSeat *gSeat : surface()->client()->seatGlobals())
         if (gSeat->touchResource())
             gSeat->touchResource()->motion(
-                event.time(),
+                event.ms(),
                 id(),
                 x,
                 y);
@@ -129,7 +129,7 @@ bool LTouchPoint::sendUpEvent(const LTouchUpEvent &event)
 
     for (GSeat *gSeat : surface()->client()->seatGlobals())
         if (gSeat->touchResource())
-            gSeat->touchResource()->up(event.device(), event.time(), LCompositor::nextSerial(), event.id());
+            gSeat->touchResource()->up(event);
 
     return true;
 }

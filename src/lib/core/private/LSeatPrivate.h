@@ -29,8 +29,8 @@ LPRIVATE_CLASS(LSeat)
     LTouch *touch                                   = nullptr;
 
     LToplevelRole *activeToplevel                   = nullptr;
+    std::list<LToplevelResizeSession*> resizeSessions;
     LToplevelRole *movingToplevel = nullptr;
-    LToplevelRole *resizingToplevel = nullptr;
     LPoint movingToplevelInitPos;
     LPoint movingToplevelInitPointerPos;
     LRect movingToplevelConstraintBounds;

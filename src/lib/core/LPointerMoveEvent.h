@@ -8,62 +8,61 @@
 class Louvre::LPointerMoveEvent : public LPointerEvent
 {
 public:
-    LPointerMoveEvent();
+    inline LPointerMoveEvent(const LPointF &delta = LPointF(0.f, 0.f), const LPointF &deltaUnaccelerated = LPointF(0.f, 0.f),
+                             UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LPointerEvent(LEvent::Subtype::Move, serial, ms, us, device),
+        m_delta(delta),
+        m_deltaUnaccelerated(deltaUnaccelerated)
+    {}
 
     virtual ~LPointerMoveEvent() {}
     virtual LEvent *copy() const override;
 
-    inline void setIsAbsolute(bool absolute)
+    inline void setDelta(const LPointF &delta)
     {
-        m_isAbsolute = absolute;
+        m_delta = delta;
     }
 
-    inline bool isAbsolute() const
+    inline void setDx(Float32 dx)
     {
-        return m_isAbsolute;
+        m_delta.setX(dx);
     }
 
-    inline void setX(Float32 x)
+    inline void setDy(Float32 dy)
     {
-        m_pos.setX(x);
+        m_delta.setY(dy);
     }
 
-    inline Float32 x() const
+    const LPointF &delta() const
     {
-        return m_pos.x();
+        return m_delta;
     }
 
-    inline void setY(Float32 y)
+    inline void setDeltaUnaccelerated(const LPointF &deltaUnaccelerated)
     {
-        m_pos.setY(y);
+        m_deltaUnaccelerated = deltaUnaccelerated;
     }
 
-    inline Float32 y() const
+    inline void setDxUnaccelerated(Float32 dx)
     {
-        return m_pos.y();
+        m_deltaUnaccelerated.setX(dx);
     }
 
-    inline void setPos(Float32 x, Float32 y)
+    inline void setDyUnaccelerated(Float32 dy)
     {
-        m_pos.setX(x);
-        m_pos.setY(y);
+        m_deltaUnaccelerated.setY(dy);
     }
 
-    inline void setPos(const LPointF &pos)
+    const LPointF &deltaUnaccelerated() const
     {
-        m_pos = pos;
-    }
-
-    const LPointF &pos() const
-    {
-        return m_pos;
+        return m_deltaUnaccelerated;
     }
 
     mutable LPointF localPos;
 
 protected:
-    bool m_isAbsolute = false;
-    LPointF m_pos;
+    LPointF m_delta;
+    LPointF m_deltaUnaccelerated;
 private:
     friend class LInputBackend;
     void notify();

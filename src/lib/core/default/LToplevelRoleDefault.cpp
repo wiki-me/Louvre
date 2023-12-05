@@ -7,6 +7,9 @@
 #include <LSeat.h>
 #include <LPointer.h>
 #include <LKeyboard.h>
+#include <LToplevelResizeSession.h>
+#include <LTouchDownEvent.h>
+#include <LTouchPoint.h>
 
 using namespace Louvre;
 
@@ -27,10 +30,40 @@ void LToplevelRole::startMoveRequest()
 //! [startMoveRequest]
 
 //! [startResizeRequest]
-void LToplevelRole::startResizeRequest(ResizeEdge edge)
+void LToplevelRole::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge)
 {
-    if (!fullscreen() && seat()->pointer()->focus() == surface())
-        seat()->startResizingToplevel(this, edge, cursor()->pos());
+    // Left pointer button click
+    if (triggeringEvent.type() == LEvent::Type::Pointer && surface()->hasPointerFocus())
+    {
+        if (triggeringEvent.subtype() == LEvent::Subtype::Button)
+        {
+            LPointerButtonEvent &pointerButtonEvent = (LPointerButtonEvent&)triggeringEvent;
+
+            if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
+            {
+                startResizingSession(triggeringEvent, edge, cursor()->pos());
+                return;
+            }
+        }
+    }
+    // Keyboard focus event
+    else if (triggeringEvent.type() == LEvent::Type::Keyboard && triggeringEvent.subtype() == LEvent::Subtype::Enter && surface()->hasKeyboardFocus())
+    {
+        startResizingSession(triggeringEvent, edge, cursor()->pos());
+        return;
+    }
+    // Touch down event
+    else if (triggeringEvent.type() == LEvent::Type::Touch && triggeringEvent.subtype() == LEvent::Subtype::Down)
+    {
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)triggeringEvent;
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent.id());
+
+        if (tp && tp->surface() == surface())
+        {
+            startResizingSession(triggeringEvent, edge, LTouch::toGlobal(cursor()->output(), tp->pos()));
+            return;
+        }
+    }
 }
 //! [startResizeRequest]
 
@@ -69,8 +102,7 @@ void LToplevelRole::appIdChanged()
 //! [geometryChanged]
 void LToplevelRole::geometryChanged()
 {
-    if (resizing())
-        updateResizingPos();
+    /* No default implementation */
 }
 //! [geometryChanged]
 
@@ -194,8 +226,8 @@ void LToplevelRole::setMinimizedRequest()
     if (this == seat()->movingToplevel())
         seat()->stopMovingToplevel();
 
-    if (this == seat()->resizingToplevel())
-        seat()->stopResizingToplevel();
+    if (resizeSession())
+        resizeSession()->stop();
 }
 //! [setMinimizedRequest]
 

@@ -149,7 +149,7 @@ void LOutput::LOutputPrivate::backendPageFlipped()
         compositor()->imp()->lock();
 
     // Send presentation time feedback
-    presentationTime = LTime::ns();
+    clock_gettime(CLOCK_MONOTONIC, &presentationTime);
     for (LSurface *surf : compositor()->surfaces())
         surf->imp()->sendPresentationFeedback(output, presentationTime);
 

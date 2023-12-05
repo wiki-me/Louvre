@@ -16,7 +16,7 @@ public:
     struct Params;
 
     void setFocus(LSurface *surface, const LPointF &localPos);
-    void sendMoveEvent(const LPointF &localPos, UInt32 time);
+    void sendMoveEvent(const LPointF &localPos, UInt32 ms);
     const LEvent *startDragEvent() const;
 
     /**

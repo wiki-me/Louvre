@@ -9,6 +9,9 @@ class Pointer : public LPointer
 {
 public:
     Pointer(Params *params);
+
+    bool isResizeSessionActive() const;
+
     void pointerMoveEvent(const LPointerMoveEvent &event) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
     void pointerScrollEvent(const LPointerScrollEvent &event) override;

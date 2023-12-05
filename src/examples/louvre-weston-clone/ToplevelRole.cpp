@@ -72,15 +72,15 @@ void ToplevelRole::fullscreenChanged()
 void ToplevelRole::startMoveRequest()
 {
     if (!fullscreen())
-        seat()->startMovingToplevel(this, cursor()->pos(), LSeat::EdgeDisabled, 32);
+        seat()->startMovingToplevel(this, cursor()->pos(), EdgeDisabled, 32);
 }
 
-void ToplevelRole::startResizeRequest(ResizeEdge edge)
+void ToplevelRole::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge)
 {
     if (!fullscreen())
-        seat()->startResizingToplevel(this,
-                                     edge,
-                                     cursor()->pos(),
-                                     LSize(128, 128),
-                                     LSeat::EdgeDisabled, 32);
+        startResizingSession(triggeringEvent,
+                             edge,
+                             cursor()->pos(),
+                             LSize(128, 128),
+                             EdgeDisabled, 32);
 }

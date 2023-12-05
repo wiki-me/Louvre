@@ -1,13 +1,7 @@
 #include <private/LKeyboardPrivate.h>
 #include <LKeyboardKeyEvent.h>
-#include <LCompositor.h>
-#include <LTime.h>
 
 using namespace Louvre;
-
-LKeyboardKeyEvent::LKeyboardKeyEvent() :
-    LKeyboardEvent(Subtype::Key, LCompositor::nextSerial(), LTime::ms(), nullptr)
-{}
 
 LEvent *LKeyboardKeyEvent::copy() const
 {

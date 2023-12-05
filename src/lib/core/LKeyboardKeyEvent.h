@@ -23,7 +23,12 @@ public:
         Pressed = 1
     };
 
-    LKeyboardKeyEvent();
+    inline LKeyboardKeyEvent(UInt32 keyCode = 0, State state = Pressed, UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LKeyboardEvent(LEvent::Subtype::Key, serial, ms, us, device),
+        m_key(keyCode),
+        m_state(state)
+    {}
+
     virtual ~LKeyboardKeyEvent() {}
     virtual LEvent *copy() const override;
 

@@ -54,7 +54,7 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
 
     if (source())
     {
-        UInt32 serial = LCompositor::nextSerial();
+        UInt32 serial = LTime::nextSerial();
 
         for (GSeat *gSeat : focus()->client()->seatGlobals())
         {
@@ -84,7 +84,7 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
     // initiated the drag and the client is expected to handle the data passing internally
     else if (origin() == focus())
     {
-        UInt32 serial = LCompositor::nextSerial();
+        UInt32 serial = LTime::nextSerial();
 
         for (GSeat *gSeat : focus()->client()->seatGlobals())
         {
@@ -102,7 +102,7 @@ void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
     }
 }
 
-void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 time)
+void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 ms)
 {
     if (!focus() || seat()->dndManager()->imp()->dropped)
         return;
@@ -112,7 +112,7 @@ void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 time)
 
     for (GSeat *gSeat : focus()->client()->seatGlobals())
         if (gSeat->dataDeviceResource())
-            gSeat->dataDeviceResource()->motion(time, x, y);
+            gSeat->dataDeviceResource()->motion(ms, x, y);
 }
 
 const LEvent *LDNDManager::startDragEvent() const

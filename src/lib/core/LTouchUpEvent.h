@@ -2,11 +2,15 @@
 #define LTOUCHUPEVENT_H
 
 #include <LTouchEvent.h>
+#include <LTime.h>
 
 class Louvre::LTouchUpEvent : public LTouchEvent
 {
 public:
-    LTouchUpEvent();
+    inline LTouchUpEvent(Int32 id = 0, UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LTouchEvent(LEvent::Subtype::Up, serial, ms, us, device),
+        m_id(id)
+    {}
     virtual ~LTouchUpEvent() {}
     virtual LEvent *copy() const override;
 

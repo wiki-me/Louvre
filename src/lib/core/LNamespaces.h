@@ -118,6 +118,9 @@ namespace Louvre
     class LTouchCancelEvent;
     class LTouchPoint;
 
+    class LToplevelResizeSession;
+    class LToplevelMoveSession;
+
     // Painter
     class LPainter;
     class LRenderBuffer;

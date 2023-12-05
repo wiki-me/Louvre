@@ -27,7 +27,7 @@ static void onPointerEnterResizeArea(InputRect *rect, void *data, const LPoint &
     Pointer *pointer = (Pointer*)view->seat()->pointer();
     LXCursor *cursor = (LXCursor*)data;
 
-    if (LCompositor::compositor()->seat()->resizingToplevel() || LCompositor::compositor()->seat()->movingToplevel())
+    if (G::pointer()->isResizeSessionActive() || LCompositor::compositor()->seat()->movingToplevel())
         return;
 
     if (data)
@@ -113,7 +113,7 @@ static void onPointerLeaveResizeArea(InputRect *rect, void *data)
     }
 }
 
-static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointerButtonEvent::Button button, LPointerButtonEvent::State state)
+static void onPointerButtonResizeArea(InputRect *rect, void *data, const LPointerButtonEvent &event)
 {
     ToplevelView *view = (ToplevelView*)rect->parent();
     Pointer *pointer = (Pointer*)view->seat()->pointer();
@@ -122,10 +122,10 @@ static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointerButto
     if (toplevel->fullscreen())
         return;
 
-    if (button != LPointerButtonEvent::Left)
+    if (event.button() != LPointerButtonEvent::Left)
         return;
 
-    if (state == LPointerButtonEvent::Pressed)
+    if (event.state() == LPointerButtonEvent::Pressed)
     {
         pointer->setFocus(toplevel->surface());
         view->seat()->keyboard()->setFocus(toplevel->surface());
@@ -135,7 +135,7 @@ static void onPointerButtonResizeArea(InputRect *rect, void *data, LPointerButto
         toplevel->surface()->raise();
 
         if (data)
-            toplevel->startResizeRequest((LToplevelRole::ResizeEdge)rect->id);
+            toplevel->startResizeRequest(event, (LToplevelRole::ResizeEdge)rect->id);
         else
             toplevel->startMoveRequest();
     }
@@ -314,7 +314,7 @@ ToplevelView::ToplevelView(Toplevel *toplevel) :
         ToplevelView *view = (ToplevelView*)data;
         Pointer *pointer = (Pointer*)view->seat()->pointer();
 
-        if (view->seat()->resizingToplevel())
+        if (G::pointer()->isResizeSessionActive())
             return;
 
         view->closeButton->update();
@@ -329,7 +329,7 @@ ToplevelView::ToplevelView(Toplevel *toplevel) :
     {
         ToplevelView *view = (ToplevelView*)data;
 
-        if (view->seat()->resizingToplevel())
+        if (G::pointer()->isResizeSessionActive())
             return;
 
         view->closeButton->update();

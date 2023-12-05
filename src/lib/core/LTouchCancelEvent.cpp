@@ -1,12 +1,7 @@
 #include <LTouchCancelEvent.h>
 #include <LCompositor.h>
-#include <LTime.h>
 
 using namespace Louvre;
-
-LTouchCancelEvent::LTouchCancelEvent() :
-    LTouchEvent(Subtype::Cancel, LCompositor::nextSerial(), LTime::ms(), nullptr)
-{}
 
 LEvent *LTouchCancelEvent::copy() const
 {

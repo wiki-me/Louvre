@@ -1,3 +1,4 @@
+#include <LToplevelResizeSession.h>
 #include <LCursor.h>
 #include <LScene.h>
 #include <libinput.h>

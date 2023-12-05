@@ -5,6 +5,7 @@
 #include <LDNDManager.h>
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
+#include <LToplevelResizeSession.h>
 #include <LSeat.h>
 #include <LTime.h>
 #include <LCursor.h>
@@ -12,14 +13,12 @@
 #include <math.h>
 #include <unistd.h>
 
+
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
 void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
-    if (event.isAbsolute())
-        cursor()->setPos(event.pos());
-    else
-        cursor()->move(event.pos());
+    cursor()->move(event.delta());
 
     Output *cursorOutput = (Output*)cursor()->output();
     Compositor *c = (Compositor*)compositor();
@@ -64,12 +63,19 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
         seat()->dndManager()->icon()->surface()->repaintOutputs();
     }
 
-    // Update the toplevel size (if there was one being resized)
-    if (seat()->resizingToplevel())
+    bool activeResizing = false;
+
+    for (LToplevelResizeSession *session : seat()->resizeSessions())
     {
-        seat()->updateResizingToplevelSize(cursor()->pos());
-        return;
+        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+        {
+            activeResizing = true;
+            session->setResizePointPos(cursor()->pos());
+        }
     }
+
+    if (activeResizing)
+        return;
 
     // Update the toplevel pos (if there was one being moved interactively)
     if (seat()->movingToplevel())
@@ -221,7 +227,11 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
             return;
         }
 
-        seat()->stopResizingToplevel();
+        // Stop pointer toplevel resizing sessions
+        for (std::list<LToplevelResizeSession*>::const_iterator it = seat()->resizeSessions().begin(); it != seat()->resizeSessions().end(); it++)
+            if ((*it)->triggeringEvent()->type() != LEvent::Type::Touch)
+                it = (*it)->stop();
+
         seat()->stopMovingToplevel();
 
         // We stop sending events to the surface on which the left button was being held down

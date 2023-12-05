@@ -12,6 +12,7 @@
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
 #include <LInputDevice.h>
+#include <LToplevelResizeSession.h>
 
 #include "Global.h"
 #include "Pointer.h"
@@ -19,14 +20,31 @@
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
+bool Pointer::isResizeSessionActive() const
+{
+    for (LToplevelResizeSession *session : seat()->resizeSessions())
+        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+            return true;
+    return false;
+}
+
 void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
     LView *view = G::scene()->handlePointerMoveEvent(event);
 
-    if (seat()->movingToplevel() || seat()->resizingToplevel())
+    bool activeResizing = false;
+
+    for (LToplevelResizeSession *session : seat()->resizeSessions())
+        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+        {
+            activeResizing = true;
+            break;
+        }
+
+    if (seat()->movingToplevel() || activeResizing)
         cursor()->output()->repaint();
 
-    if (seat()->resizingToplevel() || cursorOwner)
+    if (activeResizing || cursorOwner)
         return;
 
     // Let the client set the cursor during DND
@@ -84,7 +102,7 @@ void Pointer::pointerScrollEvent(const LPointerScrollEvent &event)
 
 void Pointer::setCursorRequest(LCursorRole *cursorRole)
 {
-    if (seat()->resizingToplevel() || cursorOwner)
+    if (isResizeSessionActive() || cursorOwner)
         return;
 
     if (cursorRole)

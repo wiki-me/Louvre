@@ -3,6 +3,7 @@
 
 #include <LPointerEvent.h>
 #include <linux/input-event-codes.h>
+#include <LTime.h>
 
 class Louvre::LPointerButtonEvent : public LPointerEvent
 {
@@ -56,7 +57,13 @@ public:
         Pressed = 1
     };
 
-    LPointerButtonEvent();
+    inline LPointerButtonEvent(Button button = Left, State state = Pressed, UInt32 serial = LTime::nextSerial(),
+                               UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LPointerEvent(LEvent::Subtype::Button, serial, ms, us, device),
+        m_button(button),
+        m_state(state)
+    {}
+
     virtual ~LPointerButtonEvent() {}
     virtual LEvent *copy() const override;
 

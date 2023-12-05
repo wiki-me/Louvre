@@ -152,7 +152,7 @@ void ToplevelButton::pointerButtonEvent(const LPointerButtonEvent &event)
 
 void ToplevelButton::pointerMoveEvent(const LPointerMoveEvent &)
 {
-    if (!seat()->resizingToplevel() && !seat()->movingToplevel())
+    if (!G::pointer()->isResizeSessionActive() && !seat()->movingToplevel())
         cursor()->useDefault();
 }
 

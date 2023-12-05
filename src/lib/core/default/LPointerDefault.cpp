@@ -13,6 +13,7 @@
 #include <LPointerMoveEvent.h>
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
+#include <LToplevelResizeSession.h>
 
 using namespace Louvre;
 
@@ -20,10 +21,7 @@ using namespace Louvre;
 void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 {
     // Update the cursor position
-    if (event.isAbsolute())
-        cursor()->setPos(event.pos());
-    else
-        cursor()->move(event.pos());
+    cursor()->move(event.delta());
 
     // Schedule repaint on outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);
@@ -36,11 +34,19 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         seat()->dndManager()->icon()->surface()->repaintOutputs();
     }
 
-    if (seat()->resizingToplevel())
+    bool activeResizing = false;
+
+    for (LToplevelResizeSession *session : seat()->resizeSessions())
     {
-        seat()->updateResizingToplevelSize(cursor()->pos());
-        return;
+        if (session->triggeringEvent()->type() != LEvent::Type::Touch)
+        {
+            activeResizing = true;
+            session->setResizePointPos(cursor()->pos());
+        }
     }
+
+    if (activeResizing)
+        return;
 
     if (seat()->movingToplevel())
     {
@@ -77,7 +83,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
         if (activeDND)
         {
             if (seat()->dndManager()->focus() == surface)
-                seat()->dndManager()->sendMoveEvent(event.localPos, event.time());
+                seat()->dndManager()->sendMoveEvent(event.localPos, event.ms());
             else
                 seat()->dndManager()->setFocus(surface, event.localPos);
         }
@@ -157,7 +163,11 @@ void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
     // Left button released
     else
     {
-        seat()->stopResizingToplevel();
+        // Stop pointer toplevel resizing sessions
+        for (std::list<LToplevelResizeSession*>::const_iterator it = seat()->resizeSessions().begin(); it != seat()->resizeSessions().end(); it++)
+            if ((*it)->triggeringEvent()->type() != LEvent::Type::Touch)
+                it = (*it)->stop();
+
         seat()->stopMovingToplevel();
 
         // We stop sending events to the surface on which the left button was being held down

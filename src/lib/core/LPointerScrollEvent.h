@@ -27,7 +27,13 @@ public:
         WheelTilt = 3
     };
 
-    LPointerScrollEvent();
+    inline LPointerScrollEvent(const LPointF &axes = LPointF(0.f, 0.f), const LPointF &axes120 = LPointF(0.f, 0.f), Source source = Continuous,
+                               UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LPointerEvent(LEvent::Subtype::Scroll, serial, ms, us, device),
+        m_axes(axes),
+        m_axes120(axes120),
+        m_source(source)
+    {}
     virtual ~LPointerScrollEvent() {}
     virtual LEvent *copy() const override;
 

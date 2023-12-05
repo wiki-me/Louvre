@@ -17,7 +17,7 @@ public:
     void maximizedChanged() override;
     void fullscreenChanged() override;
     void startMoveRequest() override;
-    void startResizeRequest(ResizeEdge edge) override;
+    void startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge) override;
 
     LRect rectBeforeFullscreen;
     States statesBeforeFullscreen;

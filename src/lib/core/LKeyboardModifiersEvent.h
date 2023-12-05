@@ -2,6 +2,7 @@
 #define LKEYBOARDMODIFIERSEVENT_H
 
 #include <LKeyboardEvent.h>
+#include <LTime.h>
 
 class Louvre::LKeyboardModifiersEvent : public LKeyboardEvent
 {
@@ -27,7 +28,13 @@ public:
         UInt32 group = 0;
     };
 
-    LKeyboardModifiersEvent();
+    inline LKeyboardModifiersEvent(const Modifiers &modifiers = {0, 0, 0, 0},
+                                   UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(),
+                                   UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LKeyboardEvent(LEvent::Subtype::Modifiers, serial, ms, us, device),
+        m_modifiers(modifiers)
+    {}
+
     virtual ~LKeyboardModifiersEvent() {};
     virtual LEvent *copy() const override;
 

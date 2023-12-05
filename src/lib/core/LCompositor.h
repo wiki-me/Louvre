@@ -716,15 +716,6 @@ public:
     const std::list<LClient*> &clients() const;
 
     /**
-     * @brief Get a new positive integer number, incrementally.
-     *
-     * This method returns a new positive integer number each time it is called, incrementally.
-     *
-     * @return The next positive integer in the sequence.
-     */
-    static UInt32 nextSerial();
-
-    /**
      * @brief Get the main EGL display created by the graphic backend.
      *
      * This method returns the main EGL display created by the graphic backend.

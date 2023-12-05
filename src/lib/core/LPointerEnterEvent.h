@@ -3,11 +3,15 @@
 
 #include <LPointerEvent.h>
 #include <LPoint.h>
+#include <LTime.h>
 
 class Louvre::LPointerEnterEvent : public LPointerEvent
 {
 public:
-    LPointerEnterEvent();
+    inline LPointerEnterEvent(UInt32 serial = LTime::nextSerial(),
+                              UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LPointerEvent(LEvent::Subtype::Enter, serial, ms, us, device)
+    {}
     virtual ~LPointerEnterEvent() {}
     virtual LEvent *copy() const override;
     mutable LPointF localPos;

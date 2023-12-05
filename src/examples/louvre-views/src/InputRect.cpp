@@ -31,5 +31,5 @@ void InputRect::pointerMoveEvent(const LPointerMoveEvent &)
 void InputRect::pointerButtonEvent(const LPointerButtonEvent &event)
 {
     if (onPointerButton)
-        onPointerButton(this, userData, event.button(), event.state());
+        onPointerButton(this, userData, event);
 }

@@ -13,6 +13,7 @@
 #include <private/LTouchPrivate.h>
 #include <private/LSubsurfaceRolePrivate.h>
 #include <private/LTouchPointPrivate.h>
+#include <private/LToplevelResizeSessionPrivate.h>
 
 using namespace Protocols::Wayland;
 
@@ -117,17 +118,20 @@ RSurface::~RSurface()
     if (seat()->pointer()->imp()->lastCursorRequest == lSurface->cursorRole())
         seat()->pointer()->imp()->lastCursorRequest = nullptr;
 
-    // Clear active toplevel focus
-    if (seat()->imp()->activeToplevel == lSurface->toplevel())
-        seat()->imp()->activeToplevel = nullptr;
+    if (lSurface->toplevel())
+    {
+        // Clear active toplevel focus
+        if (seat()->imp()->activeToplevel == lSurface->toplevel())
+            seat()->imp()->activeToplevel = nullptr;
 
-    // Clear moving toplevel
-    if (seat()->imp()->movingToplevel == lSurface->toplevel())
-        seat()->imp()->movingToplevel = nullptr;
+        // Clear moving toplevel
+        if (seat()->imp()->movingToplevel == lSurface->toplevel())
+            seat()->imp()->movingToplevel = nullptr;
 
-    // Clear resizing toplevel
-    if (seat()->imp()->resizingToplevel == lSurface->toplevel())
-        seat()->imp()->resizingToplevel = nullptr;
+        // Clear resizing toplevel
+        if (lSurface->toplevel()->resizeSession())
+            lSurface->toplevel()->resizeSession()->imp()->destroy();
+    }
 
     // Clear drag
     if (seat()->dndManager()->icon() && seat()->dndManager()->icon()->surface() == lSurface)

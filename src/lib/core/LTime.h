@@ -14,6 +14,13 @@ public:
     /// @endcond
 
     /**
+     * @brief Serial.
+     *
+     * This method returns a new positive integer number each time it is called, incrementally.
+     */
+    static UInt32 nextSerial();
+
+    /**
      * @brief Milliseconds
      *
      * Time with a granularity of milliseconds and an undefined base.
@@ -21,11 +28,11 @@ public:
     static UInt32 ms();
 
     /**
-     * @brief Nanoseconds
+     * @brief Microseconds
      *
-     * Time with nanosecond granularity and undefined base.
+     * Time with a granularity of microseconds and an undefined base.
      */
-    static timespec ns();
+    static UInt32 us();
 };
 
 #endif // LTIME_H

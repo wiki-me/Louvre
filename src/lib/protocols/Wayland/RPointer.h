@@ -25,10 +25,10 @@ public:
     const SerialEvents &serialEvents() const;
 
     // Since 1
-    bool enter(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Float32 x, Float32 y);
-    bool leave(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface);
-    bool motion(UInt32 time, Float32 x, Float32 y);
-    bool button(LInputDevice *device, UInt32 time, UInt32 serial, UInt32 button, UInt32 state);
+    bool enter(const LPointerEnterEvent &event, RSurface *rSurface);
+    bool leave(const LPointerLeaveEvent &event, RSurface *rSurface);
+    bool motion(const LPointerMoveEvent &event);
+    bool button(const LPointerButtonEvent &event);
     bool axis(UInt32 time, UInt32 axis, Float24 value);
 
     // Since 5

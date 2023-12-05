@@ -1,6 +1,5 @@
 #include <private/LCompositorPrivate.h>
 #include <LInputEvent.h>
-#include <LTime.h>
 
 using namespace Louvre;
 
@@ -15,10 +14,4 @@ void LInputEvent::setDevice(LInputDevice *device)
 LEvent *LInputEvent::copy() const
 {
     return new LInputEvent(*this);
-}
-
-LInputEvent::LInputEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device) :
-    LEvent(type, subtype, serial, time)
-{
-    setDevice(device);
 }

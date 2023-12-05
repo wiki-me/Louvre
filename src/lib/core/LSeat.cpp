@@ -37,6 +37,11 @@
 
 using namespace Louvre;
 
+const std::list<LToplevelResizeSession *> &LSeat::resizeSessions() const
+{
+    return imp()->resizeSessions;
+}
+
 LSeat::LSeat(Params *params) : LPRIVATE_INIT_UNIQUE(LSeat)
 {
     L_UNUSED(params);
@@ -153,103 +158,6 @@ LDataSource *LSeat::dataSelection() const
     return imp()->dataSelection;
 }
 
-void LSeat::startResizingToplevel(LToplevelRole *toplevel, LToplevelRole::ResizeEdge edge, const LPoint &pointerPos, const LSize &minSize, Int32 L, Int32 T, Int32 R, Int32 B)
-{
-    if (!toplevel)
-        return;
-
-    imp()->resizingToplevel = toplevel;
-
-    toplevel->imp()->resizingMinSize = minSize;
-    toplevel->imp()->resizingConstraintBounds = LRect(L,T,R,B);
-    toplevel->imp()->resizingEdge = edge;
-    toplevel->imp()->resizingInitWindowSize = toplevel->windowGeometry().size();
-    toplevel->imp()->resizingInitPointerPos = pointerPos;
-    toplevel->imp()->resizingCurrentPointerPos = pointerPos;
-
-    if (L != EdgeDisabled && toplevel->surface()->pos().x() < L)
-        toplevel->surface()->setX(L);
-
-    if (T != EdgeDisabled && toplevel->surface()->pos().y() < T)
-        toplevel->surface()->setY(T);
-
-    toplevel->imp()->resizingInitPos = toplevel->surface()->pos();
-
-    resizingToplevel()->configure(LToplevelRole::Activated | LToplevelRole::Resizing);
-}
-
-void LSeat::updateResizingToplevelSize(const LPoint &pointerPos)
-{
-    if (resizingToplevel())
-    {
-        resizingToplevel()->imp()->resizingCurrentPointerPos = pointerPos;
-        LSize newSize = resizingToplevel()->calculateResizeSize(resizingToplevel()->imp()->resizingInitPointerPos - pointerPos,
-                                                                resizingToplevel()->imp()->resizingInitWindowSize,
-                                                                resizingToplevel()->imp()->resizingEdge);
-        // Con restricciones
-        LToplevelRole::ResizeEdge edge =  resizingToplevel()->imp()->resizingEdge;
-        LPoint pos = resizingToplevel()->surface()->pos();
-        LRect bounds = resizingToplevel()->imp()->resizingConstraintBounds;
-        LSize size = resizingToplevel()->windowGeometry().size();
-
-        // Top
-        if (bounds.y() != EdgeDisabled && (edge ==  LToplevelRole::Top || edge ==  LToplevelRole::TopLeft || edge ==  LToplevelRole::TopRight))
-        {
-            if (pos.y() - (newSize.y() - size.y()) < bounds.y())
-                newSize.setH(pos.y() + size.h() - bounds.y());
-        }
-        // Bottom
-        else if (bounds.h() != EdgeDisabled && (edge ==  LToplevelRole::Bottom || edge ==  LToplevelRole::BottomLeft || edge ==  LToplevelRole::BottomRight))
-        {
-            if (pos.y() + newSize.h() > bounds.h())
-                newSize.setH(bounds.h() - pos.y());
-        }
-
-        // Left
-        if ( bounds.x() != EdgeDisabled && (edge ==  LToplevelRole::Left || edge ==  LToplevelRole::TopLeft || edge ==  LToplevelRole::BottomLeft))
-        {
-            if (pos.x() - (newSize.x() - size.x()) < bounds.x())
-                newSize.setW(pos.x() + size.w() - bounds.x());
-        }
-        // Right
-        else if ( bounds.w() != EdgeDisabled && (edge ==  LToplevelRole::Right || edge ==  LToplevelRole::TopRight || edge ==  LToplevelRole::BottomRight))
-        {
-            if (pos.x() + newSize.w() > bounds.w())
-                newSize.setW(bounds.w() - pos.x());
-        }
-
-        if (newSize.w() < resizingToplevel()->imp()->resizingMinSize.w())
-            newSize.setW(resizingToplevel()->imp()->resizingMinSize.w());
-
-        if (newSize.h() < resizingToplevel()->imp()->resizingMinSize.h())
-            newSize.setH(resizingToplevel()->imp()->resizingMinSize.h());
-
-        resizingToplevel()->configure(newSize, LToplevelRole::Activated | LToplevelRole::Resizing);
-    }
-}
-
-void LSeat::updateResizingToplevelPos()
-{
-    if (resizingToplevel())
-        resizingToplevel()->updateResizingPos();
-}
-
-void LSeat::stopResizingToplevel()
-{
-    if(resizingToplevel())
-    {
-        updateResizingToplevelSize(cursor()->pos());
-        updateResizingToplevelPos();
-        resizingToplevel()->configure(0, resizingToplevel()->pendingState() &~ LToplevelRole::Resizing);
-        imp()->resizingToplevel = nullptr;
-    }
-}
-
-LToplevelRole *LSeat::resizingToplevel() const
-{
-    return imp()->resizingToplevel;
-}
-
 void LSeat::startMovingToplevel(LToplevelRole *toplevel, const LPoint &pointerPos, Int32 L, Int32 T, Int32 R, Int32 B)
 {
     imp()->movingToplevelConstraintBounds = LRect(L,T,B,R);
@@ -264,16 +172,16 @@ void LSeat::updateMovingToplevelPos(const LPoint &pointerPos)
     {
         LPoint newPos = movingToplevelInitPos() - movingToplevelInitPointerPos() + pointerPos;
 
-        if (imp()->movingToplevelConstraintBounds.w() != EdgeDisabled && newPos.x() > imp()->movingToplevelConstraintBounds.w())
+        if (imp()->movingToplevelConstraintBounds.w() != LToplevelRole::EdgeDisabled && newPos.x() > imp()->movingToplevelConstraintBounds.w())
             newPos.setX(imp()->movingToplevelConstraintBounds.w());
 
-        if (imp()->movingToplevelConstraintBounds.x() != EdgeDisabled && newPos.x() < imp()->movingToplevelConstraintBounds.x())
+        if (imp()->movingToplevelConstraintBounds.x() != LToplevelRole::EdgeDisabled && newPos.x() < imp()->movingToplevelConstraintBounds.x())
             newPos.setX(imp()->movingToplevelConstraintBounds.x());
 
-        if (imp()->movingToplevelConstraintBounds.h() != EdgeDisabled && newPos.y() > imp()->movingToplevelConstraintBounds.h())
+        if (imp()->movingToplevelConstraintBounds.h() != LToplevelRole::EdgeDisabled && newPos.y() > imp()->movingToplevelConstraintBounds.h())
             newPos.setY(imp()->movingToplevelConstraintBounds.h());
 
-        if (imp()->movingToplevelConstraintBounds.y() != EdgeDisabled && newPos.y() < imp()->movingToplevelConstraintBounds.y())
+        if (imp()->movingToplevelConstraintBounds.y() != LToplevelRole::EdgeDisabled && newPos.y() < imp()->movingToplevelConstraintBounds.y())
             newPos.setY(imp()->movingToplevelConstraintBounds.y());
 
         movingToplevel()->surface()->setPos(newPos);

@@ -1,3 +1,4 @@
+#include "LPointerMoveEvent.h"
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/private/GSeatPrivate.h>
 
@@ -45,46 +46,37 @@ const RPointer::SerialEvents &RPointer::serialEvents() const
     return imp()->serialEvents;
 }
 
-bool RPointer::enter(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Float32 x, Float32 y)
+bool RPointer::enter(const LPointerEnterEvent &event, RSurface *rSurface)
 {
-    imp()->serialEvents.enter.setDevice(device);
-    imp()->serialEvents.enter.setTime(time);
-    imp()->serialEvents.enter.setSerial(serial);
-    imp()->serialEvents.enter.localPos.setX(x);
-    imp()->serialEvents.enter.localPos.setY(y);
+    imp()->serialEvents.enter = event;
     wl_pointer_send_enter(resource(),
-                          serial,
+                          event.serial(),
                           rSurface->resource(),
-                          wl_fixed_from_double(x),
-                          wl_fixed_from_double(y));
+                          wl_fixed_from_double(event.localPos.x()),
+                          wl_fixed_from_double(event.localPos.y()));
     return true;
 }
 
-bool RPointer::leave(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface)
+bool RPointer::leave(const LPointerLeaveEvent &event, RSurface *rSurface)
 {
-    imp()->serialEvents.leave.setDevice(device);
-    imp()->serialEvents.leave.setTime(time);
-    imp()->serialEvents.leave.setSerial(serial);
-    wl_pointer_send_leave(resource(), serial, rSurface->resource());
+    imp()->serialEvents.leave = event;
+    wl_pointer_send_leave(resource(), event.serial(), rSurface->resource());
     return true;
 }
 
-bool RPointer::motion(UInt32 time, Float32 x, Float32 y)
+bool RPointer::motion(const LPointerMoveEvent &event)
 {
-    wl_pointer_send_motion(resource(), time,
-                           wl_fixed_from_double(x),
-                           wl_fixed_from_double(y));
+    wl_pointer_send_motion(resource(),
+                           event.ms(),
+                           wl_fixed_from_double(event.localPos.x()),
+                           wl_fixed_from_double(event.localPos.y()));
     return true;
 }
 
-bool RPointer::button(LInputDevice *device, UInt32 time, UInt32 serial, UInt32 button, UInt32 state)
+bool RPointer::button(const LPointerButtonEvent &event)
 {
-    imp()->serialEvents.button.setDevice(device);
-    imp()->serialEvents.button.setTime(time);
-    imp()->serialEvents.button.setSerial(serial);
-    imp()->serialEvents.button.setButton((LPointerButtonEvent::Button)button);
-    imp()->serialEvents.button.setState((LPointerButtonEvent::State) state);
-    wl_pointer_send_button(resource(), serial, time, button, state);
+    imp()->serialEvents.button = event;
+    wl_pointer_send_button(resource(), event.serial(), event.ms(), event.button(), event.state());
     return true;
 }
 

@@ -30,6 +30,9 @@ struct libseat;
 class Louvre::LSeat : public LObject
 {
 public:
+
+    const std::list<LToplevelResizeSession*> &resizeSessions() const;
+
     struct Params;
     using InputCapabilitiesFlags = UInt32;
 
@@ -48,15 +51,6 @@ public:
 
         /// Touch events
         Touch = 4
-    };
-
-    /**
-     * @brief Edge constraint when resizing a Toplevel
-     */
-    enum ResizeEdgeSize : Int32
-    {
-        /// Disables the constraint on the specified edge.
-        EdgeDisabled = std::numeric_limits<Int32>::min()
     };
 
     /**
@@ -223,86 +217,6 @@ public:
      */
     LDataSource *dataSelection() const;
 
-    /**
-     * @name Interactive Toplevel Resizing
-     *
-     * These utility methods simplify the management of interactive toplevel resizing sessions.
-     *
-     * @note Using these methods is optional.
-     *
-     * @see LToplevelRole::startResizeRequest()
-     * @see LToplevelRole::geometryChanged()
-     */
-
-    ///@{
-
-    /**
-     * @brief Start an interactive toplevel resizing session.
-     *
-     * This method starts an interactive resizing session on a toplevel surface from one of its edges or corners.\n
-     * You can restrict the space in which the surface expands by defining a rectangle given by the L, T, R, and B values.\n
-     * If you do not want to restrict an edge, assign its value to LPointer::EdgeDisabled.
-     *
-     * To update the position and size of the Toplevel, call updateResizingToplevelSize() when the pointer moves and
-     * updateResizingToplevelPos() when the toplevel size changes.\n
-     * Once finished, call stopResizingToplevel() to end the session.
-     *
-     * @note The session will automatically cease if the toplevel is destroyed.
-     *
-     * @see See an example of its use in LToplevelRole::startResizeRequest().
-     *
-     * @param toplevel Toplevel that will change size.
-     * @param edge Edge or corner from which the resizing will be performed.
-     * @param pointerPos Current pointer position.
-     * @param minSize Minimum toplevel size.
-     * @param L Restriction of the left edge.
-     * @param T Restriction of the top edge.
-     * @param R Restriction of the right edge.
-     * @param B Restriction of the bottom edge.
-     */
-    void startResizingToplevel(LToplevelRole *toplevel,
-                               LToplevelRole::ResizeEdge edge,
-                               const LPoint &pointerPos,
-                               const LSize &minSize = LSize(0, 0),
-                               Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
-                               Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
-
-    /**
-     * @brief Update the size of a toplevel during an interactive resizing session.
-     *
-     * This method should be called each time the pointer position changes.
-     *
-     * @param pointerPos Current pointer position.
-     *
-     * @see See an example of its use in the default implementation of pointerPosChangeEvent().
-     */
-    void updateResizingToplevelSize(const LPoint &pointerPos);
-
-    /**
-     * @brief Update the position of a toplevel during an interactive resizing session.
-     *
-     * This method should be called each time the toplevel size changes.
-     *
-     * @see See an example of its use in the default implementation of LToplevelRole::geometryChanged().
-     */
-    void updateResizingToplevelPos();
-
-    /**
-     * @brief End an interactive toplevel resizing session.
-     *
-     * This method is used to end the resizing session. Should be used for example when releasing the left pointer button.
-     *
-     * @see See an example of its use in the default implementation of pointerButtonEvent().
-     */
-    void stopResizingToplevel();
-
-    /**
-     * @brief Get the current toplevel in an interactive resizing session.
-     *
-     * @return A pointer to the current toplevel being resized, or `nullptr` if there is no active resizing session.
-     */
-    LToplevelRole *resizingToplevel() const;
-
     ///@}
 
     /**
@@ -340,8 +254,8 @@ public:
      */
     void startMovingToplevel(LToplevelRole *toplevel,
                              const LPoint &pointerPos,
-                             Int32 L = EdgeDisabled, Int32 T = EdgeDisabled,
-                             Int32 R = EdgeDisabled, Int32 B = EdgeDisabled);
+                             Int32 L = LToplevelRole::EdgeDisabled, Int32 T = LToplevelRole::EdgeDisabled,
+                             Int32 R = LToplevelRole::EdgeDisabled, Int32 B = LToplevelRole::EdgeDisabled);
 
     /**
      * @brief Update the position of a toplevel during an interactive moving session.

@@ -54,7 +54,8 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
 
         imp()->sendLeaveEvent(focus());
 
-        UInt32 serial = LCompositor::nextSerial();
+        LPointerEnterEvent enterEvent;
+        enterEvent.localPos = localPos;
         imp()->pointerFocusSurface = nullptr;
 
         for (Wayland::GSeat *s : surface->client()->seatGlobals())
@@ -62,12 +63,8 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
             if (s->pointerResource())
             {
                 imp()->pointerFocusSurface = surface;
-                s->pointerResource()->enter(nullptr,
-                                            LTime::ms(),
-                                            serial,
-                                            surface->surfaceResource(),
-                                            localPos.x(),
-                                            localPos.y());
+                s->pointerResource()->enter(enterEvent,
+                                            surface->surfaceResource());
                 s->pointerResource()->frame();
             }
         }
@@ -89,7 +86,7 @@ void LPointer::sendMoveEvent(const LPointerMoveEvent &event)
     {
         if (s->pointerResource())
         {
-            s->pointerResource()->motion(event.time(), event.localPos.x(), event.localPos.y());
+            s->pointerResource()->motion(event);
             s->pointerResource()->frame();
         }
     }
@@ -104,12 +101,7 @@ void LPointer::sendButtonEvent(const LPointerButtonEvent &event)
     {
         if (s->pointerResource())
         {
-            s->pointerResource()->button(
-                event.device(),
-                event.time(),
-                event.serial(),
-                event.button(),
-                event.state());
+            s->pointerResource()->button(event);
             s->pointerResource()->frame();
         }
     }
@@ -168,14 +160,14 @@ void LPointer::sendScrollEvent(const LPointerScrollEvent &event)
                 }
 
                 if (event.axes().x() == 0.0 && imp()->axisXprev != 0.0)
-                    s->pointerResource()->axisStop(event.time(), WL_POINTER_AXIS_HORIZONTAL_SCROLL);
+                    s->pointerResource()->axisStop(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL);
                 else
-                    s->pointerResource()->axis(event.time(), WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
+                    s->pointerResource()->axis(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
 
                 if (event.axes().y() == 0.0 && imp()->axisYprev != 0.0)
-                   s->pointerResource()->axisStop(event.time(), WL_POINTER_AXIS_VERTICAL_SCROLL);
+                   s->pointerResource()->axisStop(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL);
                 else
-                    s->pointerResource()->axis(event.time(), WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
+                    s->pointerResource()->axis(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
 
                 s->pointerResource()->frame();
             }
@@ -183,7 +175,7 @@ void LPointer::sendScrollEvent(const LPointerScrollEvent &event)
             else
             {
                 s->pointerResource()->axis(
-                    event.time(),
+                    event.ms(),
                     aX,
                     aY);
             }
@@ -222,17 +214,13 @@ void LPointer::LPointerPrivate::sendLeaveEvent(LSurface *surface)
     if (!surface)
         return;
 
-    UInt32 serial = LCompositor::nextSerial();
-    UInt32 time = LTime::ms();
+    LPointerLeaveEvent leaveEvent;
 
     for (Wayland::GSeat *s : surface->client()->seatGlobals())
     {
         if (s->pointerResource())
         {  
-            s->pointerResource()->leave(nullptr,
-                                        time,
-                                        serial,
-                                        surface->surfaceResource());
+            s->pointerResource()->leave(leaveEvent, surface->surfaceResource());
             s->pointerResource()->frame();
         }
     }

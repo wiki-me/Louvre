@@ -1,8 +1,11 @@
 #include <protocols/XdgShell/private/RXdgToplevelPrivate.h>
 #include <protocols/Wayland/GOutput.h>
 #include <protocols/XdgShell/xdg-shell.h>
+#include <protocols/Wayland/GSeat.h>
 #include <private/LToplevelRolePrivate.h>
 #include <private/LSurfacePrivate.h>
+
+using namespace Protocols::Wayland;
 
 void RXdgToplevel::RXdgToplevelPrivate::destroy_resource(wl_resource *resource)
 {
@@ -87,8 +90,6 @@ void RXdgToplevel::RXdgToplevelPrivate::move(wl_client *client, wl_resource *res
 void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *resource, wl_resource *seat, UInt32 serial, UInt32 edges)
 {
     L_UNUSED(client);
-    L_UNUSED(seat);
-    L_UNUSED(serial);
 
     if (edges > 10)
     {
@@ -101,7 +102,15 @@ void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *r
     if (!rXdgToplevel->toplevelRole()->surface()->toplevel())
         return;
 
-    rXdgToplevel->toplevelRole()->startResizeRequest((LToplevelRole::ResizeEdge)edges);
+    GSeat *gSeat = (GSeat*)wl_resource_get_user_data(seat);
+
+    LEvent *triggeringEvent = gSeat->findSerialEventMatch(serial);
+
+    if (!triggeringEvent)
+        return;
+
+    rXdgToplevel->toplevelRole()->startResizeRequest(*triggeringEvent, (LToplevelRole::ResizeEdge)edges);
+    delete triggeringEvent;
 }
 
 void RXdgToplevel::RXdgToplevelPrivate::set_max_size(wl_client *client, wl_resource *resource, Int32 width, Int32 height)

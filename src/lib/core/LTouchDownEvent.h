@@ -3,11 +3,17 @@
 
 #include <LTouchEvent.h>
 #include <LPoint.h>
+#include <LTime.h>
 
 class Louvre::LTouchDownEvent : public LTouchEvent
 {
 public:
-    LTouchDownEvent();
+    inline LTouchDownEvent(Int32 id = 0, const LPointF &pos = LPointF(0.f, 0.f), UInt32 serial = LTime::nextSerial(),
+                           UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LTouchEvent(LEvent::Subtype::Down, serial, ms, us, device),
+        m_id(id),
+        m_pos(pos)
+    {}
     virtual ~LTouchDownEvent() {}
     virtual LEvent *copy() const override;
 
@@ -50,8 +56,8 @@ public:
     mutable LPointF localPos;
 
 protected:
-    LPointF m_pos;
     Int32 m_id;
+    LPointF m_pos;
 private:
     friend class LInputBackend;
     void notify();

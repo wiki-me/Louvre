@@ -190,10 +190,13 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             pointerEvent = libinput_event_get_pointer_event(ev);
             data->pointerMoveEvent.setDevice(inputDevice);
-            data->pointerMoveEvent.setX(libinput_event_pointer_get_dx(pointerEvent));
-            data->pointerMoveEvent.setY(libinput_event_pointer_get_dy(pointerEvent));
-            data->pointerMoveEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerMoveEvent.setSerial(LCompositor::nextSerial());
+            data->pointerMoveEvent.setDx(libinput_event_pointer_get_dx(pointerEvent));
+            data->pointerMoveEvent.setDy(libinput_event_pointer_get_dy(pointerEvent));
+            data->pointerMoveEvent.setDxUnaccelerated(libinput_event_pointer_get_dx_unaccelerated(pointerEvent));
+            data->pointerMoveEvent.setDyUnaccelerated(libinput_event_pointer_get_dy_unaccelerated(pointerEvent));
+            data->pointerMoveEvent.setMs(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerMoveEvent.setUs(libinput_event_pointer_get_time_usec(pointerEvent));
+            data->pointerMoveEvent.setSerial(LTime::nextSerial());
             data->pointerMoveEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_FINGER:
@@ -211,8 +214,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerScrollEvent.set120X(0.f);
             data->pointerScrollEvent.set120Y(0.f);
             data->pointerScrollEvent.setSource(LPointerScrollEvent::Finger);
-            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerScrollEvent.setSerial(LCompositor::nextSerial());
+            data->pointerScrollEvent.setMs(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.setUs(libinput_event_pointer_get_time_usec(pointerEvent));
+            data->pointerScrollEvent.setSerial(LTime::nextSerial());
             data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS:
@@ -230,8 +234,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerScrollEvent.set120X(0.f);
             data->pointerScrollEvent.set120Y(0.f);
             data->pointerScrollEvent.setSource(LPointerScrollEvent::Continuous);
-            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerScrollEvent.setSerial(LCompositor::nextSerial());
+            data->pointerScrollEvent.setMs(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.setUs(libinput_event_pointer_get_time_usec(pointerEvent));
+            data->pointerScrollEvent.setSerial(LTime::nextSerial());
             data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_SCROLL_WHEEL:
@@ -253,8 +258,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             }
 
             data->pointerScrollEvent.setSource(LPointerScrollEvent::Wheel);
-            data->pointerScrollEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerScrollEvent.setSerial(LCompositor::nextSerial());
+            data->pointerScrollEvent.setMs(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerScrollEvent.setUs(libinput_event_pointer_get_time_usec(pointerEvent));
+            data->pointerScrollEvent.setSerial(LTime::nextSerial());
             data->pointerScrollEvent.notify();
             break;
         case LIBINPUT_EVENT_POINTER_BUTTON:
@@ -264,8 +270,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerButtonEvent.setDevice(inputDevice);
             data->pointerButtonEvent.setButton((LPointerButtonEvent::Button)libinput_event_pointer_get_button(pointerEvent));
             data->pointerButtonEvent.setState((LPointerButtonEvent::State)libinput_event_pointer_get_button_state(pointerEvent));
-            data->pointerButtonEvent.setTime(libinput_event_pointer_get_time(pointerEvent));
-            data->pointerButtonEvent.setSerial(LCompositor::nextSerial());
+            data->pointerButtonEvent.setMs(libinput_event_pointer_get_time(pointerEvent));
+            data->pointerButtonEvent.setUs(libinput_event_pointer_get_time_usec(pointerEvent));
+            data->pointerButtonEvent.setSerial(LTime::nextSerial());
             data->pointerButtonEvent.notify();
             break;
         case LIBINPUT_EVENT_KEYBOARD_KEY:
@@ -275,8 +282,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->keyboardKeyEvent.setDevice(inputDevice);
             data->keyboardKeyEvent.setKeyCode(libinput_event_keyboard_get_key(keyEvent));
             data->keyboardKeyEvent.setState((LKeyboardKeyEvent::State)libinput_event_keyboard_get_key_state(keyEvent));
-            data->keyboardKeyEvent.setTime(libinput_event_keyboard_get_time(keyEvent));
-            data->keyboardKeyEvent.setSerial(LCompositor::nextSerial());
+            data->keyboardKeyEvent.setMs(libinput_event_keyboard_get_time(keyEvent));
+            data->keyboardKeyEvent.setUs(libinput_event_keyboard_get_time_usec(keyEvent));
+            data->keyboardKeyEvent.setSerial(LTime::nextSerial());
             data->keyboardKeyEvent.notify();
             break;
         case LIBINPUT_EVENT_TOUCH_DOWN:
@@ -287,8 +295,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->touchDownEvent.setX(libinput_event_touch_get_x_transformed(touchEvent, 1));
             data->touchDownEvent.setY(libinput_event_touch_get_y_transformed(touchEvent, 1));
             data->touchDownEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
-            data->touchDownEvent.setTime(libinput_event_touch_get_time(touchEvent));
-            data->touchDownEvent.setSerial(LCompositor::nextSerial());
+            data->touchDownEvent.setMs(libinput_event_touch_get_time(touchEvent));
+            data->touchDownEvent.setUs(libinput_event_touch_get_time_usec(touchEvent));
+            data->touchDownEvent.setSerial(LTime::nextSerial());
             data->touchDownEvent.notify();
             break;
         case LIBINPUT_EVENT_TOUCH_MOTION:
@@ -299,8 +308,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->touchMoveEvent.setX(libinput_event_touch_get_x_transformed(touchEvent, 1));
             data->touchMoveEvent.setY(libinput_event_touch_get_y_transformed(touchEvent, 1));
             data->touchMoveEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
-            data->touchMoveEvent.setTime(libinput_event_touch_get_time(touchEvent));
-            data->touchMoveEvent.setSerial(LCompositor::nextSerial());
+            data->touchMoveEvent.setMs(libinput_event_touch_get_time(touchEvent));
+            data->touchMoveEvent.setUs(libinput_event_touch_get_time_usec(touchEvent));
+            data->touchMoveEvent.setSerial(LTime::nextSerial());
             data->touchMoveEvent.notify();
             break;
         case LIBINPUT_EVENT_TOUCH_UP:
@@ -309,8 +319,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             touchEvent = libinput_event_get_touch_event(ev);
             data->touchUpEvent.setDevice(inputDevice);
             data->touchUpEvent.setId(libinput_event_touch_get_seat_slot(touchEvent));
-            data->touchUpEvent.setTime(libinput_event_touch_get_time(touchEvent));
-            data->touchUpEvent.setSerial(LCompositor::nextSerial());
+            data->touchUpEvent.setMs(libinput_event_touch_get_time(touchEvent));
+            data->touchUpEvent.setUs(libinput_event_touch_get_time_usec(touchEvent));
+            data->touchUpEvent.setSerial(LTime::nextSerial());
             data->touchUpEvent.notify();
             break;
         case LIBINPUT_EVENT_TOUCH_FRAME:
@@ -318,8 +329,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             touchEvent = libinput_event_get_touch_event(ev);
             data->touchFrameEvent.setDevice(inputDevice);
-            data->touchFrameEvent.setTime(libinput_event_touch_get_time(touchEvent));
-            data->touchFrameEvent.setSerial(LCompositor::nextSerial());
+            data->touchFrameEvent.setMs(libinput_event_touch_get_time(touchEvent));
+            data->touchFrameEvent.setUs(libinput_event_touch_get_time_usec(touchEvent));
+            data->touchFrameEvent.setSerial(LTime::nextSerial());
             data->touchFrameEvent.notify();
             break;
         case LIBINPUT_EVENT_TOUCH_CANCEL:
@@ -327,8 +339,9 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
             touchEvent = libinput_event_get_touch_event(ev);
             data->touchCancelEvent.setDevice(inputDevice);
-            data->touchCancelEvent.setTime(libinput_event_touch_get_time(touchEvent));
-            data->touchCancelEvent.setSerial(LCompositor::nextSerial());
+            data->touchCancelEvent.setMs(libinput_event_touch_get_time(touchEvent));
+            data->touchCancelEvent.setUs(libinput_event_touch_get_time_usec(touchEvent));
+            data->touchCancelEvent.setSerial(LTime::nextSerial());
             data->touchCancelEvent.notify();
             break;
         case LIBINPUT_EVENT_DEVICE_ADDED:
@@ -373,8 +386,6 @@ bool LInputBackend::initialize()
     data->seat = (LSeat*)seat;
     seat->imp()->inputBackendData = data;
     data->ud = udev_new();
-
-    data->pointerMoveEvent.setIsAbsolute(false);
 
     if (!data->ud)
         goto fail;

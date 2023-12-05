@@ -17,7 +17,11 @@ public:
     }
 
 protected:
-    LInputEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device);
+    inline LInputEvent(Type type, Subtype subtype, UInt32 serial, UInt32 ms, UInt64 us, LInputDevice *device) :
+        LEvent(type, subtype, serial, ms, us)
+    {
+        setDevice(device);
+    }
     LInputDevice *m_device;
 };
 

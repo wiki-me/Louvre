@@ -8,6 +8,7 @@
 #include <LTouchUpEvent.h>
 #include <LTouchFrameEvent.h>
 #include <LTouchCancelEvent.h>
+#include <LToplevelResizeSession.h>
 #include <LTouchPoint.h>
 #include <LCursor.h>
 #include <LOutput.h>
@@ -65,7 +66,7 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
             if (surface)
             {
                 if (dnd->focus() == surface)
-                    dnd->sendMoveEvent(globalPos - surface->rolePos(), event.time());
+                    dnd->sendMoveEvent(globalPos - surface->rolePos(), event.ms());
                 else
                     dnd->setFocus(surface, globalPos - surface->rolePos());
             }
@@ -73,6 +74,25 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
                 dnd->setFocus(nullptr, LPoint());
         }
     }
+
+    bool activeResizing = false;
+
+    for (LToplevelResizeSession *session : seat()->resizeSessions())
+    {
+        if (session->triggeringEvent()->type() == LEvent::Type::Touch && session->triggeringEvent()->subtype() == LEvent::Subtype::Down)
+        {
+            LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)session->triggeringEvent();
+
+            if (touchDownEvent->id() == tp->id())
+            {
+                activeResizing = true;
+                session->setResizePointPos(globalPos);
+            }
+        }
+    }
+
+    if (activeResizing)
+        return;
 
     // Send the event
     if (tp->surface())

@@ -1,3 +1,4 @@
+#include "LCursor.h"
 #include <private/LScenePrivate.h>
 #include <private/LViewPrivate.h>
 #include <private/LSceneViewPrivate.h>
@@ -106,7 +107,7 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
         if (!handlePointerMove(*it))
             return false;
 
-    if (!pointerIsBlocked && pointerIsOverView(view, currentPointerMoveEvent.pos()))
+    if (!pointerIsBlocked && pointerIsOverView(view, cursor()->pos()))
     {
         if (!(pointerMoveEventFirstView))
             pointerMoveEventFirstView = view;

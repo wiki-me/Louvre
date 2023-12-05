@@ -24,7 +24,7 @@ public:
     const LPoint &rolePos() const override;
     void configureRequest() override;
 
-    void startResizeRequest(ResizeEdge edge) override;
+    void startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge) override;
     void startMoveRequest() override;
 
     void setMaximizedRequest() override;

@@ -50,30 +50,42 @@ public:
         return m_serial;
     }
 
-    inline void setTime(UInt32 time)
+    inline void setMs(UInt32 ms)
     {
-        m_time = time;
+        m_ms = ms;
     }
 
-    inline UInt32 time() const
+    inline UInt32 ms() const
     {
-        return m_time;
+        return m_ms;
+    }
+
+    inline void setUs(UInt32 us)
+    {
+        m_us = us;
+    }
+
+    inline UInt32 us() const
+    {
+        return m_us;
     }
 
     virtual LEvent *copy() const = 0;
 
 protected:
-    inline LEvent(Type type, Subtype subtype, UInt32 serial, UInt32 time) :
+    inline LEvent(Type type, Subtype subtype, UInt32 serial, UInt32 ms, UInt64 us) :
         m_type(type),
         m_subtype(subtype),
         m_serial(serial),
-        m_time(time)
+        m_ms(ms),
+        m_us(us)
     {}
 
     Type m_type;
     Subtype m_subtype;
     UInt32 m_serial;
-    UInt32 m_time;
+    UInt32 m_ms;
+    UInt64 m_us;
 };
 
 #endif // LEVENT_H

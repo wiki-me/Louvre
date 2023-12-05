@@ -72,19 +72,19 @@ void Toplevel::configureRequest()
         configure(0, pendingState() | Activated);
 }
 
-void Toplevel::startResizeRequest(ResizeEdge edge)
+void Toplevel::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge)
 {
     // Disable interactive resizing in fullscreen mode
     if (fullscreen())
         return;
 
     G::enableDocks(false);
-    seat()->startResizingToplevel(this,
-                                 edge,
-                                 cursor()->pos(),
-                                 LSize(128, 128),
-                                 LSeat::EdgeDisabled,
-                                 TOPBAR_HEIGHT);
+    startResizingSession(triggeringEvent,
+                         edge,
+                         cursor()->pos(),
+                         LSize(128, 128),
+                         EdgeDisabled,
+                         TOPBAR_HEIGHT);
 }
 
 void Toplevel::startMoveRequest()
@@ -94,7 +94,7 @@ void Toplevel::startMoveRequest()
         return;
 
     G::enableDocks(false);
-    seat()->startMovingToplevel(this, cursor()->pos(), LSeat::EdgeDisabled, TOPBAR_HEIGHT);
+    seat()->startMovingToplevel(this, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
 }
 
 void Toplevel::setMaximizedRequest()
@@ -149,7 +149,7 @@ void Toplevel::maximizedChanged()
         surface()->setPos(dstRect.pos());
     else
     {
-        if (!seat()->movingToplevel() && !seat()->resizingToplevel())
+        if (!seat()->movingToplevel() && seat()->resizeSessions().empty())
             surface()->setPos(prevRect.pos());
     }
 
@@ -345,9 +345,6 @@ void Toplevel::decorationModeChanged()
 
 void Toplevel::geometryChanged()
 {
-    if (resizing())
-        updateResizingPos();
-
     if (decoratedView)
     {
         decoratedView->updateTitle();

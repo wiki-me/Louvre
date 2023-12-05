@@ -6,8 +6,9 @@
 class Louvre::LPointerEvent : public LInputEvent
 {
 protected:
-    inline LPointerEvent(Subtype subtype, UInt32 serial, UInt32 time, LInputDevice *device) :
-        LInputEvent(Type::Pointer, subtype, serial, time, device) {}
+    inline LPointerEvent(Subtype subtype, UInt32 serial, UInt32 ms, UInt64 us, LInputDevice *device) :
+        LInputEvent(Type::Pointer, subtype, serial, ms, us, device)
+    {}
 
     virtual ~LPointerEvent() {}
     virtual LEvent *copy() const override;

@@ -58,12 +58,12 @@ void Topbar::update()
 
 void Topbar::pointerEnterEvent(const LPointerMoveEvent &)
 {
-    if (!seat()->resizingToplevel() && !seat()->movingToplevel() && !G::pointer()->cursorOwner)
+    if (!G::pointer()->isResizeSessionActive() && !seat()->movingToplevel() && !G::pointer()->cursorOwner)
         cursor()->useDefault();
 }
 
 void Topbar::pointerMoveEvent(const LPointerMoveEvent &)
 {
-    if (!seat()->resizingToplevel() && !seat()->movingToplevel() && !G::pointer()->cursorOwner)
+    if (!G::pointer()->isResizeSessionActive() && !seat()->movingToplevel() && !G::pointer()->cursorOwner)
         cursor()->useDefault();
 }

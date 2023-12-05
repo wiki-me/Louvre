@@ -23,8 +23,8 @@ public:
     const SerialEvents &serialEvents() const;
 
     // Since 1
-    bool down(LInputDevice *device, UInt32 time, UInt32 serial, RSurface *rSurface, Int32 id, Float32 x, Float32 y);
-    bool up(LInputDevice *device, UInt32 time, UInt32 serial, Int32 id);
+    bool down(const LTouchDownEvent &event, RSurface *rSurface);
+    bool up(const LTouchUpEvent &event);
     bool motion(UInt32 time, Int32 id, Float24 x, Float24 y);
     bool frame();
     bool cancel();

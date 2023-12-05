@@ -2,11 +2,14 @@
 #define LKEYBOARDLEAVEEVENT_H
 
 #include <LKeyboardEvent.h>
+#include <LTime.h>
 
 class Louvre::LKeyboardLeaveEvent : public LKeyboardEvent
 {
 public:
-    LKeyboardLeaveEvent();
+    inline LKeyboardLeaveEvent(UInt32 serial = LTime::nextSerial(), UInt32 ms = LTime::ms(), UInt64 us = LTime::us(), LInputDevice *device = nullptr) :
+        LKeyboardEvent(LEvent::Subtype::Leave, serial, ms, us, device)
+    {}
     virtual ~LKeyboardLeaveEvent() {}
     virtual LEvent *copy() const override;
 };

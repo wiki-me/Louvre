@@ -2,6 +2,7 @@
 #define SEAT_H
 
 #include <LSeat.h>
+#include <LEvent.h>
 
 using namespace Louvre;
 

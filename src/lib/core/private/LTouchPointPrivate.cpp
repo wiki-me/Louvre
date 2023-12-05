@@ -21,7 +21,7 @@ void LTouchPoint::LTouchPointPrivate::sendTouchDownEvent(const LTouchDownEvent &
 
     for (GSeat *gSeat : surface->client()->seatGlobals())
         if (gSeat->touchResource())
-            gSeat->touchResource()->down(event.device(), event.time(), event.serial(), surface->surfaceResource(), event.id(), event.localPos.x(), event.localPos.y());
+            gSeat->touchResource()->down(event, surface->surfaceResource());
 }
 
 void LTouchPoint::LTouchPointPrivate::sendTouchFrameEvent()

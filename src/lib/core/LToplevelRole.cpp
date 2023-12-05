@@ -1,6 +1,7 @@
 #include <protocols/XdgDecoration/private/RXdgToplevelDecorationPrivate.h>
 #include <protocols/XdgShell/private/RXdgSurfacePrivate.h>
 #include <protocols/XdgShell/RXdgToplevel.h>
+#include <private/LToplevelResizeSessionPrivate.h>
 #include <private/LToplevelRolePrivate.h>
 #include <private/LBaseSurfaceRolePrivate.h>
 #include <private/LSurfacePrivate.h>
@@ -38,8 +39,8 @@ LToplevelRole::~LToplevelRole()
         surface()->imp()->setMapped(false);
 
     // Remove focus
-    if (seat()->resizingToplevel() == this)
-        seat()->stopResizingToplevel();
+    if (resizeSession())
+        resizeSession()->imp()->destroy();
 
     if (seat()->movingToplevel() == this)
         seat()->stopMovingToplevel();
@@ -213,6 +214,9 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
 
     if (xdgSurfaceResource()->imp()->hasPendingWindowGeometry)
     {
+        if (resizeSession())
+            resizeSession()->imp()->handleGeometryChange();
+
         xdgSurfaceResource()->imp()->hasPendingWindowGeometry = false;
         geometryChanged();
     }
@@ -243,8 +247,8 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
         if (seat()->movingToplevel() == this)
             seat()->stopMovingToplevel();
 
-        if (seat()->resizingToplevel() == this)
-            seat()->stopResizingToplevel();
+        if (resizeSession())
+            resizeSession()->imp()->destroy();
 
         if (seat()->activeToplevel() == this)
             seat()->imp()->activeToplevel = nullptr;
@@ -384,17 +388,43 @@ LSize LToplevelRole::calculateResizeSize(const LPoint &cursorPosDelta, const LSi
         return newSize;
 }
 
-void LToplevelRole::updateResizingPos()
+bool LToplevelRole::startResizingSession(const LEvent &triggeringEvent, ResizeEdge edge, const LPoint &resizePointPos, const LSize &minSize, Int32 L, Int32 T, Int32 R, Int32 B)
 {
-    LSize s = imp()->resizingInitWindowSize;
-    LPoint p = imp()->resizingInitPos;
-    LToplevelRole::ResizeEdge edge =  imp()->resizingEdge;
+    if (resizeSession())
+    {
+        if (resizeSession()->imp()->stopped)
+            resizeSession()->imp()->destroy();
+        else
+            return false;
+    }
 
-    if (edge ==  LToplevelRole::Top || edge ==  LToplevelRole::TopLeft || edge ==  LToplevelRole::TopRight)
-        surface()->setY(p.y() + (s.h() - windowGeometry().h()));
+    imp()->resizeSession = new LToplevelResizeSession();
+    imp()->resizeSession->imp()->toplevel = this;
+    imp()->resizeSession->imp()->triggeringEvent = triggeringEvent.copy();
+    imp()->resizeSession->imp()->toplevelMinSize = minSize;
+    imp()->resizeSession->imp()->bounds = {L,T,R,B};
+    imp()->resizeSession->imp()->edge = edge;
+    imp()->resizeSession->imp()->initToplevelSize = windowGeometry().size();
+    imp()->resizeSession->imp()->initResizePointPos = resizePointPos;
+    imp()->resizeSession->imp()->currentResizePointPos = resizePointPos;
 
-    if (edge ==  LToplevelRole::Left || edge ==  LToplevelRole::TopLeft || edge ==  LToplevelRole::BottomLeft)
-        surface()->setX(p.x() + (s.w() - windowGeometry().w()));
+    if (L != EdgeDisabled && surface()->pos().x() < L)
+        surface()->setX(L);
+
+    if (T != EdgeDisabled && surface()->pos().y() < T)
+        surface()->setY(T);
+
+    imp()->resizeSession->imp()->initToplevelPos = surface()->pos();
+
+    configure(LToplevelRole::Activated | LToplevelRole::Resizing);
+    seat()->imp()->resizeSessions.push_back(imp()->resizeSession);
+    imp()->resizeSession->imp()->link = std::prev(seat()->imp()->resizeSessions.end());
+    return true;
+}
+
+LToplevelResizeSession *LToplevelRole::resizeSession() const
+{
+    return imp()->resizeSession;
 }
 
 static char *trim(char *s)

@@ -343,7 +343,7 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
     wl_buffer_send_release(current.buffer);
     bufferReleased = true;
 
-    damageId = LCompositor::nextSerial();
+    damageId = LTime::nextSerial();
 
     damaged = true;
     surface->damageChanged();
