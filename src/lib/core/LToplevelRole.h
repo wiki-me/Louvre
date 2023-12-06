@@ -1,11 +1,11 @@
 #ifndef LTOPLEVELROLE_H
 #define LTOPLEVELROLE_H
-#include <limits>
 #undef None
 
 #include <LBaseSurfaceRole.h>
 #include <LSize.h>
 #include <LRect.h>
+#include <limits>
 
 /**
  * @brief Toplevel role for surfaces

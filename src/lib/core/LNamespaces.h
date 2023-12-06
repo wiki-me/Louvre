@@ -104,6 +104,17 @@ namespace Louvre
     class LPointerButtonEvent;
     class LPointerScrollEvent;
 
+    class LPointerSwipeBeginEvent;
+    class LPointerSwipeUpdateEvent;
+    class LPointerSwipeEndEvent;
+
+    class LPointerPinchBeginEvent;
+    class LPointerPinchUpdateEvent;
+    class LPointerPinchEndEvent;
+
+    class LPointerHoldBeginEvent;
+    class LPointerHoldEndEvent;
+
     class LKeyboardEvent;
     class LKeyboardEnterEvent;
     class LKeyboardLeaveEvent;

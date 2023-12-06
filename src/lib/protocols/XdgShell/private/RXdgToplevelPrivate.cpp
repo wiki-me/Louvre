@@ -98,10 +98,21 @@ void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *r
 {
     L_UNUSED(client);
 
-    if (edges > 10)
+    switch (edges)
     {
-        wl_resource_post_error(resource, XDG_TOPLEVEL_ERROR_INVALID_RESIZE_EDGE, "provided value is not a valid variant of the resize_edge enum.");
+    case LToplevelRole::ResizeEdge::Left:
+    case LToplevelRole::ResizeEdge::Top:
+    case LToplevelRole::ResizeEdge::Right:
+    case LToplevelRole::ResizeEdge::Bottom:
+    case LToplevelRole::ResizeEdge::TopLeft:
+    case LToplevelRole::ResizeEdge::TopRight:
+    case LToplevelRole::ResizeEdge::BottomRight:
+    case LToplevelRole::ResizeEdge::BottomLeft:
+        break;
+    default:
+        wl_resource_post_error(resource, XDG_TOPLEVEL_ERROR_INVALID_RESIZE_EDGE, "Provided value is not a valid variant of the resize_edge enum.");
         return;
+        break;
     }
 
     RXdgToplevel *rXdgToplevel = (RXdgToplevel*)wl_resource_get_user_data(resource);

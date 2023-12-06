@@ -204,6 +204,62 @@ void LPointer::pointerScrollEvent(const LPointerScrollEvent &event)
 }
 //! [pointerAxisEvent]
 
+//! [pointerSwipeBeginEvent]
+void LPointer::pointerSwipeBeginEvent(const LPointerSwipeBeginEvent &event)
+{
+
+}
+//! [pointerSwipeBeginEvent]
+
+//! [pointerSwipeUpdateEvent]
+void LPointer::pointerSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event)
+{
+
+}
+//! [pointerSwipeUpdateEvent]
+
+//! [pointerSwipeEndEvent]
+void LPointer::pointerSwipeEndEvent(const LPointerSwipeEndEvent &event)
+{
+
+}
+//! [pointerSwipeEndEvent]
+
+//! [pointerPinchBeginEvent]
+void LPointer::pointerPinchBeginEvent(const LPointerPinchBeginEvent &event)
+{
+
+}
+//! [pointerPinchBeginEvent]
+
+//! [pointerPinchUpdateEvent]
+void LPointer::pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &event)
+{
+
+}
+//! [pointerPinchUpdateEvent]
+
+//! [pointerPinchEndEvent]
+void LPointer::pointerPinchEndEvent(const LPointerPinchEndEvent &event)
+{
+
+}
+//! [pointerPinchEndEvent]
+
+//! [pointerHoldBeginEvent]
+void LPointer::pointerHoldBeginEvent(const LPointerHoldBeginEvent &event)
+{
+
+}
+//! [pointerHoldBeginEvent]
+
+//! [pointerHoldEndEvent]
+void LPointer::pointerHoldEndEvent(const LPointerHoldEndEvent &event)
+{
+
+}
+//! [pointerHoldEndEvent]
+
 //! [setCursorRequest]
 void LPointer::setCursorRequest(LCursorRole *cursorRole)
 {

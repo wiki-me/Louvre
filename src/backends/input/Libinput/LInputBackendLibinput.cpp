@@ -8,6 +8,15 @@
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
 
+#include <LPointerSwipeBeginEvent.h>
+#include <LPointerSwipeUpdateEvent.h>
+#include <LPointerSwipeEndEvent.h>
+#include <LPointerPinchBeginEvent.h>
+#include <LPointerPinchUpdateEvent.h>
+#include <LPointerPinchEndEvent.h>
+#include <LPointerHoldBeginEvent.h>
+#include <LPointerHoldEndEvent.h>
+
 #include <LKeyboardKeyEvent.h>
 
 #include <LTouchDownEvent.h>
@@ -37,13 +46,24 @@ struct BACKEND_DATA
     libinput_interface libinputInterface;
     LSeat *seat;
     std::list<DEVICE_FD_ID> devices;
-    std::list<LInputDevice*> inputDevices;
+    std::list<LInputDevice*> pluggedDevices;
+    std::list<LInputDevice*> unpluggedDevices;
     LSeat::InputCapabilitiesFlags capabilities = 0;
 
     // Recycled events
     LPointerMoveEvent pointerMoveEvent;
     LPointerButtonEvent pointerButtonEvent;
     LPointerScrollEvent pointerScrollEvent;
+
+    LPointerSwipeBeginEvent pointerSwipeBeginEvent;
+    LPointerSwipeUpdateEvent pointerSwipeUpdateEvent;
+    LPointerSwipeEndEvent pointerSwipeEndEvent;
+    LPointerPinchBeginEvent pointerPinchBeginEvent;
+    LPointerPinchUpdateEvent pointerPinchUpdateEvent;
+    LPointerPinchEndEvent pointerPinchEndEvent;
+    LPointerHoldBeginEvent pointerHoldBeginEvent;
+    LPointerHoldEndEvent pointerHoldEndEvent;
+
     LKeyboardKeyEvent keyboardKeyEvent;
     LTouchDownEvent touchDownEvent;
     LTouchMoveEvent touchMoveEvent;
@@ -62,6 +82,7 @@ static libinput_event *ev;
 static libinput_event_type eventType;
 static libinput_event_keyboard *keyEvent;
 static libinput_event_pointer *pointerEvent;
+static libinput_event_gesture *gestureEvent;
 static libinput_event_touch *touchEvent;
 static LInputDevice *inputDevice;
 
@@ -117,15 +138,14 @@ static void updateCapabilities(BACKEND_DATA *bknd)
 {
     bknd->capabilities = 0;
 
-    for (LInputDevice *device : bknd->inputDevices)
+    for (LInputDevice *device : bknd->pluggedDevices)
         bknd->capabilities |= device->capabilities();
 }
 
 /****************** DEVICE INTERFACE ******************/
 
-static LSeat::InputCapabilitiesFlags deviceCapabilities(const LInputDevice *device)
+static LSeat::InputCapabilitiesFlags deviceCapabilities(libinput_device *dev)
 {
-    libinput_device *dev = (libinput_device*)device->backendData();
     LSeat::InputCapabilitiesFlags caps = 0;
 
     if (libinput_device_has_capability(dev, LIBINPUT_DEVICE_CAP_POINTER))
@@ -140,30 +160,8 @@ static LSeat::InputCapabilitiesFlags deviceCapabilities(const LInputDevice *devi
     return caps;
 }
 
-static const char *deviceName(const LInputDevice *device)
-{
-    libinput_device *dev = (libinput_device*)device->backendData();
-    return libinput_device_get_name(dev);
-}
-
-static UInt32 deviceVendorId(const LInputDevice *device)
-{
-    libinput_device *dev = (libinput_device*)device->backendData();
-    return libinput_device_get_id_vendor(dev);
-}
-
-static UInt32 deviceProductId(const LInputDevice *device)
-{
-    libinput_device *dev = (libinput_device*)device->backendData();
-    return libinput_device_get_id_product(dev);
-}
-
 static LInputDevice::Interface deviceInterface
 {
-    .capabilities = &deviceCapabilities,
-    .name = &deviceName,
-    .vendorId = &deviceVendorId,
-    .productId = &deviceProductId
 };
 
 Int32 LInputBackend::processInput(int, unsigned int, void *userData)
@@ -275,6 +273,107 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             data->pointerButtonEvent.setSerial(LTime::nextSerial());
             data->pointerButtonEvent.notify();
             break;
+        case LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerSwipeBeginEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerSwipeBeginEvent.setDevice(inputDevice);
+            data->pointerSwipeBeginEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerSwipeBeginEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerSwipeBeginEvent.setSerial(LTime::nextSerial());
+            data->pointerSwipeBeginEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_SWIPE_UPDATE:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerSwipeUpdateEvent.setDx(libinput_event_gesture_get_dx(gestureEvent));
+            data->pointerSwipeUpdateEvent.setDy(libinput_event_gesture_get_dy(gestureEvent));
+            data->pointerSwipeUpdateEvent.setDxUnaccelerated(libinput_event_gesture_get_dx_unaccelerated(gestureEvent));
+            data->pointerSwipeUpdateEvent.setDyUnaccelerated(libinput_event_gesture_get_dy_unaccelerated(gestureEvent));
+            data->pointerSwipeUpdateEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerSwipeUpdateEvent.setDevice(inputDevice);
+            data->pointerSwipeUpdateEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerSwipeUpdateEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerSwipeUpdateEvent.setSerial(LTime::nextSerial());
+            data->pointerSwipeUpdateEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_SWIPE_END:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerSwipeEndEvent.setCancelled(libinput_event_gesture_get_cancelled(gestureEvent));
+            data->pointerSwipeEndEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerSwipeEndEvent.setDevice(inputDevice);
+            data->pointerSwipeEndEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerSwipeEndEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerSwipeEndEvent.setSerial(LTime::nextSerial());
+            data->pointerSwipeEndEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_PINCH_BEGIN:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerPinchBeginEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerPinchBeginEvent.setDevice(inputDevice);
+            data->pointerPinchBeginEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerPinchBeginEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerPinchBeginEvent.setSerial(LTime::nextSerial());
+            data->pointerPinchBeginEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_PINCH_UPDATE:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerPinchUpdateEvent.setDx(libinput_event_gesture_get_dx(gestureEvent));
+            data->pointerPinchUpdateEvent.setDy(libinput_event_gesture_get_dy(gestureEvent));
+            data->pointerPinchUpdateEvent.setDxUnaccelerated(libinput_event_gesture_get_dx_unaccelerated(gestureEvent));
+            data->pointerPinchUpdateEvent.setDyUnaccelerated(libinput_event_gesture_get_dy_unaccelerated(gestureEvent));
+            data->pointerPinchUpdateEvent.setScale(libinput_event_gesture_get_scale(gestureEvent));
+            data->pointerPinchUpdateEvent.setRotation(libinput_event_gesture_get_angle_delta(gestureEvent));
+            data->pointerPinchUpdateEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerPinchUpdateEvent.setDevice(inputDevice);
+            data->pointerPinchUpdateEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerPinchUpdateEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerPinchUpdateEvent.setSerial(LTime::nextSerial());
+            data->pointerPinchUpdateEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_PINCH_END:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerPinchEndEvent.setCancelled(libinput_event_gesture_get_cancelled(gestureEvent));
+            data->pointerPinchEndEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerPinchEndEvent.setDevice(inputDevice);
+            data->pointerPinchEndEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerPinchEndEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerPinchEndEvent.setSerial(LTime::nextSerial());
+            data->pointerPinchEndEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_HOLD_BEGIN:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerHoldBeginEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerHoldBeginEvent.setDevice(inputDevice);
+            data->pointerHoldBeginEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerHoldBeginEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerHoldBeginEvent.setSerial(LTime::nextSerial());
+            data->pointerHoldBeginEvent.notify();
+            break;
+        case LIBINPUT_EVENT_GESTURE_HOLD_END:
+            dev = libinput_event_get_device(ev);
+            inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
+            gestureEvent = libinput_event_get_gesture_event(ev);
+            data->pointerHoldEndEvent.setCancelled(libinput_event_gesture_get_cancelled(gestureEvent));
+            data->pointerHoldEndEvent.setFingers(libinput_event_gesture_get_finger_count(gestureEvent));
+            data->pointerHoldEndEvent.setDevice(inputDevice);
+            data->pointerHoldEndEvent.setMs(libinput_event_gesture_get_time(gestureEvent));
+            data->pointerHoldEndEvent.setUs(libinput_event_gesture_get_time_usec(gestureEvent));
+            data->pointerHoldEndEvent.setSerial(LTime::nextSerial());
+            data->pointerHoldEndEvent.notify();
+            break;
         case LIBINPUT_EVENT_KEYBOARD_KEY:
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
@@ -346,19 +445,40 @@ Int32 LInputBackend::processInput(int, unsigned int, void *userData)
             break;
         case LIBINPUT_EVENT_DEVICE_ADDED:
             dev = libinput_event_get_device(ev);
-            inputDevice = new LInputDevice(deviceInterface, dev);
+            inputDevice = nullptr;
+
+            for (LInputDevice *idev : data->unpluggedDevices)
+            {
+                if (idev->name() == libinput_device_get_name(dev) && idev->vendorId() == libinput_device_get_id_vendor(dev) && idev->productId() == libinput_device_get_id_product(dev))
+                {
+                    inputDevice = idev;
+                    data->unpluggedDevices.remove(idev);
+                    break;
+                }
+            }
+
+            if (!inputDevice)
+                inputDevice = new LInputDevice();
+
             libinput_device_set_user_data(dev, inputDevice);
-            data->inputDevices.push_back(inputDevice);
+            inputDevice->m_backendData = dev;
+            inputDevice->m_capabilities = deviceCapabilities(dev);
+            inputDevice->m_name = libinput_device_get_name(dev);
+            inputDevice->m_vendorId = libinput_device_get_id_vendor(dev);
+            inputDevice->m_productId = libinput_device_get_id_product(dev);
+            inputDevice->m_interface = deviceInterface;
+            data->pluggedDevices.push_back(inputDevice);
             data->capabilities |= inputDevice->capabilities();
             inputDevice->notifyPlugged();
             break;
         case LIBINPUT_EVENT_DEVICE_REMOVED:
             dev = libinput_event_get_device(ev);
             inputDevice = (LInputDevice*)libinput_device_get_user_data(dev);
-            data->inputDevices.remove(inputDevice);
+            data->pluggedDevices.remove(inputDevice);
+            data->unpluggedDevices.push_back(inputDevice);
+            //inputDevice->m_interface = {0};
             updateCapabilities(data);
             inputDevice->notifyUnplugged();
-            delete inputDevice;
             break;
         default:
             break;
@@ -499,10 +619,16 @@ void LInputBackend::uninitialize()
     }
 
     // Only delete devices, do not notify
-    while (!data->inputDevices.empty())
+    while (!data->pluggedDevices.empty())
     {
-        delete data->inputDevices.back();
-        data->inputDevices.pop_back();
+        delete data->pluggedDevices.back();
+        data->pluggedDevices.pop_back();
+    }
+
+    while (!data->unpluggedDevices.empty())
+    {
+        delete data->unpluggedDevices.back();
+        data->unpluggedDevices.pop_back();
     }
 
     if (data->li)
@@ -519,7 +645,7 @@ std::list<LInputDevice *> *LInputBackend::getDevices()
 {
     LSeat *seat = LCompositor::compositor()->seat();
     BACKEND_DATA *data = (BACKEND_DATA*)seat->imp()->inputBackendData;
-    return &data->inputDevices;
+    return &data->pluggedDevices;
 }
 
 LInputBackendInterface API;

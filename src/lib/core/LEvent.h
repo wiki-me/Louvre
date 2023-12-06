@@ -27,7 +27,15 @@ public:
         Modifiers,
         Scroll,
         Frame,
-        Cancel
+        Cancel,
+        SwipeBegin,
+        SwipeUpdate,
+        SwipeEnd,
+        PinchBegin,
+        PinchUpdate,
+        PinchEnd,
+        HoldBegin,
+        HoldEnd
     };
 
     inline Type type() const

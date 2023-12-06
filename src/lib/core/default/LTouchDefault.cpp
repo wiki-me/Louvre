@@ -9,6 +9,7 @@
 #include <LTouchFrameEvent.h>
 #include <LTouchCancelEvent.h>
 #include <LToplevelResizeSession.h>
+#include <LToplevelMoveSession.h>
 #include <LTouchPoint.h>
 #include <LCursor.h>
 #include <LOutput.h>
@@ -87,11 +88,32 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
             {
                 activeResizing = true;
                 session->setResizePointPos(globalPos);
+                session->toplevel()->surface()->repaintOutputs();
             }
         }
     }
 
     if (activeResizing)
+        return;
+
+    bool activeMoving = false;
+
+    for (LToplevelMoveSession *session : seat()->moveSessions())
+    {
+        if (session->triggeringEvent().type() == LEvent::Type::Touch && session->triggeringEvent().subtype() == LEvent::Subtype::Down)
+        {
+            LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)session->triggeringEvent();
+
+            if (touchDownEvent.id() == tp->id())
+            {
+                activeMoving = true;
+                session->setMovePointPos(globalPos);
+                session->toplevel()->surface()->repaintOutputs();
+            }
+        }
+    }
+
+    if (activeMoving)
         return;
 
     // Send the event
@@ -121,6 +143,26 @@ void LTouch::touchUpEvent(const LTouchUpEvent &event)
             dnd->drop();
     }
 
+    // Stop touch toplevel resizing sessions
+    for (std::list<LToplevelResizeSession*>::const_iterator it = seat()->resizeSessions().begin(); it != seat()->resizeSessions().end(); it++)
+        if ((*it)->triggeringEvent().type() == LEvent::Type::Touch && (*it)->triggeringEvent().subtype() == LEvent::Subtype::Down)
+        {
+            LTouchDownEvent &downEvent = (LTouchDownEvent&)(*it)->triggeringEvent();
+
+            if (downEvent.id() == tp->id())
+                it = (*it)->stop();
+        }
+
+    // Stop touch toplevel moving sessions
+    for (std::list<LToplevelMoveSession*>::const_iterator it = seat()->moveSessions().begin(); it != seat()->moveSessions().end(); it++)
+        if ((*it)->triggeringEvent().type() == LEvent::Type::Touch && (*it)->triggeringEvent().subtype() == LEvent::Subtype::Down)
+        {
+            LTouchDownEvent &downEvent = (LTouchDownEvent&)(*it)->triggeringEvent();
+
+            if (downEvent.id() == tp->id())
+                it = (*it)->stop();
+        }
+
     // Send the event
     tp->sendUpEvent(event);
 }
@@ -133,6 +175,16 @@ void LTouch::touchFrameEvent(const LTouchFrameEvent &event)
 
 void LTouch::touchCancelEvent(const LTouchCancelEvent &event)
 {
+    // Stop touch toplevel resizing sessions
+    for (std::list<LToplevelResizeSession*>::const_iterator it = seat()->resizeSessions().begin(); it != seat()->resizeSessions().end(); it++)
+        if ((*it)->triggeringEvent().type() == LEvent::Type::Touch)
+                it = (*it)->stop();
+
+    // Stop touch toplevel moving sessions
+    for (std::list<LToplevelMoveSession*>::const_iterator it = seat()->moveSessions().begin(); it != seat()->moveSessions().end(); it++)
+        if ((*it)->triggeringEvent().type() == LEvent::Type::Touch)
+                it = (*it)->stop();
+
     // All touch points are destroyed
     sendCancelEvent(event);
 }

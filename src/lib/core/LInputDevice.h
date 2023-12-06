@@ -45,16 +45,23 @@ public:
 
     struct Interface
     {
-        LSeat::InputCapabilitiesFlags (*capabilities)(const LInputDevice *);
-        const char * (*name)(const LInputDevice *);
-        UInt32 (*vendorId)(const LInputDevice *);
-        UInt32 (*productId)(const LInputDevice *);
     };
 
     /// @cond OMIT
-    LInputDevice(const Interface &interface, void *backendData);
+    inline LInputDevice(const Interface &interface = Interface(),
+                 LSeat::InputCapabilitiesFlags capabilities = 0,
+                 const std::string &name = "Unknown",
+                 UInt32 vendorId = 0,
+                 UInt32 productId = 0,
+                 void *backendData = nullptr):
+        m_capabilities(capabilities),
+        m_name(name),
+        m_vendorId(vendorId),
+        m_productId(productId),
+        m_interface(interface),
+        m_backendData(backendData)
+    {}
     LCLASS_NO_COPY(LInputDevice)
-    ~LInputDevice();
     /// @endcond
 
     /**
@@ -62,27 +69,46 @@ public:
      *
      * This method returns the capabilities of the input device, represented as a combination of flags.
      */
-    LSeat::InputCapabilitiesFlags capabilities() const;
+    inline LSeat::InputCapabilitiesFlags capabilities() const
+    {
+        return m_capabilities;
+    }
 
     /**
      * @brief Get the name of the input device.
      */
-    const char *name() const;
+    inline const std::string &name() const
+    {
+        return m_name;
+    }
 
     /**
      * @brief Get the product ID of the input device.
      */
-    UInt32 productId() const;
+    inline UInt32 productId() const
+    {
+        return m_productId;
+    }
 
     /**
      * @brief Get the vendor ID of the input device.
      */
-    UInt32 vendorId() const;
+    inline UInt32 vendorId() const
+    {
+        return m_vendorId;
+    }
 
-    void *backendData() const;
+    inline void *backendData() const
+    {
+        return m_backendData;
+    }
 
 private:
     friend class LInputBackend;
+    LSeat::InputCapabilitiesFlags m_capabilities;
+    std::string m_name;
+    UInt32 m_vendorId;
+    UInt32 m_productId;
     Interface m_interface;
     void *m_backendData;
     void notifyPlugged();

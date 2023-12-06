@@ -240,6 +240,17 @@ public:
      */
     virtual void pointerScrollEvent(const LPointerScrollEvent &event);
 
+    virtual void pointerSwipeBeginEvent(const LPointerSwipeBeginEvent &event);
+    virtual void pointerSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event);
+    virtual void pointerSwipeEndEvent(const LPointerSwipeEndEvent &event);
+
+    virtual void pointerPinchBeginEvent(const LPointerPinchBeginEvent &event);
+    virtual void pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &event);
+    virtual void pointerPinchEndEvent(const LPointerPinchEndEvent &event);
+
+    virtual void pointerHoldBeginEvent(const LPointerHoldBeginEvent &event);
+    virtual void pointerHoldEndEvent(const LPointerHoldEndEvent &event);
+
     /**
      * @brief Set cursor request.
      *
