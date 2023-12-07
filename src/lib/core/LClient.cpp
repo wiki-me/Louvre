@@ -78,14 +78,19 @@ const list<XdgShell::GXdgWmBase *> &LClient::xdgWmBaseGlobals() const
     return imp()->xdgWmBaseGlobals;
 }
 
-const list<WpPresentationTime::GWpPresentation *> &LClient::wpPresentationTimeGlobals() const
+const list<PresentationTime::GPresentation *> &LClient::presentationTimeGlobals() const
 {
-    return imp()->wpPresentationTimeGlobals;
+    return imp()->presentationTimeGlobals;
 }
 
 const list<LinuxDMABuf::GLinuxDMABuf *> &LClient::linuxDMABufGlobals() const
 {
     return imp()->linuxDMABufGlobals;
+}
+
+const std::list<PointerGestures::GPointerGestures *> &LClient::pointerGesturesGlobals() const
+{
+
 }
 
 const list<XdgDecoration::GXdgDecorationManager *> &LClient::xdgDecorationManagerGlobals() const

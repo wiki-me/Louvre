@@ -1,5 +1,5 @@
-#include <protocols/WpPresentationTime/private/RWpPresentationFeedbackPrivate.h>
-#include <protocols/WpPresentationTime/presentation-time.h>
+#include <protocols/PresentationTime/private/RPresentationFeedbackPrivate.h>
+#include <protocols/PresentationTime/presentation-time.h>
 #include <protocols/LinuxDMABuf/private/LDMABufferPrivate.h>
 #include <protocols/Wayland/private/RSurfacePrivate.h>
 #include <protocols/Wayland/private/GOutputPrivate.h>
@@ -352,7 +352,7 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
 
 void LSurface::LSurfacePrivate::sendPresentationFeedback(LOutput *output, timespec &ns)
 {
-    if (wpPresentationFeedbackResources.empty())
+    if (presentationFeedbackResources.empty())
         return;
 
     // Check if the surface is visible in the given output
@@ -366,9 +366,9 @@ void LSurface::LSurfacePrivate::sendPresentationFeedback(LOutput *output, timesp
             if (gOutput->output() != output)
                 continue;
 
-            while (!wpPresentationFeedbackResources.empty())
+            while (!presentationFeedbackResources.empty())
             {
-                WpPresentationTime::RWpPresentationFeedback *rFeed = wpPresentationFeedbackResources.back();
+                PresentationTime::RPresentationFeedback *rFeed = presentationFeedbackResources.back();
                 rFeed->sync_output(gOutput);
                 rFeed->presented(ns.tv_sec >> 32,
                                  ns.tv_sec & 0xffffffff,
@@ -378,7 +378,7 @@ void LSurface::LSurfacePrivate::sendPresentationFeedback(LOutput *output, timesp
                                  0,
                                  WP_PRESENTATION_FEEDBACK_KIND_VSYNC);
                 rFeed->imp()->lSurface = nullptr;
-                wpPresentationFeedbackResources.pop_back();
+                presentationFeedbackResources.pop_back();
                 wl_resource_destroy(rFeed->resource());
             }
 
@@ -386,12 +386,12 @@ void LSurface::LSurfacePrivate::sendPresentationFeedback(LOutput *output, timesp
         }
     }
 
-    while (!wpPresentationFeedbackResources.empty())
+    while (!presentationFeedbackResources.empty())
     {
-        WpPresentationTime::RWpPresentationFeedback *rFeed = wpPresentationFeedbackResources.back();
+        PresentationTime::RPresentationFeedback *rFeed = presentationFeedbackResources.back();
         rFeed->discarded();
         rFeed->imp()->lSurface = nullptr;
-        wpPresentationFeedbackResources.pop_back();
+        presentationFeedbackResources.pop_back();
         wl_resource_destroy(rFeed->resource());
     }
 }

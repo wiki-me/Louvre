@@ -5,7 +5,8 @@
 #include <protocols/XdgShell/private/GXdgWmBasePrivate.h>
 #include <protocols/XdgDecoration/private/GXdgDecorationManagerPrivate.h>
 #include <protocols/LinuxDMABuf/private/GLinuxDMABufPrivate.h>
-#include <protocols/WpPresentationTime/private/GWpPresentationPrivate.h>
+#include <protocols/PresentationTime/private/GPresentationPrivate.h>
+#include <protocols/PointerGestures/private/GPointerGesturesPrivate.h>
 #include <LCompositor.h>
 #include <LToplevelRole.h>
 #include <LCursor.h>
@@ -48,7 +49,10 @@ bool LCompositor::createGlobalsRequest()
                      LOUVRE_LINUX_DMA_BUF_VERSION, this, &Protocols::LinuxDMABuf::GLinuxDMABuf::GLinuxDMABufPrivate::bind);
 
     wl_global_create(display(), &wp_presentation_interface,
-                     LOUVRE_WP_PRESENTATION_VERSION, this, &Protocols::WpPresentationTime::GWpPresentation::GWpPresentationPrivate::bind);
+                     LOUVRE_WP_PRESENTATION_VERSION, this, &Protocols::PresentationTime::GPresentation::GPresentationPrivate::bind);
+
+    wl_global_create(display(), &zwp_pointer_gestures_v1_interface,
+                     LOUVRE_POINTER_GESTURES_VERSION, this, &Protocols::PointerGestures::GPointerGestures::GPointerGesturesPrivate::bind);
 
     wl_display_init_shm(display());
 

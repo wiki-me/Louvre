@@ -20,6 +20,7 @@
 #define LOUVRE_XDG_DECORATION_MANAGER_VERSION 1
 #define LOUVRE_WP_PRESENTATION_VERSION 1
 #define LOUVRE_LINUX_DMA_BUF_VERSION 3
+#define LOUVRE_POINTER_GESTURES_VERSION 3
 
 #define L_UNUSED(object){(void)object;}
 
@@ -418,11 +419,20 @@ namespace Louvre
             class RXdgToplevelDecoration;
         };
 
-        namespace WpPresentationTime
+        namespace PresentationTime
         {
-            class GWpPresentation;
+            class GPresentation;
 
-            class RWpPresentationFeedback;
+            class RPresentationFeedback;
+        };
+
+        namespace PointerGestures
+        {
+            class GPointerGestures;
+
+            class RGestureSwipe;
+            class RGesturePinch;
+            class RGestureHold;
         };
 
         namespace LinuxDMABuf

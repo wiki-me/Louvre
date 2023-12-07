@@ -1,4 +1,4 @@
-#include <protocols/WpPresentationTime/private/RWpPresentationFeedbackPrivate.h>
+#include <protocols/PresentationTime/private/RPresentationFeedbackPrivate.h>
 #include <protocols/Wayland/private/RSurfacePrivate.h>
 #include <protocols/Wayland/GCompositor.h>
 #include <protocols/Wayland/GOutput.h>
@@ -86,8 +86,8 @@ RSurface::~RSurface()
     // Unmap
     lSurface->imp()->setMapped(false);
 
-    for (WpPresentationTime::RWpPresentationFeedback *wPf : lSurface->imp()->wpPresentationFeedbackResources)
-        wPf->imp()->lSurface = nullptr;
+    for (PresentationTime::RPresentationFeedback *rPf : lSurface->imp()->presentationFeedbackResources)
+        rPf->imp()->lSurface = nullptr;
 
     // Destroy pending frame callbacks
     while (!lSurface->imp()->frameCallbacks.empty())

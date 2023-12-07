@@ -1,51 +1,51 @@
-#include <protocols/WpPresentationTime/private/RWpPresentationFeedbackPrivate.h>
-#include <protocols/WpPresentationTime/private/GWpPresentationPrivate.h>
-#include <protocols/WpPresentationTime/presentation-time.h>
+#include <protocols/PresentationTime/private/RPresentationFeedbackPrivate.h>
+#include <protocols/PresentationTime/private/GPresentationPrivate.h>
+#include <protocols/PresentationTime/presentation-time.h>
 
 #include <protocols/Wayland/GOutput.h>
 
 #include <private/LSurfacePrivate.h>
 
-RWpPresentationFeedback::RWpPresentationFeedback
+RPresentationFeedback::RPresentationFeedback
 (
-    GWpPresentation *gWpPresentation,
+    GPresentation *gPresentation,
     LSurface *lSurface,
     UInt32 id
 )
     :LResource
     (
-        gWpPresentation->client(),
+        gPresentation->client(),
         &wp_presentation_feedback_interface,
-        gWpPresentation->version(),
+        gPresentation->version(),
         id,
         nullptr,
-        &RWpPresentationFeedbackPrivate::resource_destroy
+        &RPresentationFeedbackPrivate::resource_destroy
     ),
-    LPRIVATE_INIT_UNIQUE(RWpPresentationFeedback)
+    LPRIVATE_INIT_UNIQUE(RPresentationFeedback)
 {
     imp()->lSurface = lSurface;
-    this->lSurface()->imp()->wpPresentationFeedbackResources.push_back(this);
-    imp()->surfaceLink = std::prev(this->lSurface()->imp()->wpPresentationFeedbackResources.end());
+    this->lSurface()->imp()->presentationFeedbackResources.push_back(this);
+    imp()->surfaceLink = std::prev(this->lSurface()->imp()->presentationFeedbackResources.end());
 }
 
-RWpPresentationFeedback::~RWpPresentationFeedback()
+RPresentationFeedback::~RPresentationFeedback()
 {
     if (lSurface())
-        lSurface()->imp()->wpPresentationFeedbackResources.erase(imp()->surfaceLink);
+        lSurface()->imp()->presentationFeedbackResources.erase(imp()->surfaceLink);
 }
 
-Louvre::LSurface *RWpPresentationFeedback::lSurface() const
+LSurface *RPresentationFeedback::lSurface() const
 {
     return imp()->lSurface;
 }
 
-bool RWpPresentationFeedback::sync_output(Wayland::GOutput *gOutput) const
+bool RPresentationFeedback::sync_output(Wayland::GOutput *gOutput) const
 {
     wp_presentation_feedback_send_sync_output(resource(), gOutput->resource());
     return true;
 }
 
-bool RWpPresentationFeedback::presented(UInt32 tv_sec_hi,
+bool RPresentationFeedback::presented(UInt32 tv_sec_hi,
                                         UInt32 tv_sec_lo,
                                         UInt32 tv_nsec,
                                         UInt32 refresh,
@@ -64,7 +64,7 @@ bool RWpPresentationFeedback::presented(UInt32 tv_sec_hi,
     return true;
 }
 
-bool RWpPresentationFeedback::discarded() const
+bool RPresentationFeedback::discarded() const
 {
     wp_presentation_feedback_send_discarded(resource());
     return true;

@@ -71,7 +71,7 @@ LPRIVATE_CLASS(LSurface)
     Int32 lastSentPreferredBufferScale = -1;
     std::list<LOutput*> outputs;
 
-    std::list<WpPresentationTime::RWpPresentationFeedback*> wpPresentationFeedbackResources;
+    std::list<PresentationTime::RPresentationFeedback*> presentationFeedbackResources;
     void sendPresentationFeedback(LOutput *output, timespec &ns);
     void setBufferScale(Int32 scale);
     void setPendingParent(LSurface *pendParent);

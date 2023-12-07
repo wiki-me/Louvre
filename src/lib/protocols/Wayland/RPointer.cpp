@@ -1,6 +1,9 @@
-#include "LPointerMoveEvent.h"
+#include <protocols/PointerGestures/private/RGestureSwipePrivate.h>
+#include <protocols/PointerGestures/private/RGesturePinchPrivate.h>
+#include <protocols/PointerGestures/private/RGestureHoldPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/private/GSeatPrivate.h>
+#include <LPointerMoveEvent.h>
 
 static struct wl_pointer_interface pointer_implementation =
 {
@@ -34,6 +37,15 @@ RPointer::~RPointer()
 {
     if (seatGlobal())
         seatGlobal()->imp()->rPointer = nullptr;
+
+    if (gestureSwipeResource())
+        gestureSwipeResource()->imp()->rPointer = nullptr;
+
+    if (gesturePinchResource())
+        gesturePinchResource()->imp()->rPointer = nullptr;
+
+    if (gestureHoldResource())
+        gestureHoldResource()->imp()->rPointer = nullptr;
 }
 
 GSeat *RPointer::seatGlobal() const
@@ -44,6 +56,21 @@ GSeat *RPointer::seatGlobal() const
 const RPointer::SerialEvents &RPointer::serialEvents() const
 {
     return imp()->serialEvents;
+}
+
+RGestureSwipe *RPointer::gestureSwipeResource() const
+{
+    return imp()->rGestureSwipe;
+}
+
+RGesturePinch *RPointer::gesturePinchResource() const
+{
+    return imp()->rGesturePinch;
+}
+
+RGestureHold *RPointer::gestureHoldResource() const
+{
+    return imp()->rGestureHold;
 }
 
 bool RPointer::enter(const LPointerEnterEvent &event, RSurface *rSurface)

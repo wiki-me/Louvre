@@ -78,10 +78,11 @@ install_headers(headers_other, install_dir : join_paths(HEADERS_INSTALL_PATH, 'o
 
 globals = [
     'LinuxDMABuf',
-	'Wayland',
-	'XdgDecoration',
-	'XdgShell',
-    'WpPresentationTime'
+    'Wayland',
+    'XdgDecoration',
+    'XdgShell',
+    'PresentationTime',
+    'PointerGestures'
 ]
 
 foreach g : globals

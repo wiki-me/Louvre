@@ -4,6 +4,7 @@
 #include <protocols/Wayland/RPointer.h>
 
 using namespace Louvre::Protocols::Wayland;
+using namespace Louvre::Protocols::PointerGestures;
 
 LPRIVATE_CLASS(RPointer)
     static void resource_destroy(wl_resource *resource);
@@ -13,6 +14,11 @@ LPRIVATE_CLASS(RPointer)
 #endif
 
     GSeat *gSeat;
+
+    RGestureSwipe *rGestureSwipe = nullptr;
+    RGesturePinch *rGesturePinch = nullptr;
+    RGestureHold *rGestureHold = nullptr;
+
     SerialEvents serialEvents;
 };
 

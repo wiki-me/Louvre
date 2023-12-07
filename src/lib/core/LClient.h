@@ -163,7 +163,7 @@ public:
      * [wp_presentation](https://wayland.app/protocols/presentation-time#wp_presentation) global of the
      * PresentationTime protocol.
      */
-    const std::list<Protocols::WpPresentationTime::GWpPresentation*> &wpPresentationTimeGlobals() const;
+    const std::list<Protocols::PresentationTime::GPresentation*> &presentationTimeGlobals() const;
 
     /**
      * List of resources generated when the client binds to the
@@ -171,6 +171,13 @@ public:
      * of the LinuxDMA-BUF protocol.
      */
     const std::list<Protocols::LinuxDMABuf::GLinuxDMABuf*> &linuxDMABufGlobals() const;
+
+    /**
+     * List of resources generated when the client binds to the
+     * [zwp_pointer_gestures_v1](https://wayland.app/protocols/pointer-gestures-unstable-v1#zwp_pointer_gestures_v1) global
+     * of the PointerGestures protocol.
+     */
+    const std::list<Protocols::PointerGestures::GPointerGestures*> &pointerGesturesGlobals() const;
 
     LPRIVATE_IMP_UNIQUE(LClient)
 };
