@@ -30,13 +30,14 @@ RPointer::RPointer
     LPRIVATE_INIT_UNIQUE(RPointer)
 {
     imp()->gSeat = gSeat;
-    gSeat->imp()->rPointer = this;
+    gSeat->imp()->pointerResources.push_back(this);
+    imp()->seatLink = std::prev(gSeat->imp()->pointerResources.end());
 }
 
 RPointer::~RPointer()
 {
     if (seatGlobal())
-        seatGlobal()->imp()->rPointer = nullptr;
+        seatGlobal()->imp()->pointerResources.erase(imp()->seatLink);
 
     if (gestureSwipeResource())
         gestureSwipeResource()->imp()->rPointer = nullptr;

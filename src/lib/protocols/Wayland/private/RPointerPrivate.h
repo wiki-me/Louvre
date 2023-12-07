@@ -14,6 +14,7 @@ LPRIVATE_CLASS(RPointer)
 #endif
 
     GSeat *gSeat;
+    std::list<RPointer*>::iterator seatLink;
 
     RGestureSwipe *rGestureSwipe = nullptr;
     RGesturePinch *rGesturePinch = nullptr;

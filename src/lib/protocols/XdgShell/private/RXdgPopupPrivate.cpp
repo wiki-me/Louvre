@@ -48,30 +48,13 @@ void RXdgPopup::RXdgPopupPrivate::grab(wl_client *client, wl_resource *resource,
     L_UNUSED(seat);
 
     RXdgPopup *rXdgPopup = (RXdgPopup*)wl_resource_get_user_data(resource);
-    Wayland::GSeat *lGSeat = (Wayland::GSeat*)wl_resource_get_user_data(seat);
+    Wayland::GSeat *gSeat = (Wayland::GSeat*)wl_resource_get_user_data(seat);
+    LEvent *triggeringEvent = gSeat->findSerialEventMatch(serial);
 
-    if ((lGSeat->pointerResource() && (lGSeat->pointerResource()->serialEvents().button.serial() >= serial || lGSeat->pointerResource()->serialEvents().enter.serial() == serial)) ||
-        (lGSeat->keyboardResource() && (lGSeat->keyboardResource()->serialEvents().key.serial() >= serial || lGSeat->keyboardResource()->serialEvents().enter.serial() == serial)))
+    /* TODO: Pass event to the request */
+    if (triggeringEvent)
     {
-        /*
-        LSurface *parent = rXdgPopup->popupRole()->surface()->parent();
-
-        if (!parent)
-            parent = rXdgPopup->popupRole()->surface()->imp()->pendingParent;
-
-        bool parentIsPopup = parent && (parent->popup() || (parent->imp()->pending.role && parent->imp()->pending.role->roleId() == LSurface::Popup));
-        bool parentIsToplevel = parent && (parent->toplevel() || (parent->imp()->pending.role && parent->imp()->pending.role->roleId() == LSurface::Toplevel));
-
-        if (parentIsPopup && compositor()->seat()->keyboard()->focus() != parent && !parentIsToplevel)
-        {
-            wl_resource_post_error(
-                resource,
-                XDG_POPUP_ERROR_INVALID_GRAB,
-                "Invalid grab. Popup parent did not have an implicit grab.");
-            return;
-        } */
-
-        rXdgPopup->popupRole()->grabSeatRequest(lGSeat);
+        rXdgPopup->popupRole()->grabSeatRequest(gSeat);
 
         if (compositor()->seat()->keyboard()->grabbingSurface() != rXdgPopup->popupRole()->surface())
             rXdgPopup->popupRole()->dismiss();

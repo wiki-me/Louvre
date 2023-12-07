@@ -82,7 +82,8 @@ globals = [
     'XdgDecoration',
     'XdgShell',
     'PresentationTime',
-    'PointerGestures'
+    'PointerGestures',
+    'RelativePointer'
 ]
 
 foreach g : globals

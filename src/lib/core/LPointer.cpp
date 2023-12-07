@@ -72,12 +72,11 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
 
         for (Wayland::GSeat *s : surface->client()->seatGlobals())
         {
-            if (s->pointerResource())
+            for (Wayland::RPointer *p : s->pointerResources())
             {
                 imp()->pointerFocusSurface = surface;
-                s->pointerResource()->enter(enterEvent,
-                                            surface->surfaceResource());
-                s->pointerResource()->frame();
+                p->enter(enterEvent, surface->surfaceResource());
+                p->frame();
             }
         }
     }
@@ -105,10 +104,10 @@ void LPointer::sendMoveEvent(const LPointerMoveEvent &event)
 
     for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
     {
-        if (s->pointerResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
-            s->pointerResource()->motion(event);
-            s->pointerResource()->frame();
+            p->motion(event);
+            p->frame();
         }
     }
 }
@@ -120,10 +119,10 @@ void LPointer::sendButtonEvent(const LPointerButtonEvent &event)
 
     for (Wayland::GSeat *s : seat()->pointer()->focus()->client()->seatGlobals())
     {
-        if (s->pointerResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
-            s->pointerResource()->button(event);
-            s->pointerResource()->frame();
+            p->button(event);
+            p->frame();
         }
     }
 }
@@ -161,45 +160,40 @@ void LPointer::sendScrollEvent(const LPointerScrollEvent &event)
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
-        if (s->pointerResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
             // Since 5
-            if (s->pointerResource()->axisSource(event.source()))
+            if (p->axisSource(event.source()))
             {
-                if (s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_HORIZONTAL_SCROLL, 0 /* 0 = IDENTICAL */))
-                    s->pointerResource()->axisRelativeDirection(WL_POINTER_AXIS_VERTICAL_SCROLL, 0 /* 0 = IDENTICAL */);
+                if (p->axisRelativeDirection(WL_POINTER_AXIS_HORIZONTAL_SCROLL, 0 /* 0 = IDENTICAL */))
+                    p->axisRelativeDirection(WL_POINTER_AXIS_VERTICAL_SCROLL, 0 /* 0 = IDENTICAL */);
 
                 if (event.source() == LPointerScrollEvent::Wheel)
                 {
-                    if (!s->pointerResource()->axisValue120(WL_POINTER_AXIS_HORIZONTAL_SCROLL, dX))
+                    if (!p->axisValue120(WL_POINTER_AXIS_HORIZONTAL_SCROLL, dX))
                     {
-                        s->pointerResource()->axisDiscrete(WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
-                        s->pointerResource()->axisDiscrete(WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
+                        p->axisDiscrete(WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
+                        p->axisDiscrete(WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
                     }
                     else
-                        s->pointerResource()->axisValue120(WL_POINTER_AXIS_VERTICAL_SCROLL, dY);
+                        p->axisValue120(WL_POINTER_AXIS_VERTICAL_SCROLL, dY);
                 }
 
                 if (event.axes().x() == 0.0 && imp()->axisXprev != 0.0)
-                    s->pointerResource()->axisStop(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL);
+                    p->axisStop(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL);
                 else
-                    s->pointerResource()->axis(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
+                    p->axis(event.ms(), WL_POINTER_AXIS_HORIZONTAL_SCROLL, aX);
 
                 if (event.axes().y() == 0.0 && imp()->axisYprev != 0.0)
-                   s->pointerResource()->axisStop(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL);
+                    p->axisStop(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL);
                 else
-                    s->pointerResource()->axis(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
+                    p->axis(event.ms(), WL_POINTER_AXIS_VERTICAL_SCROLL, aY);
 
-                s->pointerResource()->frame();
+                p->frame();
             }
             // Since 1
             else
-            {
-                s->pointerResource()->axis(
-                    event.ms(),
-                    aX,
-                    aY);
-            }
+                p->axis(event.ms(), aX, aY);
         }
     }
 
@@ -214,10 +208,13 @@ void LPointer::sendSwipeBeginEvent(const LPointerSwipeBeginEvent &event)
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
-        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
+            if (!p->gestureSwipeResource())
+                continue;
+
             imp()->pendingSwipeEnd = true;
-            s->pointerResource()->gestureSwipeResource()->begin(event, focus()->surfaceResource());
+            p->gestureSwipeResource()->begin(event, focus()->surfaceResource());
         }
     }
 }
@@ -228,8 +225,9 @@ void LPointer::sendSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event)
         return;
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
-            s->pointerResource()->gestureSwipeResource()->update(event);
+        for (Wayland::RPointer *p : s->pointerResources())
+            if (p->gestureSwipeResource())
+                p->gestureSwipeResource()->update(event);
 }
 
 void LPointer::sendSwipeEndEvent(const LPointerSwipeEndEvent &event)
@@ -240,8 +238,9 @@ void LPointer::sendSwipeEndEvent(const LPointerSwipeEndEvent &event)
     imp()->pendingSwipeEnd = false;
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
-            s->pointerResource()->gestureSwipeResource()->end(event);
+        for (Wayland::RPointer *p : s->pointerResources())
+            if (p->gestureSwipeResource())
+                p->gestureSwipeResource()->end(event);
 }
 
 void LPointer::sendPinchBeginEvent(const LPointerPinchBeginEvent &event)
@@ -251,10 +250,13 @@ void LPointer::sendPinchBeginEvent(const LPointerPinchBeginEvent &event)
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
-        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
+            if (!p->gesturePinchResource())
+                continue;
+
             imp()->pendingPinchEnd = true;
-            s->pointerResource()->gesturePinchResource()->begin(event, focus()->surfaceResource());
+            p->gesturePinchResource()->begin(event, focus()->surfaceResource());
         }
     }
 }
@@ -265,8 +267,9 @@ void LPointer::sendPinchUpdateEvent(const LPointerPinchUpdateEvent &event)
         return;
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
-            s->pointerResource()->gesturePinchResource()->update(event);
+        for (Wayland::RPointer *p : s->pointerResources())
+            if (p->gesturePinchResource())
+                p->gesturePinchResource()->update(event);
 }
 
 void LPointer::sendPinchEndEvent(const LPointerPinchEndEvent &event)
@@ -277,8 +280,9 @@ void LPointer::sendPinchEndEvent(const LPointerPinchEndEvent &event)
     imp()->pendingPinchEnd = false;
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
-            s->pointerResource()->gesturePinchResource()->end(event);
+        for (Wayland::RPointer *p : s->pointerResources())
+            if (p->gesturePinchResource())
+                p->gesturePinchResource()->end(event);
 }
 
 void LPointer::sendHoldBeginEvent(const LPointerHoldBeginEvent &event)
@@ -288,10 +292,13 @@ void LPointer::sendHoldBeginEvent(const LPointerHoldBeginEvent &event)
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
-        if (s->pointerResource() && s->pointerResource()->gestureHoldResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {
+            if (!p->gestureHoldResource())
+                continue;
+
             imp()->pendingHoldEnd = true;
-            s->pointerResource()->gestureHoldResource()->begin(event, focus()->surfaceResource());
+            p->gestureHoldResource()->begin(event, focus()->surfaceResource());
         }
     }
 }
@@ -304,8 +311,9 @@ void LPointer::sendHoldEndEvent(const LPointerHoldEndEvent &event)
     imp()->pendingHoldEnd = false;
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-        if (s->pointerResource() && s->pointerResource()->gestureHoldResource())
-            s->pointerResource()->gestureHoldResource()->end(event);
+        for (Wayland::RPointer *p : s->pointerResources())
+            if (p->gestureHoldResource())
+                p->gestureHoldResource()->end(event);
 }
 
 LSurface *LPointer::surfaceAt(const LPoint &point)
@@ -340,10 +348,10 @@ void LPointer::LPointerPrivate::sendLeaveEvent(LSurface *surface)
 
     for (Wayland::GSeat *s : surface->client()->seatGlobals())
     {
-        if (s->pointerResource())
+        for (Wayland::RPointer *p : s->pointerResources())
         {  
-            s->pointerResource()->leave(leaveEvent, surface->surfaceResource());
-            s->pointerResource()->frame();
+            p->leave(leaveEvent, surface->surfaceResource());
+            p->frame();
         }
     }
 }

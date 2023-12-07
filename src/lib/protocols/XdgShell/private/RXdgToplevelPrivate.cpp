@@ -91,7 +91,6 @@ void RXdgToplevel::RXdgToplevelPrivate::move(wl_client *client, wl_resource *res
         return;
 
     rXdgToplevel->toplevelRole()->startMoveRequest(*triggeringEvent);
-    delete triggeringEvent;
 }
 
 void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *resource, wl_resource *seat, UInt32 serial, UInt32 edges)
@@ -128,7 +127,6 @@ void RXdgToplevel::RXdgToplevelPrivate::resize(wl_client *client, wl_resource *r
         return;
 
     rXdgToplevel->toplevelRole()->startResizeRequest(*triggeringEvent, (LToplevelRole::ResizeEdge)edges);
-    delete triggeringEvent;
 }
 
 void RXdgToplevel::RXdgToplevelPrivate::set_max_size(wl_client *client, wl_resource *resource, Int32 width, Int32 height)

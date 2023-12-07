@@ -49,8 +49,8 @@ LPRIVATE_CLASS(LToplevelRole)
 
     void setAppId(const char *appId);
     void setTitle(const char *title);
-    char *appId = nullptr;
-    char *title = nullptr;
+    std::string appId;
+    std::string title;
 
     RXdgToplevelDecoration *xdgDecoration                           = nullptr;
     DecorationMode decorationMode                                   = ClientSide;

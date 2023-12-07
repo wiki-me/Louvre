@@ -28,10 +28,6 @@ LToplevelRole::LToplevelRole(Louvre::LToplevelRole::Params *params) :
 {
     imp()->currentConf.commited = true;
     imp()->toplevel = this;
-    imp()->appId = new char[1];
-    imp()->title = new char[1];
-    imp()->appId[0] = '\0';
-    imp()->title[0] = '\0';
 }
 
 LToplevelRole::~LToplevelRole()
@@ -51,9 +47,6 @@ LToplevelRole::~LToplevelRole()
 
     if (imp()->xdgDecoration)
         imp()->xdgDecoration->imp()->lToplevelRole = nullptr;
-
-    delete []imp()->appId;
-    delete []imp()->title;
 }
 
 bool LToplevelRole::maximized() const
@@ -286,12 +279,12 @@ void LToplevelRole::handleSurfaceCommit(Protocols::Wayland::RSurface::CommitOrig
     }
 }
 
-const char *LToplevelRole::appId() const
+const std::string &LToplevelRole::appId() const
 {
     return imp()->appId;
 }
 
-const char *LToplevelRole::title() const
+const std::string &LToplevelRole::title() const
 {
     return imp()->title;
 }
@@ -462,26 +455,22 @@ static char *trim(char *s)
 }
 void LToplevelRole::LToplevelRolePrivate::setAppId(const char *newAppId)
 {
-    char *text = trim((char*)newAppId);
+    std::string newStr = trim((char*)newAppId);
 
-    if (strcmp(appId, text) == 0)
+    if (appId == newStr)
         return;
 
-    delete []appId;
-    appId = new char[strlen(text)+1];
-    strcpy(appId, text);
+    appId = newStr;
     toplevel->appIdChanged();
 }
 
 void LToplevelRole::LToplevelRolePrivate::setTitle(const char *newTitle)
 {
-    char *text = trim((char*)newTitle);
+    std::string newStr = trim((char*)newTitle);
 
-    if (strcmp(title, text) == 0)
+    if (title == newStr)
         return;
 
-    delete []title;
-    title = new char[strlen(text)+1];
-    strcpy(title, text);
+    title = newStr;
     toplevel->titleChanged();
 }

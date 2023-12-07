@@ -19,9 +19,9 @@ void LTouchPoint::LTouchPointPrivate::sendTouchDownEvent(const LTouchDownEvent &
     if (!surface)
         return;
 
-    for (GSeat *gSeat : surface->client()->seatGlobals())
-        if (gSeat->touchResource())
-            gSeat->touchResource()->down(event, surface->surfaceResource());
+    for (GSeat *s : surface->client()->seatGlobals())
+        for (RTouch *t : s->touchResources())
+                t->down(event, surface->surfaceResource());
 }
 
 void LTouchPoint::LTouchPointPrivate::sendTouchFrameEvent()
@@ -29,9 +29,9 @@ void LTouchPoint::LTouchPointPrivate::sendTouchFrameEvent()
     if (!surface)
         return;
 
-    for (GSeat *gSeat : surface->client()->seatGlobals())
-        if (gSeat->touchResource())
-            gSeat->touchResource()->frame();
+    for (GSeat *s : surface->client()->seatGlobals())
+        for (RTouch *t : s->touchResources())
+            t->frame();
 }
 
 void LTouchPoint::LTouchPointPrivate::sendTouchCancelEvent()
@@ -39,7 +39,7 @@ void LTouchPoint::LTouchPointPrivate::sendTouchCancelEvent()
     if (!surface)
         return;
 
-    for (GSeat *gSeat : surface->client()->seatGlobals())
-        if (gSeat->touchResource())
-            gSeat->touchResource()->cancel();
+    for (GSeat *s : surface->client()->seatGlobals())
+        for (RTouch *t : s->touchResources())
+            t->cancel();
 }

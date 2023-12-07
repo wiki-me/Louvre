@@ -290,14 +290,14 @@ public:
      *
      * @return A string containing the application ID (e.g., "com.cuarzosoftware.Desk"), can be `nullptr`.
      */
-    const char *appId() const;
+    const std::string &appId() const;
 
     /**
      * @brief Get the window title of the toplevel.
      *
      * @return A string representing the window title, or `nullptr`.
      */
-    const char *title() const;
+    const std::string &title() const;
 
     /**
      * @brief Get the minimum size of the window geometry in surface coordinates.

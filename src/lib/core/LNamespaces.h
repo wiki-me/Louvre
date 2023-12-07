@@ -21,6 +21,7 @@
 #define LOUVRE_WP_PRESENTATION_VERSION 1
 #define LOUVRE_LINUX_DMA_BUF_VERSION 3
 #define LOUVRE_POINTER_GESTURES_VERSION 3
+#define LOUVRE_RELATIVE_POINTER_MANAGER_VERSION 1
 
 #define L_UNUSED(object){(void)object;}
 
@@ -435,6 +436,13 @@ namespace Louvre
             class RGestureHold;
         };
 
+        namespace RelativePointer
+        {
+            class GRelativePointerManager;
+
+            class RRelativePointer;
+        };
+
         namespace LinuxDMABuf
         {
             class GLinuxDMABuf;
@@ -504,12 +512,7 @@ namespace Louvre
         void (*suspend)();
         void (*forceUpdate)();
         void (*resume)();
-
-        // Devices
         std::list<LInputDevice*> *(*getDevices)();
-        const char *(*deviceGetName)(const LInputDevice *device);
-        UInt32 (*deviceGetProductId)(const LInputDevice *device);
-        UInt32 (*deviceGetVendorId)(const LInputDevice *device);
     };
     /// @endcond
 };

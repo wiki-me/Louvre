@@ -13,6 +13,7 @@ static void release(wl_client *client, wl_resource *resource);
 
 GSeat *gSeat;
 SerialEvents serialEvents;
+std::list<RTouch*>::iterator seatLink;
 };
 
 #endif // RTOUCHPRIVATE_H

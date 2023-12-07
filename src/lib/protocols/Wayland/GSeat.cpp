@@ -1,4 +1,3 @@
-#include "LLog.h"
 #include <protocols/Wayland/private/RKeyboardPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/private/RTouchPrivate.h>
@@ -38,14 +37,14 @@ GSeat::~GSeat()
 {
     client()->imp()->seatGlobals.erase(imp()->clientLink);
 
-    if (keyboardResource())
-        keyboardResource()->imp()->gSeat = nullptr;
+    for (auto res : keyboardResources())
+        res->imp()->gSeat = nullptr;
 
-    if (pointerResource())
-        pointerResource()->imp()->gSeat = nullptr;
+    for (auto res : pointerResources())
+        res->imp()->gSeat = nullptr;
 
-    if (touchResource())
-        touchResource()->imp()->gSeat = nullptr;
+    for (auto res : touchResources())
+        res->imp()->gSeat = nullptr;
 
     if (dataDeviceResource())
         dataDeviceResource()->imp()->gSeat = nullptr;
@@ -53,52 +52,52 @@ GSeat::~GSeat()
 
 LEvent *GSeat::findSerialEventMatch(UInt32 serial) const
 {
-    if (pointerResource())
+    for (auto res : pointerResources())
     {
-        if (pointerResource()->imp()->serialEvents.enter.serial() == serial)
-            return pointerResource()->imp()->serialEvents.enter.copy();
-        else if (pointerResource()->imp()->serialEvents.leave.serial() == serial)
-            return pointerResource()->imp()->serialEvents.leave.copy();
-        else if (pointerResource()->imp()->serialEvents.button.serial() == serial)
-            return pointerResource()->imp()->serialEvents.button.copy();
+        if (res->imp()->serialEvents.enter.serial() == serial)
+            return &res->imp()->serialEvents.enter;
+        else if (res->imp()->serialEvents.leave.serial() == serial)
+            return &res->imp()->serialEvents.leave;
+        else if (res->imp()->serialEvents.button.serial() == serial)
+            return &res->imp()->serialEvents.button;
     }
 
-    if (keyboardResource())
+    for (auto res : keyboardResources())
     {
-        if (keyboardResource()->imp()->serialEvents.enter.serial() == serial)
-            return keyboardResource()->imp()->serialEvents.enter.copy();
-        else if (keyboardResource()->imp()->serialEvents.leave.serial() == serial)
-            return keyboardResource()->imp()->serialEvents.leave.copy();
-        else if (keyboardResource()->imp()->serialEvents.key.serial() == serial)
-            return keyboardResource()->imp()->serialEvents.key.copy();
-        else if (keyboardResource()->imp()->serialEvents.modifiers.serial() == serial)
-            return keyboardResource()->imp()->serialEvents.modifiers.copy();
+        if (res->imp()->serialEvents.enter.serial() == serial)
+            return &res->imp()->serialEvents.enter;
+        else if (res->imp()->serialEvents.leave.serial() == serial)
+            return &res->imp()->serialEvents.leave;
+        else if (res->imp()->serialEvents.key.serial() == serial)
+            return &res->imp()->serialEvents.key;
+        else if (res->imp()->serialEvents.modifiers.serial() == serial)
+            return &res->imp()->serialEvents.modifiers;
     }
 
-    if (touchResource())
+    for (auto res : touchResources())
     {
-        if (touchResource()->imp()->serialEvents.down.serial() == serial)
-            return touchResource()->imp()->serialEvents.down.copy();
-        else if (touchResource()->imp()->serialEvents.up.serial() == serial)
-            return touchResource()->imp()->serialEvents.up.copy();
+        if (res->imp()->serialEvents.down.serial() == serial)
+            return &res->imp()->serialEvents.down;
+        else if (res->imp()->serialEvents.up.serial() == serial)
+            return &res->imp()->serialEvents.up;
     }
 
     return nullptr;
 }
 
-RKeyboard *GSeat::keyboardResource() const
+const std::list<RKeyboard *> &GSeat::keyboardResources() const
 {
-    return imp()->rKeyboard;
+    return imp()->keyboardResources;
 }
 
-RPointer *GSeat::pointerResource() const
+const std::list<RPointer *> &GSeat::pointerResources() const
 {
-    return imp()->rPointer;
+    return imp()->pointerResources;
 }
 
-RTouch *GSeat::touchResource() const
+const std::list<RTouch *> &GSeat::touchResources() const
 {
-    return imp()->rTouch;
+    return imp()->touchResources;
 }
 
 RDataDevice *GSeat::dataDeviceResource() const

@@ -17,9 +17,9 @@ public:
 
     LEvent *findSerialEventMatch(UInt32 serial) const;
 
-    RKeyboard *keyboardResource() const;
-    RPointer *pointerResource() const;
-    RTouch *touchResource() const;
+    const std::list<RKeyboard*> &keyboardResources() const;
+    const std::list<RPointer*> &pointerResources() const;
+    const std::list<RTouch*> &touchResources() const;
     RDataDevice *dataDeviceResource() const;
 
     // Since 1

@@ -12,6 +12,7 @@ LPRIVATE_CLASS(RKeyboard)
 #endif
 
     GSeat *gSeat;
+    std::list<RKeyboard*>::iterator seatLink;
     SerialEvents serialEvents;
 };
 

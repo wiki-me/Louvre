@@ -33,10 +33,11 @@ RKeyboard::RKeyboard
     LPRIVATE_INIT_UNIQUE(RKeyboard)
 {
     imp()->gSeat = gSeat;
+    gSeat->imp()->keyboardResources.push_back(this);
+    imp()->seatLink = std::prev(gSeat->imp()->keyboardResources.end());
     LKeyboard *lKeyboard = seat()->keyboard();
     repeatInfo(lKeyboard->repeatRate(), lKeyboard->repeatDelay());
     keymap(lKeyboard->keymapFormat(), lKeyboard->keymapFd(), lKeyboard->keymapSize());
-    gSeat->imp()->rKeyboard = this;
 }
 
 RKeyboard::~RKeyboard()
@@ -45,7 +46,7 @@ RKeyboard::~RKeyboard()
         seat()->keyboard()->setGrabbingSurface(nullptr, nullptr);
 
     if (seatGlobal())
-        seatGlobal()->imp()->rKeyboard = nullptr;
+        seatGlobal()->imp()->keyboardResources.erase(imp()->seatLink);
 }
 
 GSeat *RKeyboard::seatGlobal() const

@@ -72,6 +72,8 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
         return;
     }
 
+    event = event->copy();
+
     dndManager->imp()->dropped = false;
 
     // Removes pevious data source if any

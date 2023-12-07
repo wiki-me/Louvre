@@ -108,7 +108,7 @@ public:
      *
      * @return `true` if the backend is successfully loaded, `false` otherwise.
      */
-    bool loadGraphicBackend(const char *path);
+    bool loadGraphicBackend(const std::string &path);
 
     /**
      * @brief Checks if the graphic backend is initialized.
@@ -132,7 +132,7 @@ public:
      *
      * @return `true` if the backend is successfully loaded, `false` otherwise.
      */
-    bool loadInputBackend(const char *path);
+    bool loadInputBackend(const std::string &path);
 
     /**
      * @brief Checks if the input backend is initialized.

@@ -26,13 +26,14 @@ RTouch::RTouch
     LPRIVATE_INIT_UNIQUE(RTouch)
 {
     imp()->gSeat = gSeat;
-    gSeat->imp()->rTouch = this;
+    gSeat->imp()->touchResources.push_back(this);
+    imp()->seatLink = std::prev(gSeat->imp()->touchResources.end());
 }
 
 RTouch::~RTouch()
 {
     if (seatGlobal())
-        seatGlobal()->imp()->rTouch = nullptr;
+        seatGlobal()->imp()->touchResources.erase(imp()->seatLink);
 }
 
 GSeat *RTouch::seatGlobal() const

@@ -61,14 +61,14 @@ bool LCompositor::isInputBackendInitialized() const
     return imp()->isInputBackendInitialized;
 }
 
-bool LCompositor::loadGraphicBackend(const char *path)
+bool LCompositor::loadGraphicBackend(const std::string &path)
 {
-    return imp()->loadGraphicBackend(path);
+    return imp()->loadGraphicBackend(path.c_str());
 }
 
-bool LCompositor::loadInputBackend(const char *path)
+bool LCompositor::loadInputBackend(const std::string &path)
 {
-    return imp()->loadInputBackend(path);
+    return imp()->loadInputBackend(path.c_str());
 }
 
 LCompositor::CompositorState LCompositor::state() const

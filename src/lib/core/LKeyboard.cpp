@@ -171,9 +171,9 @@ bool LKeyboard::setKeymap(const char *rules, const char *model, const char *layo
     imp()->keymapFormat = WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1;
 
     for (LClient *c : compositor()->clients())
-        for (Protocols::Wayland::GSeat *s : c->seatGlobals())
-            if (s->keyboardResource())
-                s->keyboardResource()->keymap(keymapFormat(), keymapFd(), keymapSize());
+        for (GSeat *s : c->seatGlobals())
+            for (RKeyboard *k : s->keyboardResources())
+                k->keymap(keymapFormat(), keymapFd(), keymapSize());
 
     return true;
 
@@ -214,9 +214,9 @@ bool LKeyboard::setKeymap(const char *rules, const char *model, const char *layo
     imp()->keymapFormat = WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP;
 
     for (LClient *c : compositor()->clients())
-        for (Protocols::Wayland::GSeat *s : c->seatGlobals())
-            if (s->keyboardResource())
-                s->keyboardResource()->keymap(keymapFormat(), keymapFd(), keymapSize());
+        for (GSeat *s : c->seatGlobals())
+            for (RKeyboard *k : s->keyboardResources())
+                k->keymap(keymapFormat(), keymapFd(), keymapSize());
 
     return false;
 }
@@ -263,11 +263,11 @@ void LKeyboard::setFocus(LSurface *surface)
             {
                 LKeyboardLeaveEvent leaveEvent;
 
-                for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+                for (GSeat *s : focus()->client()->seatGlobals())
                 {
-                    if (s->keyboardResource())
+                    for (RKeyboard *k : s->keyboardResources())
                     {
-                        s->keyboardResource()->leave(leaveEvent, focus()->surfaceResource());
+                        k->leave(leaveEvent, focus()->surfaceResource());
                         break;
                     }
                 }
@@ -294,11 +294,11 @@ void LKeyboard::setFocus(LSurface *surface)
 
             for (Wayland::GSeat *s : surface->client()->seatGlobals())
             {
-                if (s->keyboardResource())
+                for (RKeyboard *k : s->keyboardResources())
                 {
                     imp()->keyboardFocusSurface = surface;
-                    s->keyboardResource()->enter(enterEvent, surface->surfaceResource(), &keys);
-                    s->keyboardResource()->modifiers(modifiersEvent);
+                    k->enter(enterEvent, surface->surfaceResource(), &keys);
+                    k->modifiers(modifiersEvent);
                 }
             }
 
@@ -312,9 +312,9 @@ void LKeyboard::setFocus(LSurface *surface)
         {
             LKeyboardLeaveEvent leaveEvent;
 
-            for (Wayland::GSeat *s : focus()->client()->seatGlobals())
-                if (s->keyboardResource())
-                    s->keyboardResource()->leave(leaveEvent, focus()->surfaceResource());
+            for (GSeat *s : focus()->client()->seatGlobals())
+                for (RKeyboard *k : s->keyboardResources())
+                    k->leave(leaveEvent, focus()->surfaceResource());
         }
         imp()->keyboardFocusSurface = nullptr;
     }
@@ -342,12 +342,12 @@ void LKeyboard::sendKeyEvent(const LKeyboardKeyEvent &event)
 
     for (Wayland::GSeat *s : focus()->client()->seatGlobals())
     {
-        if (s->keyboardResource())
+        for (RKeyboard *k : s->keyboardResources())
         {
-            s->keyboardResource()->key(event);
+            k->key(event);
 
             if (imp()->modifiersChanged)
-                s->keyboardResource()->modifiers(modifiersEvent);
+                k->modifiers(modifiersEvent);
         }
     }
 }
@@ -416,9 +416,7 @@ void LKeyboard::setRepeatInfo(Int32 rate, Int32 msDelay)
         imp()->repeatDelay = msDelay;
 
     for (LClient *c : compositor()->clients())
-    {
-        for (Protocols::Wayland::GSeat *s : c->seatGlobals())
-            if (s->keyboardResource())
-                s->keyboardResource()->repeatInfo(rate, msDelay);
-    }
+        for (GSeat *s : c->seatGlobals())
+            for (RKeyboard *k : s->keyboardResources())
+                k->repeatInfo(rate, msDelay);
 }
