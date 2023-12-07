@@ -93,6 +93,11 @@ const std::list<PointerGestures::GPointerGestures *> &LClient::pointerGesturesGl
     return imp()->pointerGesturesGlobals;
 }
 
+const std::list<RelativePointer::GRelativePointerManager *> &LClient::relativePointerManagerGlobals() const
+{
+    return imp()->relativePointerManagerGlobals;
+}
+
 const list<XdgDecoration::GXdgDecorationManager *> &LClient::xdgDecorationManagerGlobals() const
 {
     return imp()->xdgDecorationManagerGlobals;

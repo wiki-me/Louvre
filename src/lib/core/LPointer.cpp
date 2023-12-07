@@ -2,6 +2,7 @@
 #include <protocols/PointerGestures/RGestureSwipe.h>
 #include <protocols/PointerGestures/RGesturePinch.h>
 #include <protocols/PointerGestures/RGestureHold.h>
+#include <protocols/RelativePointer/RRelativePointer.h>
 #include <protocols/Wayland/GSeat.h>
 #include <private/LDataDevicePrivate.h>
 #include <private/LClientPrivate.h>
@@ -108,6 +109,9 @@ void LPointer::sendMoveEvent(const LPointerMoveEvent &event)
         {
             p->motion(event);
             p->frame();
+
+            if (p->relativePointerResource())
+                p->relativePointerResource()->relative_motion(event);
         }
     }
 }

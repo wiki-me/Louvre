@@ -28,6 +28,8 @@ public:
     Protocols::PointerGestures::RGesturePinch *gesturePinchResource() const;
     Protocols::PointerGestures::RGestureHold *gestureHoldResource() const;
 
+    Protocols::RelativePointer::RRelativePointer *relativePointerResource() const;
+
     // Since 1
     bool enter(const LPointerEnterEvent &event, RSurface *rSurface);
     bool leave(const LPointerLeaveEvent &event, RSurface *rSurface);

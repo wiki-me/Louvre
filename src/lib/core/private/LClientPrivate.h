@@ -29,6 +29,7 @@ LPRIVATE_CLASS(LClient)
     std::list<PresentationTime::GPresentation*> presentationTimeGlobals;
     std::list<LinuxDMABuf::GLinuxDMABuf*> linuxDMABufGlobals;
     std::list<PointerGestures::GPointerGestures*> pointerGesturesGlobals;
+    std::list<RelativePointer::GRelativePointerManager*> relativePointerManagerGlobals;
 
     // Singleton Globals
     Wayland::GDataDeviceManager *dataDeviceManagerGlobal = nullptr;

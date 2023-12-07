@@ -179,6 +179,13 @@ public:
      */
     const std::list<Protocols::PointerGestures::GPointerGestures*> &pointerGesturesGlobals() const;
 
+    /**
+     * List of resources generated when the client binds to the
+     * [zwp_relative_pointer_manager_v1](https://wayland.app/protocols/relative-pointer-unstable-v1#zwp_relative_pointer_manager_v1) global
+     * of the RelativePointer protocol.
+     */
+    const std::list<Protocols::RelativePointer::GRelativePointerManager*> &relativePointerManagerGlobals() const;
+
     LPRIVATE_IMP_UNIQUE(LClient)
 };
 

@@ -1,6 +1,7 @@
 #include <protocols/PointerGestures/private/RGestureSwipePrivate.h>
 #include <protocols/PointerGestures/private/RGesturePinchPrivate.h>
 #include <protocols/PointerGestures/private/RGestureHoldPrivate.h>
+#include <protocols/RelativePointer/private/RRelativePointerPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/Wayland/private/GSeatPrivate.h>
 #include <LPointerMoveEvent.h>
@@ -47,6 +48,9 @@ RPointer::~RPointer()
 
     if (gestureHoldResource())
         gestureHoldResource()->imp()->rPointer = nullptr;
+
+    if (relativePointerResource())
+        relativePointerResource()->imp()->rPointer = nullptr;
 }
 
 GSeat *RPointer::seatGlobal() const
@@ -72,6 +76,11 @@ RGesturePinch *RPointer::gesturePinchResource() const
 RGestureHold *RPointer::gestureHoldResource() const
 {
     return imp()->rGestureHold;
+}
+
+RRelativePointer *RPointer::relativePointerResource() const
+{
+    return imp()->rRelativePointer;
 }
 
 bool RPointer::enter(const LPointerEnterEvent &event, RSurface *rSurface)

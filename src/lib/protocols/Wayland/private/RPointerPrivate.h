@@ -5,6 +5,7 @@
 
 using namespace Louvre::Protocols::Wayland;
 using namespace Louvre::Protocols::PointerGestures;
+using namespace Louvre::Protocols::RelativePointer;
 
 LPRIVATE_CLASS(RPointer)
     static void resource_destroy(wl_resource *resource);
@@ -19,6 +20,8 @@ LPRIVATE_CLASS(RPointer)
     RGestureSwipe *rGestureSwipe = nullptr;
     RGesturePinch *rGesturePinch = nullptr;
     RGestureHold *rGestureHold = nullptr;
+
+    RRelativePointer *rRelativePointer = nullptr;
 
     SerialEvents serialEvents;
 };

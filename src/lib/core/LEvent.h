@@ -73,7 +73,7 @@ public:
         m_us = us;
     }
 
-    inline UInt32 us() const
+    inline UInt64 us() const
     {
         return m_us;
     }
