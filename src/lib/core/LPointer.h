@@ -196,6 +196,17 @@ public:
      */
     void sendScrollEvent(const LPointerScrollEvent &event);
 
+    void sendSwipeBeginEvent(const LPointerSwipeBeginEvent &event);
+    void sendSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event);
+    void sendSwipeEndEvent(const LPointerSwipeEndEvent &event);
+
+    void sendPinchBeginEvent(const LPointerPinchBeginEvent &event);
+    void sendPinchUpdateEvent(const LPointerPinchUpdateEvent &event);
+    void sendPinchEndEvent(const LPointerPinchEndEvent &event);
+
+    void sendHoldBeginEvent(const LPointerHoldBeginEvent &event);
+    void sendHoldEndEvent(const LPointerHoldEndEvent &event);
+
 ///@}
 
     /**

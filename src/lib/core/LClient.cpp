@@ -90,7 +90,7 @@ const list<LinuxDMABuf::GLinuxDMABuf *> &LClient::linuxDMABufGlobals() const
 
 const std::list<PointerGestures::GPointerGestures *> &LClient::pointerGesturesGlobals() const
 {
-
+    return imp()->pointerGesturesGlobals;
 }
 
 const list<XdgDecoration::GXdgDecorationManager *> &LClient::xdgDecorationManagerGlobals() const

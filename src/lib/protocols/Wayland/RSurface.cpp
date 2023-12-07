@@ -97,11 +97,11 @@ RSurface::~RSurface()
     }
 
     // Clear keyboard focus
-    if (seat()->keyboard()->focus() == lSurface)
+    if (lSurface->hasKeyboardFocus())
         seat()->keyboard()->setFocus(nullptr);
 
     // Clear pointer focus
-    if (seat()->pointer()->imp()->pointerFocusSurface == lSurface)
+    if (lSurface->hasPointerFocus())
         seat()->pointer()->setFocus(nullptr);
 
     // Clear touch points

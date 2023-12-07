@@ -31,6 +31,11 @@ LPRIVATE_CLASS(LPointer)
     Int32 discreteXprev;
     Int32 discreteYprev;
 
+    // To check if a surface requires an end event before losing focus
+    bool pendingSwipeEnd = false;
+    bool pendingPinchEnd = false;
+    bool pendingHoldEnd = false;
+
     // Cursor
     LCursorRole *lastCursorRequest = nullptr;
     bool lastCursorRequestWasHide = false;

@@ -1,4 +1,7 @@
 #include <protocols/Wayland/private/RPointerPrivate.h>
+#include <protocols/PointerGestures/RGestureSwipe.h>
+#include <protocols/PointerGestures/RGesturePinch.h>
+#include <protocols/PointerGestures/RGestureHold.h>
 #include <protocols/Wayland/GSeat.h>
 #include <private/LDataDevicePrivate.h>
 #include <private/LClientPrivate.h>
@@ -52,6 +55,15 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
         if (focus() == surface)
             return;
 
+        if (imp()->pendingSwipeEnd)
+            sendSwipeEndEvent(LPointerSwipeEndEvent());
+
+        if (imp()->pendingPinchEnd)
+            sendPinchEndEvent(LPointerPinchEndEvent());
+
+        if (imp()->pendingHoldEnd)
+            sendHoldEndEvent(LPointerHoldEndEvent());
+
         imp()->sendLeaveEvent(focus());
 
         LPointerEnterEvent enterEvent;
@@ -72,6 +84,15 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
     else
     {
         // Remove focus from focused surface
+        if (imp()->pendingSwipeEnd)
+            sendSwipeEndEvent(LPointerSwipeEndEvent());
+
+        if (imp()->pendingPinchEnd)
+            sendPinchEndEvent(LPointerPinchEndEvent());
+
+        if (imp()->pendingHoldEnd)
+            sendHoldEndEvent(LPointerHoldEndEvent());
+
         imp()->sendLeaveEvent(focus());
         imp()->pointerFocusSurface = nullptr;
     }
@@ -184,6 +205,107 @@ void LPointer::sendScrollEvent(const LPointerScrollEvent &event)
 
     imp()->axisXprev = event.axes().x();
     imp()->axisYprev = event.axes().y();
+}
+
+void LPointer::sendSwipeBeginEvent(const LPointerSwipeBeginEvent &event)
+{
+    if (!focus() || imp()->pendingSwipeEnd)
+        return;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+    {
+        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
+        {
+            imp()->pendingSwipeEnd = true;
+            s->pointerResource()->gestureSwipeResource()->begin(event, focus()->surfaceResource());
+        }
+    }
+}
+
+void LPointer::sendSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event)
+{
+    if (!focus() || !imp()->pendingSwipeEnd)
+        return;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
+            s->pointerResource()->gestureSwipeResource()->update(event);
+}
+
+void LPointer::sendSwipeEndEvent(const LPointerSwipeEndEvent &event)
+{
+    if (!focus() || !imp()->pendingSwipeEnd)
+        return;
+
+    imp()->pendingSwipeEnd = false;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+        if (s->pointerResource() && s->pointerResource()->gestureSwipeResource())
+            s->pointerResource()->gestureSwipeResource()->end(event);
+}
+
+void LPointer::sendPinchBeginEvent(const LPointerPinchBeginEvent &event)
+{
+    if (!focus() || imp()->pendingPinchEnd)
+        return;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+    {
+        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
+        {
+            imp()->pendingPinchEnd = true;
+            s->pointerResource()->gesturePinchResource()->begin(event, focus()->surfaceResource());
+        }
+    }
+}
+
+void LPointer::sendPinchUpdateEvent(const LPointerPinchUpdateEvent &event)
+{
+    if (!focus() || !imp()->pendingPinchEnd)
+        return;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
+            s->pointerResource()->gesturePinchResource()->update(event);
+}
+
+void LPointer::sendPinchEndEvent(const LPointerPinchEndEvent &event)
+{
+    if (!focus() || !imp()->pendingPinchEnd)
+        return;
+
+    imp()->pendingPinchEnd = false;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+        if (s->pointerResource() && s->pointerResource()->gesturePinchResource())
+            s->pointerResource()->gesturePinchResource()->end(event);
+}
+
+void LPointer::sendHoldBeginEvent(const LPointerHoldBeginEvent &event)
+{
+    if (!focus() || imp()->pendingHoldEnd)
+        return;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+    {
+        if (s->pointerResource() && s->pointerResource()->gestureHoldResource())
+        {
+            imp()->pendingHoldEnd = true;
+            s->pointerResource()->gestureHoldResource()->begin(event, focus()->surfaceResource());
+        }
+    }
+}
+
+void LPointer::sendHoldEndEvent(const LPointerHoldEndEvent &event)
+{
+    if (!focus() || !imp()->pendingHoldEnd)
+        return;
+
+    imp()->pendingHoldEnd = false;
+
+    for (Wayland::GSeat *s : focus()->client()->seatGlobals())
+        if (s->pointerResource() && s->pointerResource()->gestureHoldResource())
+            s->pointerResource()->gestureHoldResource()->end(event);
 }
 
 LSurface *LPointer::surfaceAt(const LPoint &point)
