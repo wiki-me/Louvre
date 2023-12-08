@@ -3,6 +3,7 @@
 #include <LTexture.h>
 #include <LCursor.h>
 #include <unistd.h>
+#include <LLauncher.h>
 #include "Global.h"
 #include "App.h"
 #include "DockApp.h"
@@ -121,10 +122,7 @@ void App::clicked()
 
         launchAnimation->start(true);
 
-        pid = fork();
-
-        if (pid == 0)
-            exit(system(exec));
+        pid = LLauncher::launch(exec);
 
         state = Launching;
     }

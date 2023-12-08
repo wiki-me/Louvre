@@ -6,6 +6,7 @@
 #include <LClient.h>
 #include <LCursor.h>
 #include <LOutput.h>
+#include <LLauncher.h>
 #include <unistd.h>
 
 using namespace Louvre;
@@ -24,10 +25,7 @@ void LKeyboard::keyEvent(const LKeyboardKeyEvent &event)
     {
         // Launches weston-terminal
         if (event.keyCode() == KEY_F1 && !mods)
-        {
-            if (fork() == 0)
-                exit(system("weston-terminal"));
-        }
+            LLauncher::launch("weston-terminal");
 
         // Terminates client connection
         else if (L_CTRL && (sym == XKB_KEY_q || sym == XKB_KEY_Q))

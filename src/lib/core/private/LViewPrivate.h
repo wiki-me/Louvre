@@ -1,6 +1,7 @@
 #ifndef LVIEWPRIVATE_H
 #define LVIEWPRIVATE_H
 
+#include <private/LScenePrivate.h>
 #include <LRegion.h>
 #include <LView.h>
 #include <LRect.h>
@@ -35,7 +36,10 @@ LPRIVATE_CLASS(LView)
         ParentOpacity           = 1 << 14,
         ForceRequestNextFrame   = 1 << 15,
         PointerIsOver           = 1 << 16,
-        BlockPointer            = 1 << 17
+        BlockPointer            = 1 << 17,
+
+        KeyboardEvents          = 1 << 18,
+        IsScene                 = 1 << 19
     };
 
     // This is used for detecting changes on a view since the last time it was drawn on a specific output
@@ -75,6 +79,7 @@ LPRIVATE_CLASS(LView)
 
     UInt32 type;
     LView *parent = nullptr;
+    LView *view = nullptr;
     std::list<LView*>children;
     GLenum sFactor = GL_SRC_ALPHA;
     GLenum dFactor = GL_ONE_MINUS_SRC_ALPHA;
@@ -87,9 +92,13 @@ LPRIVATE_CLASS(LView)
     LPointF tmpPointF;
 
     std::map<std::thread::id,ViewThreadData>threadsMap;
-    LScene *scene = nullptr;
+    LScene *currentScene = nullptr;
     std::list<LView*>::iterator parentLink;
     std::list<LView*>::iterator compositorLink;
+
+    std::list<LView*>::iterator pointerLink;
+    std::list<LView*>::iterator keyboardLink;
+    std::list<LView*>::iterator touchLink;
 
     void removeThread(Louvre::LView *view, std::thread::id thread);
     void markAsChangedOrder(bool includeChildren = true);
@@ -124,6 +133,33 @@ LPRIVATE_CLASS(LView)
 
         for (LView *child : view->imp()->children)
             removeFlagWithChildren(child, flag);
+    }
+
+    inline void sceneChanged(LScene *newScene)
+    {
+        if (currentScene)
+        {
+            if (hasFlag(KeyboardEvents))
+            {
+                currentScene->imp()->keyboardFocus.erase(keyboardLink);
+                currentScene->imp()->keyboardListChanged = true;
+            }
+        }
+
+        if (newScene)
+        {
+            if (hasFlag(KeyboardEvents))
+            {
+                newScene->imp()->keyboardFocus.push_back(view);
+                keyboardLink = std::prev(newScene->imp()->keyboardFocus.end());
+                newScene->imp()->keyboardListChanged = true;
+            }
+        }
+
+        currentScene = newScene;
+
+        for (LView *child : children)
+            child->imp()->sceneChanged(newScene);
     }
 };
 

@@ -1,9 +1,12 @@
 #include "Compositor.h"
 #include <LLog.h>
 #include <unistd.h>
+#include <LLauncher.h>
 
 int main(int, char *[])
 {
+    LLauncher::init();
+
     setenv("WAYLAND_DISPLAY", "wayland-0", 0);
     setenv("MOZ_ENABLE_WAYLAND", "1", 1);
     setenv("QT_QPA_PLATFORM", "wayland-egl", 1);

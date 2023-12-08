@@ -202,8 +202,8 @@ void RDataDevice::RDataDevicePrivate::set_selection(wl_client *client, wl_resour
             {
                 s.tmp = tmpfile();
                 fd = fileno(s.tmp);
-                fcntl(fd, F_SETFD, FD_CLOEXEC);
-                rDataSource->send(s.mimeType, fileno(s.tmp));
+                //fcntl(fd, F_SETFD, FD_CLOEXEC);
+                rDataSource->send(s.mimeType, fd);
             }
         }
 

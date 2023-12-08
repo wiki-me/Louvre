@@ -12,6 +12,7 @@
 #include <LCompositor.h>
 #include <LToplevelResizeSession.h>
 #include <LToplevelMoveSession.h>
+#include <LLauncher.h>
 
 #include <unistd.h>
 
@@ -21,10 +22,16 @@ LScene::LScene() : LPRIVATE_INIT_UNIQUE(LScene)
 {
     imp()->view.setPos(0);
     LView *baseView = &imp()->view;
-    baseView->imp()->scene = this;
+    baseView->imp()->currentScene = this;
+    baseView->imp()->setFlag(LVS::IsScene, true);
 }
 
 LScene::~LScene() {}
+
+const std::list<LView *> &LScene::keyboardFocus() const
+{
+    return imp()->keyboardFocus;
+}
 
 void LScene::handleInitializeGL(LOutput *output)
 {
@@ -347,10 +354,9 @@ void LScene::handleKeyEvent(const LKeyboardKeyEvent &event)
         return;
 
     imp()->currentKeyboardKeyEvent = event;
-    imp()->listChanged = false;
+    imp()->keyboardListChanged = false;
     imp()->handlingKeyEvent = true;
-    LView::LViewPrivate::removeFlagWithChildren(mainView(), LVS::KeyDone);
-    imp()->handleKeyEvent(mainView());
+    imp()->handleKeyEvent();
     imp()->handlingKeyEvent = false;
 
     if (handleWaylandKeyboardEventsEnabled())
@@ -422,8 +428,7 @@ void LScene::handleKeyEvent(const LKeyboardKeyEvent &event)
     {
         // Launches weston-terminal
         if (imp()->currentKeyboardKeyEvent.keyCode() == KEY_F1 && !mods)
-            if (fork() == 0)
-                exit(system("weston-terminal"));
+            LLauncher::launch("weston-terminal");
 
         // CTRL sets Copy as the preferred action in drag & drop sesión
         if (L_CTRL)

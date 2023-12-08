@@ -96,6 +96,12 @@
 class Louvre::LView : public LObject
 {
 public:
+
+    // Disabled by default
+    void enableKeyboardEvents(bool enabled);
+    bool keyboardEventsEnabled() const;
+
+
     /**
      * @brief Construct an LView object.
      *

@@ -21,12 +21,17 @@ LPRIVATE_CLASS(LScene)
     bool pointerIsBlocked = false;
 
     bool listChanged = false;
+    bool keyboardListChanged = false;
 
     // Prevent recursive calls
     bool handlingPointerMove = false;
     bool handlingPointerButton = false;
     bool handlingPointerScrollEvent = false;
     bool handlingKeyEvent = false;
+
+    std::list<LView*> pointerFocus;
+    std::list<LView*> keyboardFocus;
+    std::list<LView*> touchFocus;
 
     LView *pointerMoveEventFirstView;
     LPointF pointerMoveEventOutLocalPos;
@@ -97,7 +102,7 @@ LPRIVATE_CLASS(LScene)
     bool handlePointerMove(LView *view);
     bool handlePointerButton(LView *view);
     bool handlePointerScrollEvent(LView *view);
-    bool handleKeyEvent(LView *view);
+    void handleKeyEvent();
 };
 
 #endif // LSCENEPRIVATE_H

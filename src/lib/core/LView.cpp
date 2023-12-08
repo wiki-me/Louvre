@@ -10,9 +10,36 @@ using namespace Louvre;
 
 using LVS = LView::LViewPrivate::LViewState;
 
+void LView::enableKeyboardEvents(bool enabled)
+{
+    if (enabled == keyboardEventsEnabled())
+        return;
+
+    imp()->setFlag(LVS::KeyboardEvents, enabled);
+
+    if (scene())
+    {
+        if (enabled)
+        {
+            scene()->imp()->keyboardFocus.push_back(this);
+            imp()->keyboardLink = std::prev(scene()->imp()->keyboardFocus.end());
+        }
+        else
+            scene()->imp()->keyboardFocus.erase(imp()->keyboardLink);
+
+        scene()->imp()->keyboardListChanged = true;
+    }
+}
+
+bool LView::keyboardEventsEnabled() const
+{
+    return imp()->hasFlag(LVS::KeyboardEvents);
+}
+
 LView::LView(UInt32 type, LView *parent) : LPRIVATE_INIT_UNIQUE(LView)
 {
     imp()->type = type;
+    imp()->view = this;
     compositor()->imp()->views.push_back(this);
     imp()->compositorLink = std::prev(compositor()->imp()->views.end());
     setParent(parent);
@@ -30,14 +57,7 @@ LView::~LView()
 
 LScene *LView::scene() const
 {
-    // Only the LScene mainView has this variable assigned
-    if (imp()->scene)
-        return imp()->scene;
-
-    if (parent())
-        return parent()->scene();
-
-    return nullptr;
+    return imp()->currentScene;
 }
 
 LSceneView *LView::parentSceneView() const
@@ -78,10 +98,8 @@ void LView::setParent(LView *view)
     if (parent() == view || view == this)
         return;
 
-    LScene *s = scene();
-
-    if (s)
-        s->imp()->listChanged = true;
+    if (scene())
+        scene()->imp()->listChanged = true;
 
     if (parent())
         parent()->imp()->children.erase(imp()->parentLink);
@@ -90,10 +108,16 @@ void LView::setParent(LView *view)
     {
         view->imp()->children.push_back(this);
         imp()->parentLink = std::prev(view->imp()->children.end());
+
+        if (view->scene() != scene())
+            imp()->sceneChanged(view->scene());
     }
     else
     {
         imp()->damageScene(parentSceneView());
+
+        if (scene() != nullptr)
+            imp()->sceneChanged(nullptr);
     }
 
     imp()->markAsChangedOrder();

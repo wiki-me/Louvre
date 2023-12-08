@@ -102,6 +102,8 @@ public:
      */
     ~LScene();
 
+    const std::list<LView*> &keyboardFocus() const;
+
     /**
      * @brief Handle the OpenGL initialization for an LOutput.
      *

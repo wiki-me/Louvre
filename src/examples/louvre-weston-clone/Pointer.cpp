@@ -10,10 +10,10 @@
 #include <LSeat.h>
 #include <LTime.h>
 #include <LCursor.h>
+#include <LLauncher.h>
 #include <cstdio>
 #include <math.h>
 #include <unistd.h>
-
 
 Pointer::Pointer(Params *params) : LPointer(params) {}
 
@@ -143,10 +143,7 @@ void Pointer::pointerButtonEvent(const LPointerButtonEvent &event)
         seat()->dndManager()->drop();
 
         if (pointerOverTerminalIcon)
-        {
-            if (fork() == 0)
-                exit(system("weston-terminal"));
-        }
+            LLauncher::launch("weston-terminal");
     }
 
     if (!focus() && !pointerOverTerminalIcon)

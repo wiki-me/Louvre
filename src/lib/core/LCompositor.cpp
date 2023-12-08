@@ -148,7 +148,7 @@ Int32 LCompositor::processLoop(Int32 msTimeout)
         return 0;
 
     if (!seat()->enabled())
-        msTimeout = 1000;
+        msTimeout = 100;
 
     epoll_event events[3];
 
@@ -167,6 +167,9 @@ Int32 LCompositor::processLoop(Int32 msTimeout)
      * session and a new DRM connector is plugged in. */
 
     seat()->imp()->dispatchSeat();
+
+    if (!seat()->enabled())
+        imp()->inputBackend->forceUpdate();
 
     for (Int32 i = 0; i < nEvents; i++)
     {
@@ -194,8 +197,11 @@ Int32 LCompositor::processLoop(Int32 msTimeout)
         }
     }
 
-    imp()->destroyPendingRenderBuffers(nullptr);
-    imp()->destroyNativeTextures(imp()->nativeTexturesToDestroy);
+    if (seat()->enabled())
+    {
+        imp()->destroyPendingRenderBuffers(nullptr);
+        imp()->destroyNativeTextures(imp()->nativeTexturesToDestroy);
+    }
 
     if (state() == CompositorState::Uninitializing)
     {

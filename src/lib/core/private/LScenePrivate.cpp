@@ -220,30 +220,25 @@ bool LScene::LScenePrivate::handlePointerScrollEvent(LView *view)
     return false;
 }
 
-bool LScene::LScenePrivate::handleKeyEvent(LView *view)
+void LScene::LScenePrivate::handleKeyEvent()
 {
-    if (listChanged)
-        goto listChangedErr;
+    for (LView *view : keyboardFocus)
+        view->imp()->removeFlag(LVS::KeyDone);
 
-    for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handleKeyEvent(*it))
-            return false;
+    retry:
 
-    if (view->imp()->state & LVS::KeyDone)
-        return true;
+    for (LView *view : keyboardFocus)
+    {
+        if (view->imp()->hasFlag(LVS::KeyDone))
+            continue;
 
-    view->imp()->state |= LVS::KeyDone;
+        view->imp()->addFlag(LVS::KeyDone);
+        view->keyEvent(currentKeyboardKeyEvent);
 
-    view->keyEvent(currentKeyboardKeyEvent);
-
-    if (listChanged)
-        goto listChangedErr;
-
-    return true;
-
-    // If a list was modified, start again, serials are used to prevent resend events
-    listChangedErr:
-    listChanged = false;
-    handleKeyEvent(&this->view);
-    return false;
+        if (keyboardListChanged)
+        {
+            keyboardListChanged = false;
+            goto retry;
+        }
+    }
 }

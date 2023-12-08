@@ -6,6 +6,8 @@
 #include <LRenderBuffer.h>
 #include <LOutput.h>
 
+using LVS = LView::LViewPrivate::LViewState;
+
 LSceneView::LSceneView(LFramebuffer *framebuffer, LView *parent) :
     LView(Scene, parent),
     LPRIVATE_INIT_UNIQUE(LSceneView)
@@ -78,7 +80,7 @@ void LSceneView::addDamage(LOutput *output, const LRegion &damage)
 bool LSceneView::isLScene() const
 {
     LView *nativeView = (LSceneView*)this;
-    return nativeView->imp()->scene != nullptr;
+    return nativeView->imp()->hasFlag(LVS::IsScene);
 }
 
 void LSceneView::render(const LRegion *exclude)

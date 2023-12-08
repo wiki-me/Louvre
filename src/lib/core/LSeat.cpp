@@ -183,8 +183,8 @@ Int32 LSeat::openDevice(const char *path, Int32 *fd)
 
     if (id == -1)
         LLog::error("[LSeat::openDevice] Failed to open device %s, id %d, %fd.", path, id, fd);
-    else
-        fcntl(*fd, F_SETFD, FD_CLOEXEC);
+    //else
+        //fcntl(*fd, F_SETFD, FD_CLOEXEC);
 
     return id;
 }
