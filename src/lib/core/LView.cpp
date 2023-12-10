@@ -9,6 +9,7 @@
 using namespace Louvre;
 
 using LVS = LView::LViewPrivate::LViewState;
+using LVES = LView::LViewPrivate::LViewEventsState;
 
 void LView::enableKeyboardEvents(bool enabled)
 {
@@ -34,6 +35,68 @@ void LView::enableKeyboardEvents(bool enabled)
 bool LView::keyboardEventsEnabled() const
 {
     return imp()->hasFlag(LVS::KeyboardEvents);
+}
+
+bool LView::pointerEventsEnabled() const
+{
+    return imp()->hasFlag(LVS::PointerEvents);
+}
+
+void LView::enablePointerEvents(bool enabled)
+{
+    if (enabled == pointerEventsEnabled())
+        return;
+
+    imp()->setFlag(LVS::PointerEvents, enabled);
+
+    if (!enabled)
+    {
+        if (imp()->hasEventFlag(LVES::PointerIsOver))
+        {
+            if (scene())
+            {
+                if (imp()->hasEventFlag(LVES::PendingSwipeEnd))
+                {
+                    imp()->removeEventFlag(LVES::PendingSwipeEnd);
+                    scene()->imp()->pointerSwipeEndEvent.setCancelled(true);
+                    scene()->imp()->pointerSwipeEndEvent.setMs(scene()->imp()->currentPointerMoveEvent.ms());
+                    scene()->imp()->pointerSwipeEndEvent.setUs(scene()->imp()->currentPointerMoveEvent.us());
+                    scene()->imp()->pointerSwipeEndEvent.setSerial(LTime::nextSerial());
+                    pointerSwipeEndEvent(scene()->imp()->pointerSwipeEndEvent);
+                }
+
+                if (imp()->hasEventFlag(LVES::PendingPinchEnd))
+                {
+                    imp()->removeEventFlag(LVES::PendingPinchEnd);
+                    scene()->imp()->pointerPinchEndEvent.setCancelled(true);
+                    scene()->imp()->pointerPinchEndEvent.setMs(scene()->imp()->currentPointerMoveEvent.ms());
+                    scene()->imp()->pointerPinchEndEvent.setUs(scene()->imp()->currentPointerMoveEvent.us());
+                    scene()->imp()->pointerPinchEndEvent.setSerial(LTime::nextSerial());
+                    pointerPinchEndEvent(scene()->imp()->pointerPinchEndEvent);
+                }
+
+                if (imp()->hasEventFlag(LVES::PendingHoldEnd))
+                {
+                    imp()->removeEventFlag(LVES::PendingHoldEnd);
+                    scene()->imp()->pointerHoldEndEvent.setCancelled(true);
+                    scene()->imp()->pointerHoldEndEvent.setMs(scene()->imp()->currentPointerMoveEvent.ms());
+                    scene()->imp()->pointerHoldEndEvent.setUs(scene()->imp()->currentPointerMoveEvent.us());
+                    scene()->imp()->pointerHoldEndEvent.setSerial(LTime::nextSerial());
+                    pointerHoldEndEvent(scene()->imp()->pointerHoldEndEvent);
+                }
+
+                scene()->imp()->pointerFocus.erase(imp()->pointerLink);
+                scene()->imp()->pointerListChanged = true;
+            }
+
+            imp()->removeEventFlag(LVES::PointerIsOver);
+        }
+    }
+}
+
+bool LView::hasPointerFocus() const
+{
+    return imp()->hasEventFlag(LVES::PointerIsOver);
 }
 
 LView::LView(UInt32 type, LView *parent) : LPRIVATE_INIT_UNIQUE(LView)
@@ -269,16 +332,6 @@ void LView::enableParentClipping(bool enabled)
     imp()->setFlag(LVS::ParentClipping, enabled);
 }
 
-bool LView::inputEnabled() const
-{
-    return imp()->hasFlag(LVS::Input);
-}
-
-void LView::enableInput(bool enabled)
-{
-    imp()->setFlag(LVS::Input, enabled);
-}
-
 bool LView::scalingEnabled() const
 {
     return imp()->hasFlag(LVS::Scaling);
@@ -423,11 +476,6 @@ const LRGBAF &LView::colorFactor()
     return imp()->colorFactor;
 }
 
-bool LView::pointerIsOver() const
-{
-    return imp()->hasFlag(LVS::PointerIsOver);
-}
-
 void LView::enableBlockPointer(bool enabled)
 {
     imp()->setFlag(LVS::BlockPointer, enabled);
@@ -473,9 +521,17 @@ LBox LView::boundingBox() const
     return box;
 }
 
-void LView::pointerEnterEvent(const LPointerMoveEvent &) {}
+void LView::pointerEnterEvent(const LPointerEnterEvent &) {}
 void LView::pointerMoveEvent(const LPointerMoveEvent &) {}
-void LView::pointerLeaveEvent(const LPointerMoveEvent &) {}
+void LView::pointerLeaveEvent(const LPointerLeaveEvent &) {}
 void LView::pointerButtonEvent(const LPointerButtonEvent &) {}
 void LView::pointerScrollEvent(const LPointerScrollEvent &) {}
+void LView::pointerSwipeBeginEvent(const LPointerSwipeBeginEvent &) {}
+void LView::pointerSwipeUpdateEvent(const LPointerSwipeUpdateEvent &) {}
+void LView::pointerSwipeEndEvent(const LPointerSwipeEndEvent &) {}
+void LView::pointerPinchBeginEvent(const LPointerPinchBeginEvent &) {}
+void LView::pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &) {}
+void LView::pointerPinchEndEvent(const LPointerPinchEndEvent &) {}
+void LView::pointerHoldBeginEvent(const LPointerHoldBeginEvent &) {}
+void LView::pointerHoldEndEvent(const LPointerHoldEndEvent &) {}
 void LView::keyEvent(const LKeyboardKeyEvent &) {}

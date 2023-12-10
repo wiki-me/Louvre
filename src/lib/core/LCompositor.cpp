@@ -179,8 +179,8 @@ Int32 LCompositor::processLoop(Int32 msTimeout)
             if (seat()->enabled())
             {
                 wl_event_loop_dispatch(imp()->eventLoop, 0);
-                flushClients();
                 cursor()->imp()->textureUpdate();
+                flushClients();
             }
         }
         // Event fd

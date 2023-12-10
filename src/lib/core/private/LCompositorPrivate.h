@@ -71,6 +71,9 @@ LPRIVATE_CLASS_NO_COPY(LCompositor)
     // Threads sync
     std::thread::id threadId;
     std::mutex renderMutex;
+    /*
+    std::mutex queueMutex;
+    std::list<std::thread::id> threadsQueue;*/
 
     void lock();
     void unlock();

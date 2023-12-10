@@ -12,7 +12,7 @@ DockApp::DockApp(App *app, Dock *dock) : LTextureView()
     setParent(dock->appsContainer);
     setTexture(app->texture);
     setBufferScale(2);
-    enableInput(true);
+    enablePointerEvents(true);
     enableBlockPointer(false);
 
     dot = new LTextureView(G::dockTextures().dot, this);
@@ -36,7 +36,7 @@ DockApp::~DockApp()
     dock->update();
 }
 
-void DockApp::pointerEnterEvent(const LPointerMoveEvent &)
+void DockApp::pointerEnterEvent(const LPointerEnterEvent &)
 {
     G::tooltip()->setText(app->name);
     G::tooltip()->targetView = this;

@@ -10,6 +10,7 @@
 #include <LLog.h>
 
 using LVS = LView::LViewPrivate::LViewState;
+using LVES = LView::LViewPrivate::LViewEventsState;
 
 LView *LScene::LScenePrivate::viewAt(LView *view, const LPoint &pos)
 {
@@ -23,7 +24,7 @@ LView *LScene::LScenePrivate::viewAt(LView *view, const LPoint &pos)
             return v;
     }
 
-    if (!view->mapped() || !view->inputEnabled())
+    if (!view->mapped() || !view->pointerEventsEnabled())
         return nullptr;
 
     if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
@@ -109,15 +110,16 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
 
     if (!pointerIsBlocked && pointerIsOverView(view, cursor()->pos()))
     {
-        if (!(pointerMoveEventFirstView))
-            pointerMoveEventFirstView = view;
-
-        if (!(view->imp()->state & LVS::PointerMoveDone))
+        if (!view->imp()->hasEventFlag(LVES::PointerMoveDone))
         {
-            view->imp()->state |= LVS::PointerMoveDone;
+            view->imp()->addEventFlag(LVES::PointerMoveDone);
 
-            if (view->pointerIsOver())
+            if (view->imp()->hasEventFlag(LVES::PointerIsOver))
             {
+                pointerFocus.erase(view->imp()->pointerLink);
+                pointerFocus.push_back(view);
+                view->imp()->pointerLink = std::prev(pointerFocus.end());
+                currentPointerMoveEvent.localPos = viewLocalPos(view, cursor()->pos());
                 view->pointerMoveEvent(currentPointerMoveEvent);
 
                 if (listChanged)
@@ -125,8 +127,11 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
             }
             else
             {
-                view->imp()->addFlag(LVS::PointerIsOver);
-                view->pointerEnterEvent(currentPointerMoveEvent);
+                view->imp()->addEventFlag(LVES::PointerIsOver);
+                pointerFocus.push_back(view);
+                view->imp()->pointerLink = std::prev(pointerFocus.end());
+                currentPointerEnterEvent.localPos = viewLocalPos(view, cursor()->pos());
+                view->pointerEnterEvent(currentPointerEnterEvent);
 
                 if (listChanged)
                     goto listChangedErr;
@@ -138,14 +143,46 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
     }
     else
     {
-        if (!(view->imp()->state & LVS::PointerMoveDone))
+        if (!view->imp()->hasEventFlag(LVES::PointerMoveDone))
         {
-            view->imp()->state |= LVS::PointerMoveDone;
+            view->imp()->addEventFlag(LVES::PointerMoveDone);
 
-            if (view->pointerIsOver())
+            if (view->imp()->hasEventFlag(LVES::PointerIsOver))
             {
-                view->imp()->removeFlag(LVS::PointerIsOver);
-                view->pointerLeaveEvent(currentPointerMoveEvent);
+                view->imp()->removeEventFlag(LVES::PointerIsOver);
+
+                if (view->imp()->hasEventFlag(LVES::PendingSwipeEnd))
+                {
+                    view->imp()->removeEventFlag(LVES::PendingSwipeEnd);
+                    pointerSwipeEndEvent.setCancelled(true);
+                    pointerSwipeEndEvent.setMs(currentPointerMoveEvent.ms());
+                    pointerSwipeEndEvent.setUs(currentPointerMoveEvent.us());
+                    pointerSwipeEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerSwipeEndEvent(pointerSwipeEndEvent);
+                }
+
+                if (view->imp()->hasEventFlag(LVES::PendingPinchEnd))
+                {
+                    view->imp()->removeEventFlag(LVES::PendingPinchEnd);
+                    pointerPinchEndEvent.setCancelled(true);
+                    pointerPinchEndEvent.setMs(currentPointerMoveEvent.ms());
+                    pointerPinchEndEvent.setUs(currentPointerMoveEvent.us());
+                    pointerPinchEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerPinchEndEvent(pointerPinchEndEvent);
+                }
+
+                if (view->imp()->hasEventFlag(LVES::PendingHoldEnd))
+                {
+                    view->imp()->removeEventFlag(LVES::PendingHoldEnd);
+                    pointerHoldEndEvent.setCancelled(true);
+                    pointerHoldEndEvent.setMs(currentPointerMoveEvent.ms());
+                    pointerHoldEndEvent.setUs(currentPointerMoveEvent.us());
+                    pointerHoldEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerHoldEndEvent(pointerHoldEndEvent);
+                }
+
+                pointerFocus.erase(view->imp()->pointerLink);
+                view->pointerLeaveEvent(currentPointerLeaveEvent);
 
                 if (listChanged)
                     goto listChangedErr;
@@ -160,85 +197,4 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
     listChanged = false;
     handlePointerMove(&this->view);
     return false;
-}
-
-bool LScene::LScenePrivate::handlePointerButton(LView *view)
-{
-    if (listChanged)
-        goto listChangedErr;
-
-    for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerButton(*it))
-            return false;
-
-    if (view->imp()->state & LVS::PointerButtonDone)
-        return true;
-
-    view->imp()->state |= LVS::PointerButtonDone;
-
-    if (view->imp()->hasFlag(LVS::PointerIsOver))
-        view->pointerButtonEvent(currentPointerButtonEvent);
-
-    if (listChanged)
-        goto listChangedErr;
-
-    return true;
-
-    // If a list was modified, start again, serials are used to prevent resend events
-    listChangedErr:
-    listChanged = false;
-    handlePointerButton(&this->view);
-    return false;
-}
-
-bool LScene::LScenePrivate::handlePointerScrollEvent(LView *view)
-{
-    if (listChanged)
-        goto listChangedErr;
-
-    for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
-        if (!handlePointerScrollEvent(*it))
-            return false;
-
-    if (view->imp()->state & LVS::PointerScrollDone)
-        return true;
-
-    view->imp()->state |= LVS::PointerScrollDone;
-
-    if (view->imp()->hasFlag(LVS::PointerIsOver))
-        view->pointerScrollEvent(currentPointerScrollEvent);
-
-    if (listChanged)
-        goto listChangedErr;
-
-    return true;
-
-    // If a list was modified, start again, serials are used to prevent resend events
-    listChangedErr:
-    listChanged = false;
-    handlePointerScrollEvent(&this->view);
-    return false;
-}
-
-void LScene::LScenePrivate::handleKeyEvent()
-{
-    for (LView *view : keyboardFocus)
-        view->imp()->removeFlag(LVS::KeyDone);
-
-    retry:
-
-    for (LView *view : keyboardFocus)
-    {
-        if (view->imp()->hasFlag(LVS::KeyDone))
-            continue;
-
-        view->imp()->addFlag(LVS::KeyDone);
-        view->keyEvent(currentKeyboardKeyEvent);
-
-        if (keyboardListChanged)
-        {
-            keyboardListChanged = false;
-            goto retry;
-        }
-    }
 }

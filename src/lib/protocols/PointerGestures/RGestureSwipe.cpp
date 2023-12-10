@@ -2,6 +2,7 @@
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/PointerGestures/pointer-gestures-unstable-v1.h>
 #include <LPointerSwipeUpdateEvent.h>
+#include <private/LCompositorPrivate.h>
 
 static struct zwp_pointer_gesture_swipe_v1_interface zwp_pointer_gesture_swipe_v1_implementation =
 {
@@ -58,6 +59,13 @@ bool RGestureSwipe::update(const LPointerSwipeUpdateEvent &event)
 bool RGestureSwipe::end(const LPointerSwipeEndEvent &event)
 {
     imp()->serialEvents.end = event;
+
+    if (event.fingers() == 0)
+        imp()->serialEvents.end.setFingers(imp()->serialEvents.begin.fingers());
+
+    if (event.device() == &compositor()->imp()->fakeDevice)
+        imp()->serialEvents.end.setDevice(imp()->serialEvents.begin.device());
+
     zwp_pointer_gesture_swipe_v1_send_end(
         resource(),
         event.serial(),

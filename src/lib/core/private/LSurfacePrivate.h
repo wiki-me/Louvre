@@ -56,6 +56,10 @@ LPRIVATE_CLASS(LSurface)
     State pending;
 
     Wayland::RSurface *surfaceResource = nullptr;
+
+    /* There can be multiple views for the same surface, this var stores the view from which the
+     * last pointer focus was generated. Since surface geometry can be != view geometry, this is used
+     * to properly transform local view coords to local surface coords.*/
     LSurfaceView *lastPointerEventView = nullptr;
 
     LTexture *textureBackup;

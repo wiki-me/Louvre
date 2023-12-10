@@ -26,7 +26,7 @@ public:
     bool pressed = false;
 
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
-    void pointerLeaveEvent(const LPointerMoveEvent &) override;
+    void pointerLeaveEvent(const LPointerLeaveEvent &) override;
     void pointerMoveEvent(const LPointerMoveEvent &) override;
 };
 

@@ -23,7 +23,7 @@ Dock::Dock(Output *output) : LLayerView(&G::compositor()->overlayLayer)
     enableParentOffset(false);
 
     // Enable input so it shows/hides when the cursor is over
-    enableInput(true);
+    enablePointerEvents(true);
 
     // Allow views behind to get pointer events
     enableBlockPointer(false);
@@ -127,7 +127,7 @@ void Dock::update()
             if (item->dot)
                 item->dot->setVisible(item->app->state == App::Running && item->app->dockAppsAnimationOffset.y() == 0);
 
-            if (pointerIsOver() && G::tooltip()->targetView == item)
+            if (hasPointerFocus() && G::tooltip()->targetView == item)
                 G::tooltip()->show(item->pos().x() + item->size().w() / 2, item->pos().y());
         }
 
@@ -147,7 +147,7 @@ void Dock::update()
         if (it != itemsContainer->children().back())
             dockWidth += DOCK_SPACING;
 
-        if (pointerIsOver() && G::tooltip()->targetView == item)
+        if (hasPointerFocus() && G::tooltip()->targetView == item)
             G::tooltip()->show(item->pos().x() + item->size().w() / 2, item->pos().y() - 8);
     }
 
@@ -189,7 +189,7 @@ void Dock::show()
     {
         anim = nullptr;
 
-        if (!pointerIsOver())
+        if (!hasPointerFocus())
         {
             hide();
             return;
@@ -231,7 +231,7 @@ void Dock::hide()
     anim->start();
 }
 
-void Dock::pointerEnterEvent(const LPointerMoveEvent &)
+void Dock::pointerEnterEvent(const LPointerEnterEvent &)
 {
     showResistanceCount = 0;
 }
@@ -250,7 +250,7 @@ void Dock::pointerMoveEvent(const LPointerMoveEvent &)
         showResistanceCount++;    
 }
 
-void Dock::pointerLeaveEvent(const LPointerMoveEvent &)
+void Dock::pointerLeaveEvent(const LPointerLeaveEvent &)
 {
     G::tooltip()->hide();
     showResistanceCount = 0;

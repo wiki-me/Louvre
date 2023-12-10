@@ -101,6 +101,53 @@ public:
     void enableKeyboardEvents(bool enabled);
     bool keyboardEventsEnabled() const;
 
+    /**
+     * @brief Check if the view receives pointer and touch events.
+     *
+     * This method returns `true` if the view receives pointer and touch events.
+     * However, keyboard events are always received regardless of this setting.
+     *
+     * @returns `true` if the view receives pointer and touch events, `false` otherwise.
+     */
+    bool pointerEventsEnabled() const;
+
+    /**
+     * @brief Enable or disable pointer events for the view.
+     *
+     * If enabled, the view will receive pointer events.\n
+     * Only views with this property enabled can appear on the pointerFocus() list after an LScene::handlePointerMoveEvent().
+     *
+     * Disabled by default in all view types except for LSurfaceView.
+     *
+     * @param enabled If `true`, the view will receive pointer events.
+     */
+    void enablePointerEvents(bool enabled);
+
+    /**
+     * @brief Check if the view has pointer focus.
+     *
+     * Returns true if the view is in the LScene::pointerFocus() list after the last LScene::handlePointerMoveEvent() call.
+     */
+    bool hasPointerFocus() const;
+
+    /**
+     * @brief Enable or disable blocking of pointer events to views behind the view's input region.
+     *
+     * If set to `true`, pointer events will not be sent to views behind the view's input region.
+     * This will block pointer events only if the pointerEventsEnabled() property is also enabled.
+     * Enabled by default.
+     *
+     * @param enabled `true` to enable blocking; `false` to disable.
+     */
+    void enableBlockPointer(bool enabled);
+
+    /**
+     * @brief Checks if blocking of pointer or touch events to views behind the view's input region is enabled.
+     *
+     * @return `true` if blocking is enabled; otherwise, `false`.
+     */
+    bool blockPointerEnabled() const;
+
 
     /**
      * @brief Construct an LView object.
@@ -324,26 +371,6 @@ public:
     void enableParentClipping(bool enabled);
 
     /**
-     * @brief Check if the view receives pointer and touch events.
-     *
-     * This method returns `true` if the view receives pointer and touch events.
-     * However, keyboard events are always received regardless of this setting.
-     *
-     * @returns `true` if the view receives pointer and touch events, `false` otherwise.
-     */
-    bool inputEnabled() const;
-
-    /**
-     * @brief Enable or disable pointer and touch events for the view.
-     *
-     * If enabled, the view will receive pointer and touch events.
-     * However, keyboard events are always received regardless of this setting.
-     *
-     * @param enabled If `true`, the view will receive pointer and touch events.
-     */
-    void enableInput(bool enabled);
-
-    /**
      * @brief Check if scaling is enabled for the view's size.
      *
      * This method returns `true` if the view's size is scaled using the scaling vector, `false` otherwise.
@@ -530,31 +557,6 @@ public:
     const LRGBAF &colorFactor();
 
     /**
-     * @brief Checks if the pointer/cursor is inside the view's input region.
-     *
-     * @warning Even if the pointer is over the input region it may return `false` if another view with block pointer enabled is in front.\n
-     *
-     * @return `true` if the pointer/cursor is inside the input region; otherwise, `false`.
-     */
-    bool pointerIsOver() const;
-
-    /**
-     * @brief Enable or disable blocking of pointer or touch events to views behind the view's input region.
-     *
-     * If set to `true`, pointer or touch events will not be sent to views behind the view's input region.
-     *
-     * @param enabled `true` to enable blocking; `false` to disable.
-     */
-    void enableBlockPointer(bool enabled);
-
-    /**
-     * @brief Checks if blocking of pointer or touch events to views behind the view's input region is enabled.
-     *
-     * @return `true` if blocking is enabled; otherwise, `false`.
-     */
-    bool blockPointerEnabled() const;
-
-    /**
      * @brief Get the bounding box of the view and all its mapped children.
      *
      * This method returns a box containing the view and all its mapped children, even if the children
@@ -718,40 +720,100 @@ public:
                            Float32 alpha) = 0;
 
     /**
-     * @brief Handle the pointer enter event within the view.
+     * @brief Handle a pointer enter event within the view.
+     *
+     * This event is only triggered if pointerEventsEnabled() is set to `true`.
      */
-    virtual void pointerEnterEvent(const LPointerMoveEvent &event);
+    virtual void pointerEnterEvent(const LPointerEnterEvent &event);
 
     /**
-     * @brief Handle the pointer move event within the view.
+     * @brief Handle a pointer move event within the view.
      *
-     * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
      */
     virtual void pointerMoveEvent(const LPointerMoveEvent &event);
 
     /**
-     * @brief Handle the pointer leave event within the view.
+     * @brief Handle a pointer leave event within the view.
+     *
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
      */
-    virtual void pointerLeaveEvent(const LPointerMoveEvent &event);
+    virtual void pointerLeaveEvent(const LPointerLeaveEvent &event);
 
     /**
-     * @brief Handle the pointer button event within the view.
+     * @brief Handle a pointer button event within the view.
      *
-     * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
      */
     virtual void pointerButtonEvent(const LPointerButtonEvent &event);
 
     /**
-     * @brief Handle the pointer scroll event within the view.
+     * @brief Handle a pointer scroll event within the view.
      *
-     * This event is only called if pointerEnterEvent() was called before, and therefore when pointerIsOver() returns `true`.
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
      */
     virtual void pointerScrollEvent(const LPointerScrollEvent &event);
 
     /**
+     * @brief Handle a pointer swipe begin event within the view.
+     *
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
+     */
+    virtual void pointerSwipeBeginEvent(const LPointerSwipeBeginEvent &event);
+
+    /**
+     * @brief Handle a pointer swipe update event within the view.
+     *
+     * This event is only triggered if pointerSwipeBeginEvent() was called before.
+     */
+    virtual void pointerSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event);
+
+    /**
+     * @brief Handle a pointer swipe end event within the view.
+     *
+     * This event is only triggered if pointerSwipeBeginEvent() was called before.
+     */
+    virtual void pointerSwipeEndEvent(const LPointerSwipeEndEvent &event);
+
+    /**
+     * @brief Handle a pointer pinch begin event within the view.
+     *
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
+     */
+    virtual void pointerPinchBeginEvent(const LPointerPinchBeginEvent &event);
+
+    /**
+     * @brief Handle a pointer pinch update event within the view.
+     *
+     * This event is only triggered if pointerPinchBeginEvent() was called before.
+     */
+    virtual void pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &event);
+
+    /**
+     * @brief Handle a pointer pinch end event within the view.
+     *
+     * This event is only triggered if pointerPinchBeginEvent() was called before.
+     */
+    virtual void pointerPinchEndEvent(const LPointerPinchEndEvent &event);
+
+    /**
+     * @brief Handle a pointer hold begin event within the view.
+     *
+     * This event is only triggered if pointerEnterEvent() was called before, and therefore when hasPointerFocus() returns `true`.
+     */
+    virtual void pointerHoldBeginEvent(const LPointerHoldBeginEvent &event);
+
+    /**
+     * @brief Handle a pointer hold end event within the view.
+     *
+     * This event is only triggered if pointerHoldBeginEvent() was called before.
+     */
+    virtual void pointerHoldEndEvent(const LPointerHoldEndEvent &event);
+
+    /**
      * @brief Handle the key event within the view.
      *
-     * Keyboard events are allways called, even if inputEnabled() is set to `false`.
+     * Keyboard events are triggered only if keyboardEventsEnabled() is set to `true`.
      */
     virtual void keyEvent(const LKeyboardKeyEvent &event);
 

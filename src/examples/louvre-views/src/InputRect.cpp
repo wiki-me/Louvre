@@ -1,4 +1,6 @@
 #include <LPointerButtonEvent.h>
+#include <LPointerEnterEvent.h>
+#include <LPointerMoveEvent.h>
 #include <LCursor.h>
 #include "InputRect.h"
 
@@ -6,26 +8,25 @@ InputRect::InputRect(LView *parent, void *userData, UInt32 id) : LLayerView(pare
 {
     this->id = id;
     this->userData = userData;
-    enableBlockPointer(true);
-    enableInput(true);
+    enablePointerEvents(true);
 }
 
-void InputRect::pointerEnterEvent(const LPointerMoveEvent &)
+void InputRect::pointerEnterEvent(const LPointerEnterEvent &event)
 {
     if (onPointerEnter)
-        onPointerEnter(this, userData, cursor()->pos() - pos());
+        onPointerEnter(this, userData, event.localPos);
 }
 
-void InputRect::pointerLeaveEvent(const LPointerMoveEvent &)
+void InputRect::pointerLeaveEvent(const LPointerLeaveEvent &)
 {
     if (onPointerLeave)
         onPointerLeave(this, userData);
 }
 
-void InputRect::pointerMoveEvent(const LPointerMoveEvent &)
+void InputRect::pointerMoveEvent(const LPointerMoveEvent &event)
 {
     if (onPointerMove)
-        onPointerMove(this, userData, cursor()->pos() - pos());
+        onPointerMove(this, userData, event.localPos);
 }
 
 void InputRect::pointerButtonEvent(const LPointerButtonEvent &event)

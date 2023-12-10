@@ -57,13 +57,13 @@ void LPointer::setFocus(LSurface *surface, const LPointF &localPos)
             return;
 
         if (imp()->pendingSwipeEnd)
-            sendSwipeEndEvent(LPointerSwipeEndEvent());
+            sendSwipeEndEvent(LPointerSwipeEndEvent(0, true));
 
         if (imp()->pendingPinchEnd)
-            sendPinchEndEvent(LPointerPinchEndEvent());
+            sendPinchEndEvent(LPointerPinchEndEvent(0, true));
 
         if (imp()->pendingHoldEnd)
-            sendHoldEndEvent(LPointerHoldEndEvent());
+            sendHoldEndEvent(LPointerHoldEndEvent(0, true));
 
         imp()->sendLeaveEvent(focus());
 

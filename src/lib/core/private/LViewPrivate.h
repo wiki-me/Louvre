@@ -16,30 +16,54 @@ LPRIVATE_CLASS(LView)
 
     enum LViewState : UInt32
     {
-        /* Sometimes view ordering can change while a scene is emitting an event,
-         * in such cases it must start again. These flags are for preventing re-sending
-         * the event to the same view */
-        PointerMoveDone         = 1 << 0,
-        PointerButtonDone       = 1 << 2,
-        PointerScrollDone       = 1 << 3,
-        KeyDone                 = 1 << 4,
+        IsScene                 = 1 << 0,
+
+        PointerEvents           = 1 << 1,
+        KeyboardEvents          = 1 << 2,
+        TouchEvents             = 1 << 3,
+
+        BlockPointer            = 1 << 4,
 
         RepaintCalled           = 1 << 5,
         ColorFactor             = 1 << 6,
         Visible                 = 1 << 7,
-        Input                   = 1 << 8,
-        Scaling                 = 1 << 9,
-        ParentScaling           = 1 << 10,
-        ParentOffset            = 1 << 11,
-        Clipping                = 1 << 12,
-        ParentClipping          = 1 << 13,
-        ParentOpacity           = 1 << 14,
-        ForceRequestNextFrame   = 1 << 15,
-        PointerIsOver           = 1 << 16,
-        BlockPointer            = 1 << 17,
+        Scaling                 = 1 << 8,
+        ParentScaling           = 1 << 9,
+        ParentOffset            = 1 << 10,
+        Clipping                = 1 << 11,
+        ParentClipping          = 1 << 12,
+        ParentOpacity           = 1 << 13,
+        ForceRequestNextFrame   = 1 << 14,
+    };
 
-        KeyboardEvents          = 1 << 18,
-        IsScene                 = 1 << 19
+    /* Sometimes view ordering can change while a scene is emitting an event,
+     * in such cases it must start again. These flags are for preventing re-sending
+     * the event to the same view */
+    enum LViewEventsState : UInt32
+    {
+        PointerIsOver           = 1 << 0,
+
+        PendingSwipeEnd         = 1 << 1,
+        PendingPinchEnd         = 1 << 2,
+        PendingHoldEnd          = 1 << 3,
+
+        PointerMoveDone         = 1 << 4,
+        PointerButtonDone       = 1 << 5,
+        PointerScrollDone       = 1 << 6,
+        PointerSwipeBeginDone   = 1 << 7,
+        PointerSwipeUpdateDone  = 1 << 8,
+        PointerSwipeEndDone     = 1 << 9,
+        PointerPinchBeginDone   = 1 << 10,
+        PointerPinchUpdateDone  = 1 << 11,
+        PointerPinchEndDone     = 1 << 12,
+        PointerHoldBeginDone    = 1 << 13,
+        PointerHoldEndDone      = 1 << 14,
+        KeyDone                 = 1 << 15,
+        TouchDownDone           = 1 << 16,
+        TouchMoveDone           = 1 << 17,
+        TouchUpDone             = 1 << 18,
+        TouchFrameDone          = 1 << 19,
+        TouchCancelDone         = 1 << 20,
     };
 
     // This is used for detecting changes on a view since the last time it was drawn on a specific output
@@ -74,7 +98,9 @@ LPRIVATE_CLASS(LView)
         bool scalingEnabled;
         bool isFullyTrans;
     };
+
     UInt32 state = Visible | ParentOffset | ParentOpacity | BlockPointer;
+    UInt32 eventsState = 0;
     ViewCache cache;
 
     UInt32 type;
@@ -104,22 +130,22 @@ LPRIVATE_CLASS(LView)
     void markAsChangedOrder(bool includeChildren = true);
     void damageScene(LSceneView *s);
 
-    inline void removeFlag(UInt32 flag)
+    inline void removeFlag(LViewState flag)
     {
         state &= ~flag;
     }
 
-    inline void addFlag(UInt32 flag)
+    inline void addFlag(LViewState flag)
     {
         state |= flag;
     }
 
-    inline bool hasFlag(UInt32 flag)
+    inline bool hasFlag(LViewState flag)
     {
         return state & flag;
     }
 
-    inline void setFlag(UInt32 flag, bool enable)
+    inline void setFlag(LViewState flag, bool enable)
     {
         if (enable)
             addFlag(flag);
@@ -127,12 +153,43 @@ LPRIVATE_CLASS(LView)
             removeFlag(flag);
     }
 
-    inline static void removeFlagWithChildren(LView *view, UInt32 flag)
+    inline static void removeFlagWithChildren(LView *view, LViewState flag)
     {
         view->imp()->removeFlag(flag);
 
         for (LView *child : view->imp()->children)
             removeFlagWithChildren(child, flag);
+    }
+
+    inline void removeEventFlag(LViewEventsState flag)
+    {
+        eventsState &= ~flag;
+    }
+
+    inline void addEventFlag(LViewEventsState flag)
+    {
+        eventsState |= flag;
+    }
+
+    inline bool hasEventFlag(LViewEventsState flag)
+    {
+        return eventsState & flag;
+    }
+
+    inline void setEventFlag(LViewEventsState flag, bool enable)
+    {
+        if (enable)
+            addEventFlag(flag);
+        else
+            removeEventFlag(flag);
+    }
+
+    inline static void removeEventFlagWithChildren(LView *view, LViewEventsState flag)
+    {
+        view->imp()->removeEventFlag(flag);
+
+        for (LView *child : view->imp()->children)
+            removeEventFlagWithChildren(child, flag);
     }
 
     inline void sceneChanged(LScene *newScene)
@@ -143,6 +200,43 @@ LPRIVATE_CLASS(LView)
             {
                 currentScene->imp()->keyboardFocus.erase(keyboardLink);
                 currentScene->imp()->keyboardListChanged = true;
+            }
+
+            if (hasEventFlag(PointerIsOver))
+            {
+                if (hasEventFlag(PendingSwipeEnd))
+                {
+                    removeEventFlag(PendingSwipeEnd);
+                    currentScene->imp()->pointerSwipeEndEvent.setCancelled(true);
+                    currentScene->imp()->pointerSwipeEndEvent.setMs(currentScene->imp()->currentPointerMoveEvent.ms());
+                    currentScene->imp()->pointerSwipeEndEvent.setUs(currentScene->imp()->currentPointerMoveEvent.us());
+                    currentScene->imp()->pointerSwipeEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerSwipeEndEvent(currentScene->imp()->pointerSwipeEndEvent);
+                }
+
+                if (hasEventFlag(PendingPinchEnd))
+                {
+                    removeEventFlag(PendingPinchEnd);
+                    currentScene->imp()->pointerPinchEndEvent.setCancelled(true);
+                    currentScene->imp()->pointerPinchEndEvent.setMs(currentScene->imp()->currentPointerMoveEvent.ms());
+                    currentScene->imp()->pointerPinchEndEvent.setUs(currentScene->imp()->currentPointerMoveEvent.us());
+                    currentScene->imp()->pointerPinchEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerPinchEndEvent(currentScene->imp()->pointerPinchEndEvent);
+                }
+
+                if (hasEventFlag(PendingHoldEnd))
+                {
+                    removeEventFlag(PendingHoldEnd);
+                    currentScene->imp()->pointerHoldEndEvent.setCancelled(true);
+                    currentScene->imp()->pointerHoldEndEvent.setMs(currentScene->imp()->currentPointerMoveEvent.ms());
+                    currentScene->imp()->pointerHoldEndEvent.setUs(currentScene->imp()->currentPointerMoveEvent.us());
+                    currentScene->imp()->pointerHoldEndEvent.setSerial(LTime::nextSerial());
+                    view->pointerHoldEndEvent(currentScene->imp()->pointerHoldEndEvent);
+                }
+
+                currentScene->imp()->pointerFocus.erase(pointerLink);
+                currentScene->imp()->pointerListChanged = true;
+                removeEventFlag(PointerIsOver);
             }
         }
 

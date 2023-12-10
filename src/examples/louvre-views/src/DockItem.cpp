@@ -17,7 +17,7 @@ DockItem::DockItem(class Surface *surface, Dock *dock) : LTextureView(surface->t
     setBufferScale(4);
     enableScaling(true);
     enableParentOpacity(false);
-    enableInput(true);
+    enablePointerEvents(true);
     enableBlockPointer(false);
 }
 
@@ -26,7 +26,7 @@ DockItem::~DockItem()
     surface->minimizedViews.remove(this);
 }
 
-void DockItem::pointerEnterEvent(const LPointerMoveEvent &)
+void DockItem::pointerEnterEvent(const LPointerEnterEvent &)
 {
     setOpacity(0.8f);
 
@@ -40,7 +40,7 @@ void DockItem::pointerEnterEvent(const LPointerMoveEvent &)
         G::tooltip()->hide();
 }
 
-void DockItem::pointerLeaveEvent(const LPointerMoveEvent &)
+void DockItem::pointerLeaveEvent(const LPointerLeaveEvent &)
 {
     setOpacity(1.f);
 }

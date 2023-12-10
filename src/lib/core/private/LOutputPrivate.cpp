@@ -73,6 +73,7 @@ void LOutput::LOutputPrivate::backendPaintGL()
     compositor()->imp()->processAnimations();
     pendingRepaint = false;
     output->paintGL();
+    glFlush();
     compositor()->flushClients();
     compositor()->imp()->destroyPendingRenderBuffers(&output->imp()->threadId);
     compositor()->imp()->destroyNativeTextures(nativeTexturesToDestroy);
@@ -137,6 +138,8 @@ void LOutput::LOutputPrivate::backendUninitializeGL()
 
 void LOutput::LOutputPrivate::backendPageFlipped()
 {
+    return;
+
     bool callLock = output->imp()->callLock.load();
 
     if (!callLock)

@@ -30,7 +30,7 @@ public:
     // Current app title
     LTextureView *appName = nullptr;
 
-    void pointerEnterEvent(const LPointerMoveEvent &) override;
+    void pointerEnterEvent(const LPointerEnterEvent &) override;
     void pointerMoveEvent(const LPointerMoveEvent &) override;
 };
 

@@ -17,9 +17,9 @@ public:
     void (*onPointerMove)(InputRect *, void *, const LPoint &localPos) = nullptr;
     void (*onPointerButton)(InputRect *, void *, const LPointerButtonEvent &) = nullptr;
 
-    void pointerEnterEvent(const LPointerMoveEvent &) override;
-    void pointerLeaveEvent(const LPointerMoveEvent &) override;
-    void pointerMoveEvent(const LPointerMoveEvent &) override;
+    void pointerEnterEvent(const LPointerEnterEvent &event) override;
+    void pointerLeaveEvent(const LPointerLeaveEvent &) override;
+    void pointerMoveEvent(const LPointerMoveEvent &event) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
 };
 

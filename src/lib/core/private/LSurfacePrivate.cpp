@@ -1,3 +1,4 @@
+#include "LTimer.h"
 #include <protocols/PresentationTime/private/RPresentationFeedbackPrivate.h>
 #include <protocols/PresentationTime/presentation-time.h>
 #include <protocols/LinuxDMABuf/private/LDMABufferPrivate.h>
@@ -293,18 +294,6 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
 
         wl_shm_buffer_end_access(shm_buffer);
     }
-    // WL_DRM
-    else if (compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_TEXTURE_FORMAT, &texture_format))
-    {
-        if (texture && texture != textureBackup && texture->imp()->pendingDelete)
-            delete texture;
-
-        texture = textureBackup;
-        compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_WIDTH, &width);
-        compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_HEIGHT, &height);
-        damageNormal(width, height, prevSize, bufferScaleChanged);
-        texture->setData(current.buffer);
-    }
     else if (isDMABuffer(current.buffer))
     {
         LDMABuffer *dmaBuffer = (LDMABuffer*)wl_resource_get_user_data(current.buffer);
@@ -324,6 +313,18 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
 
         texture = dmaBuffer->texture();
     }
+    // WL_DRM
+    else if (compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_TEXTURE_FORMAT, &texture_format))
+    {
+        if (texture && texture != textureBackup && texture->imp()->pendingDelete)
+            delete texture;
+
+        texture = textureBackup;
+        compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_WIDTH, &width);
+        compositor()->imp()->eglQueryWaylandBufferWL(LCompositor::eglDisplay(), current.buffer, EGL_HEIGHT, &height);
+        damageNormal(width, height, prevSize, bufferScaleChanged);
+        texture->setData(current.buffer);
+    }
     else
     {
         LLog::error("[LSurfacePrivate::bufferToTexture] Unknown buffer type. Killing client.");
@@ -342,7 +343,6 @@ bool LSurface::LSurfacePrivate::bufferToTexture()
 
     wl_buffer_send_release(current.buffer);
     bufferReleased = true;
-
     damageId = LTime::nextSerial();
 
     damaged = true;

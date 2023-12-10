@@ -1,6 +1,7 @@
 #include <protocols/PointerGestures/private/RGestureHoldPrivate.h>
 #include <protocols/Wayland/private/RPointerPrivate.h>
 #include <protocols/PointerGestures/pointer-gestures-unstable-v1.h>
+#include <private/LCompositorPrivate.h>
 
 static struct zwp_pointer_gesture_hold_v1_interface zwp_pointer_gesture_hold_v1_implementation =
 {
@@ -47,6 +48,13 @@ bool RGestureHold::begin(const LPointerHoldBeginEvent &event, Wayland::RSurface 
 bool RGestureHold::end(const LPointerHoldEndEvent &event)
 {
     imp()->serialEvents.end = event;
+
+    if (event.fingers() == 0)
+        imp()->serialEvents.end.setFingers(imp()->serialEvents.begin.fingers());
+
+    if (event.device() == &compositor()->imp()->fakeDevice)
+        imp()->serialEvents.end.setDevice(imp()->serialEvents.begin.device());
+
     zwp_pointer_gesture_hold_v1_send_end(
         resource(),
         event.serial(),

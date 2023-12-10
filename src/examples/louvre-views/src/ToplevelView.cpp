@@ -61,7 +61,7 @@ static void onPointerEnterResizeArea(InputRect *rect, void *data, const LPoint &
                     view->updateGeometry();
                     view->fullscreenTopbarAnim = nullptr;
 
-                    if (!view->topbarInput->pointerIsOver())
+                    if (!view->topbarInput->hasPointerFocus())
                         onPointerLeaveResizeArea(view->topbarInput, nullptr);
                 });
 
@@ -104,7 +104,7 @@ static void onPointerLeaveResizeArea(InputRect *rect, void *data)
                         view->updateGeometry();
                         view->fullscreenTopbarAnim = nullptr;
 
-                        if (view->topbarInput->pointerIsOver())
+                        if (view->topbarInput->hasPointerFocus())
                             onPointerEnterResizeArea(view->topbarInput, nullptr, LPoint());
                     });
 

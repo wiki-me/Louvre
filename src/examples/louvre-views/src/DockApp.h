@@ -14,7 +14,7 @@ public:
     DockApp(App *app, Dock *dock);
     ~DockApp();
 
-    void pointerEnterEvent(const LPointerMoveEvent &) override;
+    void pointerEnterEvent(const LPointerEnterEvent &) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
 
     std::list<DockApp*>::iterator appLink;

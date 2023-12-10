@@ -15,7 +15,7 @@ ToplevelButton::ToplevelButton(LView *parent, ToplevelView *toplevelView, Button
     this->toplevelView = toplevelView;
     this->buttonType = type;
     setBufferScale(2);
-    enableInput(true);
+    enablePointerEvents(true);
     update();
 }
 
@@ -23,7 +23,7 @@ void ToplevelButton::update()
 {
     if (buttonType == Close)
     {
-        if (toplevelView->buttonsContainer->pointerIsOver())
+        if (toplevelView->buttonsContainer->hasPointerFocus())
         {
             if (pressed)
                 setTexture(G::toplevelTextures().activeCloseButtonPressed);
@@ -46,7 +46,7 @@ void ToplevelButton::update()
         }
         else
         {
-            if (toplevelView->buttonsContainer->pointerIsOver())
+            if (toplevelView->buttonsContainer->hasPointerFocus())
             {
                 if (pressed)
                     setTexture(G::toplevelTextures().activeMinimizeButtonPressed);
@@ -67,7 +67,7 @@ void ToplevelButton::update()
 
         bool altMode = !seat()->keyboard()->isKeyCodePressed(KEY_LEFTALT) || toplevelView->toplevel->fullscreen();
 
-        if (toplevelView->buttonsContainer->pointerIsOver())
+        if (toplevelView->buttonsContainer->hasPointerFocus())
         {
             if (pressed)
             {
@@ -156,7 +156,7 @@ void ToplevelButton::pointerMoveEvent(const LPointerMoveEvent &)
         cursor()->useDefault();
 }
 
-void ToplevelButton::pointerLeaveEvent(const LPointerMoveEvent &)
+void ToplevelButton::pointerLeaveEvent(const LPointerLeaveEvent &)
 {
     if (!pressed)
         return;

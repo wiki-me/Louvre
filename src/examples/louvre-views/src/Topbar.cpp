@@ -12,11 +12,11 @@ Topbar::Topbar(Output *output) : LLayerView(&G::compositor()->overlayLayer)
     this->output = output;
     output->topbar = this;
     enableParentOffset(false);
-    enableInput(true);
+    enablePointerEvents(true);
     enableBlockPointer(false);
 
     background = new LSolidColorView(0.95f, 0.95f, 1.f, 1.f, this);
-    background->enableInput(false);
+    background->enablePointerEvents(false);
     background->enableBlockPointer(false);
     background->setPos(0, 0);
 
@@ -32,7 +32,6 @@ Topbar::Topbar(Output *output) : LLayerView(&G::compositor()->overlayLayer)
     appName->setBufferScale(2);
 
     clock = new LTextureView(nullptr, background);
-    clock->enableInput(false);
     clock->setBufferScale(2);
 }
 
@@ -56,7 +55,7 @@ void Topbar::update()
                  1 + (size().h() - clock->size().h()) / 2);
 }
 
-void Topbar::pointerEnterEvent(const LPointerMoveEvent &)
+void Topbar::pointerEnterEvent(const LPointerEnterEvent &)
 {
     if (!G::pointer()->isResizeSessionActive() && !G::pointer()->isMoveSessionActive() && !G::pointer()->cursorOwner)
         cursor()->useDefault();

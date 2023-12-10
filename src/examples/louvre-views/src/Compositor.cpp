@@ -20,6 +20,8 @@
 #include "ToplevelView.h"
 #include "Popup.h"
 
+//#include "TestView.h"
+
 Compositor::Compositor() : LCompositor(),
     scene(),
     backgroundLayer(scene.mainView()),
@@ -36,6 +38,8 @@ Compositor::Compositor() : LCompositor(),
 
     // Setup software cursor
     softwareCursor.enableDstSize(true);
+
+    //new TestView(&cursorLayer);
 }
 
 Compositor::~Compositor() {}

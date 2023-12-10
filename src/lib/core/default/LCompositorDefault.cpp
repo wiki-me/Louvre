@@ -48,8 +48,8 @@ bool LCompositor::createGlobalsRequest()
     wl_global_create(display(), &zwp_linux_dmabuf_v1_interface,
                      LOUVRE_LINUX_DMA_BUF_VERSION, this, &Protocols::LinuxDMABuf::GLinuxDMABuf::GLinuxDMABufPrivate::bind);
 
-    wl_global_create(display(), &wp_presentation_interface,
-                     LOUVRE_WP_PRESENTATION_VERSION, this, &Protocols::PresentationTime::GPresentation::GPresentationPrivate::bind);
+   // wl_global_create(display(), &wp_presentation_interface,
+    //                 LOUVRE_WP_PRESENTATION_VERSION, this, &Protocols::PresentationTime::GPresentation::GPresentationPrivate::bind);
 
     wl_global_create(display(), &zwp_pointer_gestures_v1_interface,
                      LOUVRE_POINTER_GESTURES_VERSION, this, &Protocols::PointerGestures::GPointerGestures::GPointerGesturesPrivate::bind);

@@ -14,8 +14,8 @@ public:
     DockItem(class Surface *surface, Dock *dock);
     ~DockItem();
 
-    void pointerEnterEvent(const LPointerMoveEvent &localPos) override;
-    void pointerLeaveEvent(const LPointerMoveEvent &) override;
+    void pointerEnterEvent(const LPointerEnterEvent &event) override;
+    void pointerLeaveEvent(const LPointerLeaveEvent &) override;
     void pointerButtonEvent(const LPointerButtonEvent &event) override;
 
     Dock *dock = nullptr;

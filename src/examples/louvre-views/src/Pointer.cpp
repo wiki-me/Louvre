@@ -39,7 +39,7 @@ bool Pointer::isMoveSessionActive() const
 
 void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
 {
-    LView *view = G::scene()->handlePointerMoveEvent(event);
+    G::scene()->handlePointerMoveEvent(event);
 
     bool activeResizing = isResizeSessionActive();
 
@@ -53,13 +53,22 @@ void Pointer::pointerMoveEvent(const Louvre::LPointerMoveEvent &event)
     if (seat()->dndManager()->dragging())
         return;
 
-    if (view)
+    if (!G::scene()->pointerFocus().empty())
     {
-        if (view->type() == LView::Surface)
-        {
-            LSurfaceView *surfView = (LSurfaceView*)view;
+        LSurfaceView *surfaceView = nullptr;
 
-            if (lastCursorRequest() && lastCursorRequest()->surface()->client() == surfView->surface()->client())
+        for (LView *view : G::scene()->pointerFocus())
+        {
+            if (view->type() == LView::Surface)
+            {
+                surfaceView = (LSurfaceView*)view;
+                break;
+            }
+        }
+
+        if (surfaceView)
+        {
+            if (lastCursorRequest() && lastCursorRequest()->surface()->client() == surfaceView->surface()->client())
             {
                 cursor()->setTextureB(lastCursorRequest()->surface()->texture(), lastCursorRequest()->hotspotB());
                 cursor()->setVisible(true);
@@ -100,6 +109,46 @@ void Pointer::pointerScrollEvent(const LPointerScrollEvent &event)
     ev.invertX();
     ev.invertY();
     G::scene()->handlePointerScrollEvent(ev);
+}
+
+void Pointer::pointerSwipeBeginEvent(const LPointerSwipeBeginEvent &event)
+{
+    G::scene()->handlePointerSwipeBeginEvent(event);
+}
+
+void Pointer::pointerSwipeUpdateEvent(const LPointerSwipeUpdateEvent &event)
+{
+    G::scene()->handlePointerSwipeUpdateEvent(event);
+}
+
+void Pointer::pointerSwipeEndEvent(const LPointerSwipeEndEvent &event)
+{
+    G::scene()->handlePointerSwipeEndEvent(event);
+}
+
+void Pointer::pointerPinchBeginEvent(const LPointerPinchBeginEvent &event)
+{
+    G::scene()->handlePointerPinchBeginEvent(event);
+}
+
+void Pointer::pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &event)
+{
+    G::scene()->handlePointerPinchUpdateEvent(event);
+}
+
+void Pointer::pointerPinchEndEvent(const LPointerPinchEndEvent &event)
+{
+    G::scene()->handlePointerPinchEndEvent(event);
+}
+
+void Pointer::pointerHoldBeginEvent(const LPointerHoldBeginEvent &event)
+{
+    G::scene()->handlePointerHoldBeginEvent(event);
+}
+
+void Pointer::pointerHoldEndEvent(const LPointerHoldEndEvent &event)
+{
+    G::scene()->handlePointerHoldEndEvent(event);
 }
 
 void Pointer::setCursorRequest(LCursorRole *cursorRole)

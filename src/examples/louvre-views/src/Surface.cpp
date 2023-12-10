@@ -363,7 +363,7 @@ void Surface::minimizedChanged()
             toplevel()->configure(toplevel()->pendingState() | LToplevelRole::Activated);
 
         getView()->setVisible(true);
-        getView()->enableInput(true);
+        getView()->enablePointerEvents(true);
     }
 }
 
@@ -437,7 +437,7 @@ void Surface::unminimize(DockItem *clickedItem)
     // Setup dock items
     for (DockItem *item : minimizedViews)
     {
-        item->enableInput(false);
+        item->enablePointerEvents(false);
         item->setOpacity(1.f);
         item->setScalingVector(1.f);
         item->enableScaling(true);

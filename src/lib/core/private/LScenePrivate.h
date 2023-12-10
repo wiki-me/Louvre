@@ -2,9 +2,14 @@
 #define LSCENEPRIVATE_H
 
 #include <LRegion.h>
+#include <LPointerEnterEvent.h>
 #include <LPointerMoveEvent.h>
+#include <LPointerLeaveEvent.h>
 #include <LPointerButtonEvent.h>
 #include <LPointerScrollEvent.h>
+#include <LPointerSwipeEndEvent.h>
+#include <LPointerPinchEndEvent.h>
+#include <LPointerHoldEndEvent.h>
 #include <LKeyboardKeyEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
@@ -15,30 +20,38 @@ using namespace Louvre;
 LPRIVATE_CLASS(LScene)
     std::mutex mutex;
     LSceneView view;
-    bool handleWaylandPointerEvents = true;
-    bool handleWaylandKeyboardEvents = true;
-    bool auxKeyboardImplementationEnabled = true;
     bool pointerIsBlocked = false;
 
     bool listChanged = false;
     bool keyboardListChanged = false;
+    bool pointerListChanged = false;
 
     // Prevent recursive calls
     bool handlingPointerMove = false;
     bool handlingPointerButton = false;
     bool handlingPointerScrollEvent = false;
+    bool handlingPointerSwipeBeginEvent = false;
+    bool handlingPointerSwipeUpdateEvent = false;
+    bool handlingPointerSwipeEndEvent = false;
+    bool handlingPointerPinchBeginEvent = false;
+    bool handlingPointerPinchUpdateEvent = false;
+    bool handlingPointerPinchEndEvent = false;
+    bool handlingPointerHoldBeginEvent = false;
+    bool handlingPointerHoldEndEvent = false;
     bool handlingKeyEvent = false;
 
     std::list<LView*> pointerFocus;
     std::list<LView*> keyboardFocus;
     std::list<LView*> touchFocus;
 
-    LView *pointerMoveEventFirstView;
     LPointF pointerMoveEventOutLocalPos;
+    LPointerEnterEvent currentPointerEnterEvent;
     LPointerMoveEvent currentPointerMoveEvent;
-    LPointerButtonEvent currentPointerButtonEvent;
-    LPointerScrollEvent currentPointerScrollEvent;
-    LKeyboardKeyEvent currentKeyboardKeyEvent;
+    LPointerLeaveEvent currentPointerLeaveEvent;
+
+    LPointerSwipeEndEvent pointerSwipeEndEvent;
+    LPointerPinchEndEvent pointerPinchEndEvent;
+    LPointerHoldEndEvent pointerHoldEndEvent;
 
     bool pointClippedByParent(LView *parent, const LPoint &point);
     bool pointClippedByParentScene(LView *view, const LPoint &point);
@@ -54,7 +67,7 @@ LPRIVATE_CLASS(LScene)
 
     inline bool pointerIsOverView(LView *view, const LPointF &pos)
     {
-        if (!view->mapped() || !view->inputEnabled())
+        if (!view->mapped() || !view->pointerEventsEnabled())
             return false;
 
         if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
@@ -100,9 +113,6 @@ LPRIVATE_CLASS(LScene)
     }
 
     bool handlePointerMove(LView *view);
-    bool handlePointerButton(LView *view);
-    bool handlePointerScrollEvent(LView *view);
-    void handleKeyEvent();
 };
 
 #endif // LSCENEPRIVATE_H

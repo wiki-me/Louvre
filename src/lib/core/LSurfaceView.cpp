@@ -12,7 +12,7 @@ LSurfaceView::LSurfaceView(LSurface *surface, LView *parent) :
     LPRIVATE_INIT_UNIQUE(LSurfaceView)
 {
     imp()->surface = surface;
-    enableInput(true);
+    enablePointerEvents(true);
 }
 
 LSurfaceView::~LSurfaceView()
