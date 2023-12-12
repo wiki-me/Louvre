@@ -429,6 +429,11 @@ public:
     LSurface *topmostParent() const;
 
     /**
+     * @brief List of views created for this surface.
+     */
+    const std::list<LSurfaceView*> &views() const;
+
+    /**
      * @brief Child surfaces.
      *
      * List of child surfaces.

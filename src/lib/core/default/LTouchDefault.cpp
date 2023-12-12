@@ -89,6 +89,9 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
                 activeResizing = true;
                 session->setResizePointPos(globalPos);
                 session->toplevel()->surface()->repaintOutputs();
+
+                if (session->toplevel()->maximized())
+                    session->toplevel()->configure(session->toplevel()->pendingState() &~ LToplevelRole::Maximized);
             }
         }
     }
@@ -109,6 +112,9 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
                 activeMoving = true;
                 session->setMovePointPos(globalPos);
                 session->toplevel()->surface()->repaintOutputs();
+
+                if (session->toplevel()->maximized())
+                    session->toplevel()->configure(session->toplevel()->pendingState() &~ LToplevelRole::Maximized);
             }
         }
     }

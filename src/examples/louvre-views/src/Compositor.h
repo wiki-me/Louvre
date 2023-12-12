@@ -23,9 +23,12 @@ public:
     LClient *createClientRequest(LClient::Params *params) override;
     LOutput *createOutputRequest() override;
     LSurface *createSurfaceRequest(LSurface::Params *params) override;
+
     LSeat *createSeatRequest(LSeat::Params *params) override;
     LPointer *createPointerRequest(LPointer::Params *params) override;
     LKeyboard *createKeyboardRequest(LKeyboard::Params *params) override;
+    LTouch *createTouchRequest(LTouch::Params *params) override;
+
     LToplevelRole *createToplevelRoleRequest(LToplevelRole::Params *params) override;
     LPopupRole *createPopupRoleRequest(LPopupRole::Params *params) override;
 

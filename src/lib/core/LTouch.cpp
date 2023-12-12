@@ -15,12 +15,10 @@ LTouch::LTouch(Params *params) :
 
 LTouch::~LTouch()
 {
-    LTouchPoint *tp;
     while (!touchPoints().empty())
     {
-        tp = touchPoints().back();
+        delete touchPoints().back();
         imp()->touchPoints.pop_back();
-        delete tp;
     }
 }
 

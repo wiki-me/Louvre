@@ -16,7 +16,6 @@ using namespace Louvre::Protocols::Wayland;
 LTouchPoint::LTouchPoint(const LTouchDownEvent &event) :
     LPRIVATE_INIT_UNIQUE(LTouchPoint)
 {
-    imp()->id = event.id();
     imp()->lastDownEvent = event;
     seat()->touch()->imp()->touchPoints.push_back(this);
     imp()->link = std::prev(seat()->touch()->imp()->touchPoints.end());
@@ -26,7 +25,7 @@ LTouchPoint::~LTouchPoint() {}
 
 Int32 LTouchPoint::id() const
 {
-    return imp()->id;
+    return imp()->lastDownEvent.id();
 }
 
 bool LTouchPoint::isPressed() const

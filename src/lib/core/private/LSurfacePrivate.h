@@ -61,10 +61,12 @@ LPRIVATE_CLASS(LSurface)
      * last pointer focus was generated. Since surface geometry can be != view geometry, this is used
      * to properly transform local view coords to local surface coords.*/
     LSurfaceView *lastPointerEventView = nullptr;
+    LSurfaceView *lastTouchEventView = nullptr;
 
     LTexture *textureBackup;
     LSurface *parent                                    = nullptr;
     LSurface *pendingParent                             = nullptr;
+    std::list<LSurfaceView*> views;
     std::list<LSurface*> children;
     std::list<LSurface*> pendingChildren;
     std::list<LSurface*>::iterator parentLink;

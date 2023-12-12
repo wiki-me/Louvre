@@ -10,7 +10,6 @@ using namespace Louvre;
 
 LPRIVATE_CLASS(LTouchPoint)
 
-Int32 id = 0;
 bool isPressed = true;
 
 LSurface *surface = nullptr;

@@ -2,8 +2,10 @@
 #define LSCENE_H
 
 #include <LObject.h>
+#include <LSeat.h>
 #include <LPointer.h>
 #include <LKeyboard.h>
+#include <LView.h>
 
 /**
  * The LScene class is an optional utility that significantly simplifies rendering.
@@ -114,6 +116,8 @@ public:
 
     const std::list<LView*> &pointerFocus() const;
     const std::list<LView*> &keyboardFocus() const;
+    const std::list<LSceneTouchPoint*> &touchPoints() const;
+    LSceneTouchPoint *findTouchPoint(Int32 id) const;
 
     /**
      * @brief Handle the OpenGL initialization for an LOutput.
@@ -269,6 +273,53 @@ public:
     void handleKeyEvent(const LKeyboardKeyEvent &event, EventOptionsFlags options = WaylandEvents | AuxFunc);
 
     /**
+     * @brief Handle touch down event.
+     *
+     * This method should be integrated into LTouch::touchDownEvent() to manage touch down events.
+     *
+     * @param event The touch down event to handle.
+     * @param globalPos The event position transformed to global coordinates.
+     */
+    void handleTouchDownEvent(const LTouchDownEvent &event, const LPointF &globalPos, EventOptionsFlags options = WaylandEvents | AuxFunc);
+
+    /**
+     * @brief Handle touch move event.
+     *
+     * This method should be integrated into LTouch::touchMoveEvent() to manage touch move events.
+     *
+     * @param event The touch move event to handle.
+     * @param globalPos The event position transformed to global coordinates.
+     */
+    void handleTouchMoveEvent(const LTouchMoveEvent &event, const LPointF &globalPos, EventOptionsFlags options = WaylandEvents | AuxFunc);
+
+    /**
+     * @brief Handle touch up event.
+     *
+     * This method should be integrated into LTouch::touchUpEvent() to manage touch up events.
+     *
+     * @param event The touch up event to handle.
+     */
+    void handleTouchUpEvent(const LTouchUpEvent &event, EventOptionsFlags options = WaylandEvents | AuxFunc);
+
+    /**
+     * @brief Handle touch frame event.
+     *
+     * This method should be integrated into LTouch::touchFrameEvent() to manage touch frame events.
+     *
+     * @param event The touch frame event to handle.
+     */
+    void handleTouchFrameEvent(const LTouchFrameEvent &event, EventOptionsFlags options = WaylandEvents | AuxFunc);
+
+    /**
+     * @brief Handle touch cancel event.
+     *
+     * This method should be integrated into LTouch::touchCancelEvent() to manage touch cancel events.
+     *
+     * @param event The touch cancel event to handle.
+     */
+    void handleTouchCancelEvent(const LTouchCancelEvent &event, EventOptionsFlags options = WaylandEvents | AuxFunc);
+
+    /**
      * @brief Retrieve the main view of the scene.
      *
      * This method returns the main LSceneView associated with the LScene.
@@ -283,9 +334,12 @@ public:
      * This method returns the LView instance that occupies the given position within the scene.
      *
      * @param pos The position to query.
+     * @param type The type of view to search for. Passing LView::Type::Undefined disables the filter.
+     * @param flags Additional filter for searching only views with pointer and/or touch events enabled.
+     *
      * @return A pointer to the LView at the specified position, or nullptr if no view is found.
      */
-    LView *viewAt(const LPoint &pos);
+    LView *viewAt(const LPoint &pos, LView::Type type = LView::Undefined, LSeat::InputCapabilitiesFlags flags = 0);
 
 LPRIVATE_IMP_UNIQUE(LScene)
 };

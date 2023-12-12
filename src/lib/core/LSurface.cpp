@@ -5,6 +5,7 @@
 #include <private/LCompositorPrivate.h>
 #include <private/LOutputPrivate.h>
 #include <private/LTexturePrivate.h>
+#include <private/LSurfaceViewPrivate.h>
 #include <LTime.h>
 
 using namespace Louvre::Protocols::Wayland;
@@ -19,6 +20,10 @@ LSurface::LSurface(LSurface::Params *params) : LPRIVATE_INIT_UNIQUE(LSurface)
 LSurface::~LSurface()
 {
     imp()->lastPointerEventView = nullptr;
+    imp()->lastTouchEventView = nullptr;
+
+    for (LSurfaceView *view : imp()->views)
+        view->imp()->surface = nullptr;
 
     if (imp()->texture && imp()->texture != imp()->textureBackup && imp()->texture->imp()->pendingDelete)
         delete imp()->texture;
@@ -330,6 +335,11 @@ LSurface *LSurface::topmostParent() const
         return nullptr;
 
     return findTopmostParent(parent());
+}
+
+const std::list<LSurfaceView *> &LSurface::views() const
+{
+    return imp()->views;
 }
 
 const list<LSurface *> &LSurface::children() const

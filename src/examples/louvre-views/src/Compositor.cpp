@@ -14,6 +14,7 @@
 #include "Seat.h"
 #include "Pointer.h"
 #include "Keyboard.h"
+#include "Touch.h"
 #include "Toplevel.h"
 #include "TextRenderer.h"
 #include "Topbar.h"
@@ -149,6 +150,11 @@ LPointer *Compositor::createPointerRequest(LPointer::Params *params)
 LKeyboard *Compositor::createKeyboardRequest(LKeyboard::Params *params)
 {
     return new Keyboard(params);
+}
+
+LTouch *Compositor::createTouchRequest(LTouch::Params *params)
+{
+    return new Touch(params);
 }
 
 LToplevelRole *Compositor::createToplevelRoleRequest(LToplevelRole::Params *params)

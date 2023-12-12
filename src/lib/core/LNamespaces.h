@@ -149,6 +149,8 @@ namespace Louvre
     class LSolidColorView;
     class LSceneView;
 
+    class LSceneTouchPoint;
+
     // Data
     class LDataDevice;
     class LDataSource;

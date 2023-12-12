@@ -1,3 +1,5 @@
+#include <LTouchDownEvent.h>
+#include <LTouchPoint.h>
 #include <LAnimation.h>
 #include <LCursor.h>
 #include <LSurface.h>
@@ -80,12 +82,44 @@ void Toplevel::startResizeRequest(const LEvent &triggeringEvent, ResizeEdge edge
         return;
 
     G::enableDocks(false);
-    startResizeSession(triggeringEvent,
-                     edge,
-                     cursor()->pos(),
-                     LSize(128, 128),
-                     EdgeDisabled,
-                     TOPBAR_HEIGHT);
+
+    // Left pointer button click
+    if (triggeringEvent.type() == LEvent::Type::Pointer && surface()->hasPointerFocus())
+    {
+        if (triggeringEvent.subtype() == LEvent::Subtype::Button)
+        {
+            LPointerButtonEvent &pointerButtonEvent = (LPointerButtonEvent&)triggeringEvent;
+
+            if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
+            {
+                startResizeSession(triggeringEvent, edge, cursor()->pos(), LSize(128, 128), EdgeDisabled, TOPBAR_HEIGHT);
+                return;
+            }
+        }
+    }
+    // Keyboard focus event
+    else if (triggeringEvent.type() == LEvent::Type::Keyboard && triggeringEvent.subtype() == LEvent::Subtype::Enter && surface()->hasKeyboardFocus())
+    {
+        startResizeSession(triggeringEvent, edge, cursor()->pos(), LSize(128, 128), EdgeDisabled, TOPBAR_HEIGHT);
+        return;
+    }
+    // Touch down event
+    else if (triggeringEvent.type() == LEvent::Type::Touch && triggeringEvent.subtype() == LEvent::Subtype::Down)
+    {
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)triggeringEvent;
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent.id());
+
+        if (tp && tp->surface() == surface())
+        {
+            startResizeSession(triggeringEvent,
+                               edge,
+                               LTouch::toGlobal(cursor()->output(), tp->pos()),
+                               LSize(128, 128),
+                               EdgeDisabled,
+                               TOPBAR_HEIGHT);
+            return;
+        }
+    }
 }
 
 void Toplevel::startMoveRequest(const LEvent &triggeringEvent)
@@ -95,7 +129,39 @@ void Toplevel::startMoveRequest(const LEvent &triggeringEvent)
         return;
 
     G::enableDocks(false);
-    startMoveSession(triggeringEvent, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
+
+    // Left pointer button click
+    if (triggeringEvent.type() == LEvent::Type::Pointer && surface()->hasPointerFocus())
+    {
+        if (triggeringEvent.subtype() == LEvent::Subtype::Button)
+        {
+            LPointerButtonEvent &pointerButtonEvent = (LPointerButtonEvent&)triggeringEvent;
+
+            if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
+            {
+                startMoveSession(triggeringEvent, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
+                return;
+            }
+        }
+    }
+    // Keyboard focus event
+    else if (triggeringEvent.type() == LEvent::Type::Keyboard && triggeringEvent.subtype() == LEvent::Subtype::Enter && surface()->hasKeyboardFocus())
+    {
+        startMoveSession(triggeringEvent, cursor()->pos(), EdgeDisabled, TOPBAR_HEIGHT);
+        return;
+    }
+    // Touch down event
+    else if (triggeringEvent.type() == LEvent::Type::Touch && triggeringEvent.subtype() == LEvent::Subtype::Down)
+    {
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)triggeringEvent;
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent.id());
+
+        if (tp && tp->surface() == surface())
+        {
+            startMoveSession(triggeringEvent, LTouch::toGlobal(cursor()->output(), tp->pos()), EdgeDisabled, TOPBAR_HEIGHT);
+            return;
+        }
+    }
 }
 
 void Toplevel::setMaximizedRequest()

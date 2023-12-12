@@ -101,6 +101,12 @@ public:
     void enableKeyboardEvents(bool enabled);
     bool keyboardEventsEnabled() const;
 
+    // Disabled by default
+    void enableTouchEvents(bool enabled);
+    bool touchEventsEnabled() const;
+
+    LSceneTouchPoint *findTouchPoint(Int32 id) const;
+
     /**
      * @brief Check if the view receives pointer and touch events.
      *
@@ -135,6 +141,7 @@ public:
      *
      * If set to `true`, pointer events will not be sent to views behind the view's input region.
      * This will block pointer events only if the pointerEventsEnabled() property is also enabled.
+     *
      * Enabled by default.
      *
      * @param enabled `true` to enable blocking; `false` to disable.
@@ -142,12 +149,30 @@ public:
     void enableBlockPointer(bool enabled);
 
     /**
-     * @brief Checks if blocking of pointer or touch events to views behind the view's input region is enabled.
+     * @brief Checks if blocking of pointer events to views behind the view's input region is enabled.
      *
      * @return `true` if blocking is enabled; otherwise, `false`.
      */
     bool blockPointerEnabled() const;
 
+    /**
+     * @brief Enable or disable blocking of touch events to views behind the view's input region.
+     *
+     * If set to `true`, touch events will not be sent to views behind the view's input region.
+     * This will block touch events only if the touchEventsEnabled() property is also enabled.
+     *
+     * Enabled by default.
+     *
+     * @param enabled `true` to enable blocking; `false` to disable.
+     */
+    void enableBlockTouch(bool enabled);
+
+    /**
+     * @brief Checks if blocking of touch events to views behind the view's input region is enabled.
+     *
+     * @return `true` if blocking is enabled; otherwise, `false`.
+     */
+    bool blockTouchEnabled() const;
 
     /**
      * @brief Construct an LView object.
@@ -167,22 +192,25 @@ public:
     virtual ~LView();
 
     /// Types of views included with Louvre
-    enum Type : UInt32
+    enum Type : UInt8
     {
+        /// Undefined type
+        Undefined,
+
         /// LLayerView
-        Layer = 0,
+        Layer,
 
         /// LSurfaceView
-        Surface = 1,
+        Surface,
 
         /// LTextureView
-        Texture = 2,
+        Texture,
 
         /// LSolidColorView
-        SolidColor = 3,
+        SolidColor,
 
         /// LSceneView
-        Scene = 4
+        Scene
     };
 
     /**
@@ -816,6 +844,41 @@ public:
      * Keyboard events are triggered only if keyboardEventsEnabled() is set to `true`.
      */
     virtual void keyEvent(const LKeyboardKeyEvent &event);
+
+    /**
+     * @brief Handle a touch down event within the view.
+     *
+     * Touch events are triggered only if touchEventsEnabled() is set to `true`.
+     */
+    virtual void touchDownEvent(const LTouchDownEvent &event);
+
+    /**
+     * @brief Handle a touch move event within the view.
+     *
+     * This event is only triggered if touchDownEvent() was called before.
+     */
+    virtual void touchMoveEvent(const LTouchMoveEvent &event);
+
+    /**
+     * @brief Handle a touch up event within the view.
+     *
+     * This event is only triggered if touchDownEvent() was called before.
+     */
+    virtual void touchUpEvent(const LTouchUpEvent &event);
+
+    /**
+     * @brief Handle a touch frame event within the view.
+     *
+     * This event is only triggered if touchDownEvent() was called before.
+     */
+    virtual void touchFrameEvent(const LTouchFrameEvent &event);
+
+    /**
+     * @brief Handle a touch cancel event within the view.
+     *
+     * This event is only triggered if touchDownEvent() was called before.
+     */
+    virtual void touchCancelEvent(const LTouchCancelEvent &event);
 
 LPRIVATE_IMP_UNIQUE(LView)
 };

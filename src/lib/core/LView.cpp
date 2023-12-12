@@ -2,6 +2,8 @@
 #include <private/LViewPrivate.h>
 #include <private/LScenePrivate.h>
 #include <private/LSceneViewPrivate.h>
+#include <private/LSceneTouchPointPrivate.h>
+#include <LTouchCancelEvent.h>
 #include <LOutput.h>
 #include <LLog.h>
 #include <string.h>
@@ -35,6 +37,49 @@ void LView::enableKeyboardEvents(bool enabled)
 bool LView::keyboardEventsEnabled() const
 {
     return imp()->hasFlag(LVS::KeyboardEvents);
+}
+
+void LView::enableTouchEvents(bool enabled)
+{
+    if (enabled == touchEventsEnabled())
+        return;
+
+    imp()->setFlag(LVS::TouchEvents, enabled);
+
+    if (scene())
+    {
+        if (!enabled)
+        {
+            for (auto *tp : scene()->touchPoints())
+            {
+                for (auto it = tp->imp()->views.begin(); it != tp->views().end(); it++)
+                {
+                    if ((*it) == this)
+                    {
+                        LView *v = *it;
+                        it = tp->imp()->views.erase(it);
+                        tp->imp()->listChanged = true;
+                        v->touchCancelEvent(LTouchCancelEvent());
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool LView::touchEventsEnabled() const
+{
+    return imp()->hasFlag(LVS::TouchEvents);
+}
+
+LSceneTouchPoint *LView::findTouchPoint(Int32 id) const
+{
+    if (scene())
+        for (auto *tp : scene()->touchPoints())
+            if (tp->id() == id)
+                return tp;
+
+    return nullptr;
 }
 
 bool LView::pointerEventsEnabled() const
@@ -486,6 +531,16 @@ bool LView::blockPointerEnabled() const
     return imp()->hasFlag(LVS::BlockPointer);
 }
 
+void LView::enableBlockTouch(bool enabled)
+{
+    imp()->setFlag(LVS::BlockTouch, enabled);
+}
+
+bool LView::blockTouchEnabled() const
+{
+    return imp()->hasFlag(LVS::BlockTouch);
+}
+
 LBox LView::boundingBox() const
 {
     LBox box =
@@ -534,4 +589,11 @@ void LView::pointerPinchUpdateEvent(const LPointerPinchUpdateEvent &) {}
 void LView::pointerPinchEndEvent(const LPointerPinchEndEvent &) {}
 void LView::pointerHoldBeginEvent(const LPointerHoldBeginEvent &) {}
 void LView::pointerHoldEndEvent(const LPointerHoldEndEvent &) {}
+
 void LView::keyEvent(const LKeyboardKeyEvent &) {}
+
+void LView::touchDownEvent(const LTouchDownEvent &) {}
+void LView::touchMoveEvent(const LTouchMoveEvent &) {}
+void LView::touchUpEvent(const LTouchUpEvent &) {}
+void LView::touchFrameEvent(const LTouchFrameEvent &) {}
+void LView::touchCancelEvent(const LTouchCancelEvent &) {}

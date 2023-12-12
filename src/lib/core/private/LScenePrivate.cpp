@@ -12,19 +12,28 @@
 using LVS = LView::LViewPrivate::LViewState;
 using LVES = LView::LViewPrivate::LViewEventsState;
 
-LView *LScene::LScenePrivate::viewAt(LView *view, const LPoint &pos)
+LView *LScene::LScenePrivate::viewAt(LView *view, const LPoint &pos, LView::Type type, LSeat::InputCapabilitiesFlags flags)
 {
     LView *v = nullptr;
 
     for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
     {
-        v = viewAt(*it, pos);
+        v = viewAt(*it, pos, type, flags);
 
         if (v)
             return v;
     }
 
-    if (!view->mapped() || !view->pointerEventsEnabled())
+    if (!view->mapped())
+        return nullptr;
+
+    if (type != LView::Undefined && view->type() != type)
+        return nullptr;
+
+    if (flags & LSeat::Pointer && !view->pointerEventsEnabled())
+        return nullptr;
+
+    if (flags & LSeat::Touch && !view->touchEventsEnabled())
         return nullptr;
 
     if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
@@ -36,7 +45,10 @@ LView *LScene::LScenePrivate::viewAt(LView *view, const LPoint &pos)
     if (pointClippedByParentScene(view, pos))
         return nullptr;
 
-    if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector() != LSizeF(1.f,1.f))
+    if (flags == 0)
+        return view;
+
+    if ((view->scalingEnabled() || view->parentScalingEnabled()) && view->scalingVector() != LSizeF(1.f, 1.f))
     {
         if (view->scalingVector().area() == 0.f)
             return nullptr;
@@ -108,7 +120,7 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
         if (!handlePointerMove(*it))
             return false;
 
-    if (!pointerIsBlocked && pointerIsOverView(view, cursor()->pos()))
+    if (!pointerIsBlocked && pointIsOverView(view, cursor()->pos(), LSeat::Pointer))
     {
         if (!view->imp()->hasEventFlag(LVES::PointerMoveDone))
         {
@@ -198,3 +210,41 @@ bool LScene::LScenePrivate::handlePointerMove(LView *view)
     handlePointerMove(&this->view);
     return false;
 }
+
+bool LScene::LScenePrivate::handleTouchDown(LView *view)
+{
+    if (listChanged)
+        goto listChangedErr;
+
+    for (std::list<LView*>::const_reverse_iterator it = view->children().crbegin(); it != view->children().crend(); it++)
+        if (!handleTouchDown(*it))
+            return false;
+
+    if (!touchIsBlocked && pointIsOverView(view, touchGlobalPos, LSeat::Touch))
+    {
+        if (!view->imp()->hasEventFlag(LVES::TouchDownDone))
+        {
+            view->imp()->addEventFlag(LVES::TouchDownDone);
+
+            currentTouchPoint->imp()->views.remove(view);
+            currentTouchPoint->imp()->views.push_back(view);
+            touchDownEvent.localPos = viewLocalPos(view, touchGlobalPos);
+            view->touchDownEvent(touchDownEvent);
+
+            if (listChanged)
+                goto listChangedErr;
+        }
+
+        if (view->blockTouchEnabled())
+            touchIsBlocked = true;
+    }
+
+    return true;
+
+    // If a list was modified, start again, serials are used to prevent resend events
+listChangedErr:
+    listChanged = false;
+    handleTouchDown(&this->view);
+    return false;
+}
+

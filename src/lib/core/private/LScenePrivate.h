@@ -11,8 +11,10 @@
 #include <LPointerPinchEndEvent.h>
 #include <LPointerHoldEndEvent.h>
 #include <LKeyboardKeyEvent.h>
+#include <LTouchDownEvent.h>
 #include <LSceneView.h>
 #include <LScene.h>
+#include <LSeat.h>
 #include <mutex>
 
 using namespace Louvre;
@@ -21,10 +23,12 @@ LPRIVATE_CLASS(LScene)
     std::mutex mutex;
     LSceneView view;
     bool pointerIsBlocked = false;
+    bool touchIsBlocked = false;
 
     bool listChanged = false;
     bool keyboardListChanged = false;
     bool pointerListChanged = false;
+    bool touchPointsListChanged = false;
 
     // Prevent recursive calls
     bool handlingPointerMove = false;
@@ -39,10 +43,11 @@ LPRIVATE_CLASS(LScene)
     bool handlingPointerHoldBeginEvent = false;
     bool handlingPointerHoldEndEvent = false;
     bool handlingKeyEvent = false;
+    bool handlingTouchEvent = false;
 
     std::list<LView*> pointerFocus;
     std::list<LView*> keyboardFocus;
-    std::list<LView*> touchFocus;
+    std::list<LSceneTouchPoint*> touchPoints;
 
     LPointF pointerMoveEventOutLocalPos;
     LPointerEnterEvent currentPointerEnterEvent;
@@ -53,9 +58,13 @@ LPRIVATE_CLASS(LScene)
     LPointerPinchEndEvent pointerPinchEndEvent;
     LPointerHoldEndEvent pointerHoldEndEvent;
 
+    LTouchDownEvent touchDownEvent;
+    LPointF touchGlobalPos;
+    LSceneTouchPoint *currentTouchPoint;
+
     bool pointClippedByParent(LView *parent, const LPoint &point);
     bool pointClippedByParentScene(LView *view, const LPoint &point);
-    LView *viewAt(LView *view, const LPoint &pos);
+    LView *viewAt(LView *view, const LPoint &pos, LView::Type type, LSeat::InputCapabilitiesFlags flags);
 
     inline LPointF viewLocalPos(LView *view, const LPointF &pos)
     {
@@ -65,9 +74,9 @@ LPRIVATE_CLASS(LScene)
             return pos - view->pos();
     }
 
-    inline bool pointerIsOverView(LView *view, const LPointF &pos)
+    inline bool pointIsOverView(LView *view, const LPointF &pos, LSeat::InputCapabilitiesFlags flags)
     {
-        if (!view->mapped() || !view->pointerEventsEnabled())
+        if (!view->mapped() || (flags & LSeat::Pointer && !view->pointerEventsEnabled()) || (flags & LSeat::Touch && !view->touchEventsEnabled()))
             return false;
 
         if (view->clippingEnabled() && !view->clippingRect().containsPoint(pos))
@@ -113,6 +122,7 @@ LPRIVATE_CLASS(LScene)
     }
 
     bool handlePointerMove(LView *view);
+    bool handleTouchDown(LView *view);
 };
 
 #endif // LSCENEPRIVATE_H

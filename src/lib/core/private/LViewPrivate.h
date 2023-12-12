@@ -2,6 +2,8 @@
 #define LVIEWPRIVATE_H
 
 #include <private/LScenePrivate.h>
+#include <private/LSceneTouchPointPrivate.h>
+#include <LTouchCancelEvent.h>
 #include <LRegion.h>
 #include <LView.h>
 #include <LRect.h>
@@ -23,17 +25,18 @@ LPRIVATE_CLASS(LView)
         TouchEvents             = 1 << 3,
 
         BlockPointer            = 1 << 4,
+        BlockTouch              = 1 << 5,
 
-        RepaintCalled           = 1 << 5,
-        ColorFactor             = 1 << 6,
-        Visible                 = 1 << 7,
-        Scaling                 = 1 << 8,
-        ParentScaling           = 1 << 9,
-        ParentOffset            = 1 << 10,
-        Clipping                = 1 << 11,
-        ParentClipping          = 1 << 12,
-        ParentOpacity           = 1 << 13,
-        ForceRequestNextFrame   = 1 << 14,
+        RepaintCalled           = 1 << 6,
+        ColorFactor             = 1 << 7,
+        Visible                 = 1 << 8,
+        Scaling                 = 1 << 9,
+        ParentScaling           = 1 << 10,
+        ParentOffset            = 1 << 11,
+        Clipping                = 1 << 12,
+        ParentClipping          = 1 << 13,
+        ParentOpacity           = 1 << 14,
+        ForceRequestNextFrame   = 1 << 15,
     };
 
     /* Sometimes view ordering can change while a scene is emitting an event,
@@ -237,6 +240,23 @@ LPRIVATE_CLASS(LView)
                 currentScene->imp()->pointerFocus.erase(pointerLink);
                 currentScene->imp()->pointerListChanged = true;
                 removeEventFlag(PointerIsOver);
+            }
+
+            if (hasFlag(TouchEvents))
+            {
+                for (auto *tp : currentScene->touchPoints())
+                {
+                    for (auto it = tp->imp()->views.begin(); it != tp->views().end(); it++)
+                    {
+                        if ((*it) == view)
+                        {
+                            LView *v = *it;
+                            it = tp->imp()->views.erase(it);
+                            tp->imp()->listChanged = true;
+                            v->touchCancelEvent(LTouchCancelEvent());
+                        }
+                    }
+                }
             }
         }
 
