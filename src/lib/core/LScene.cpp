@@ -273,10 +273,10 @@ retry:
     if (!seat()->pointer()->focus())
     {
         LSurface *surface = nullptr;
-        LSurfaceView *view = (LSurfaceView*)viewAt(cursor()->pos(), LView::Surface, LSeat::Pointer | LSeat::Touch);
+        LView *view = viewAt(cursor()->pos(), LView::Undefined, LSeat::Pointer);
 
-        if (view)
-            surface = view->surface();
+        if (view && view->type() == LView::Surface)
+            surface = ((LSurfaceView*)view)->surface();
 
         if (surface)
         {

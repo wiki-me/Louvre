@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/prctl.h>
 
 static int pipeA[2] = {-1, -1};
 static int pipeB[2] = {-1, -1};
@@ -21,6 +22,8 @@ void LLauncher::init()
 
     // Child process
     if (child_pid == 0) {
+
+        prctl(PR_SET_NAME, "LLauncher", 0, 0, 0);
 
         close(pipeA[1]);
         close(pipeB[0]);

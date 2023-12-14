@@ -298,19 +298,16 @@ const LRegion *LSurfaceView::inputRegion() const
     return &imp()->surface->inputRegion();
 }
 
-void LSurfaceView::paintRect(LPainter *p,
-                              Int32 srcX, Int32 srcY, Int32 srcW, Int32 srcH,
-                              Int32 dstX, Int32 dstY, Int32 dstW, Int32 dstH,
-                              Float32 scale, Float32 alpha)
+void LSurfaceView::paintRect(const LViewPaintParams &params)
 {
     if (!imp()->surface)
         return;
 
-    p->imp()->drawTexture(surface()->texture(),
-                    srcX, srcY,
-                    srcW, srcH,
-                    dstX, dstY,
-                    dstW, dstH,
-                    scale,
-                    alpha);
+    params.p->imp()->drawTexture(surface()->texture(),
+                    params.srcX, params.srcY,
+                    params.srcW, params.srcH,
+                    params.dstX, params.dstY,
+                    params.dstW, params.dstH,
+                    params.scale,
+                    params.alpha);
 }

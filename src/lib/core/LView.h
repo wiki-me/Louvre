@@ -97,6 +97,45 @@ class Louvre::LView : public LObject
 {
 public:
 
+    /**
+     * @brief Parameters used within a paintRect() event.
+     */
+    struct LViewPaintParams
+    {
+        /// LPainter object to perform the painting.
+        LPainter *p;
+
+        /// x-surface-coordinate within the view to draw.
+        Int32 srcX;
+
+        /// y-surface-coordinate within the view to draw.
+        Int32 srcY;
+
+        /// The source width-surface-coordinate within the view to draw.
+        Int32 srcW;
+
+        /// The source height-surface-coordinate within the view to draw.
+        Int32 srcH;
+
+        /// The destination x-surface-coordinate within the output to paint on.
+        Int32 dstX;
+
+        /// The destination y-surface-coordinate within the output to paint on.
+        Int32 dstY;
+
+        /// The destination width-surface-coordinate within the output to paint on.
+        Int32 dstW;
+
+        /// The destination height-surface-coordinate within the output to paint on.
+        Int32 dstH;
+
+        /// The scaling factor to be applied during painting.
+        Float32 scale;
+
+        /// The alpha (transparency) value to be applied during painting.
+        Float32 alpha;
+    };
+
     // Disabled by default
     void enableKeyboardEvents(bool enabled);
     bool keyboardEventsEnabled() const;
@@ -557,12 +596,35 @@ public:
      * @brief Set the alpha blending function for the view.
      *
      * This method sets the OpenGL blend function for the view. Refer to the documentation
-     * of glBlendFunc() for more information.
+     * of glBlendFuncSeparate() for more information.
      *
-     * @param sFactor Source factor for blending.
-     * @param dFactor Destination factor for blending.
+     * @note This only works when the autoBlendFuncEnabled() property is disabled.
+     *
+     * @param sRGBFactor Source RGB factor for blending.
+     * @param dRGBFactor Destination RGB factor for blending.
+     * @param sAlphaFactor Source alpha factor for blending.
+     * @param dAlphaFactor Destination alpha factor for blending.
      */
-    void setBlendFunc(GLenum sFactor, GLenum dFactor);
+    void setBlendFunc(GLenum sRGBFactor, GLenum dRGBFactor, GLenum sAlphaFactor, GLenum dAlphaFactor);
+
+    /**
+     * @brief Enable or disable automatic blend function adjustment.
+     *
+     * When the automatic blend function is enabled, the blend function dynamically adjusts based on whether rendering occurs
+     * in the main output framebuffer or a custom framebuffer (e.g., an LRenderBuffer or LSceneView).
+     *
+     * By default, automatic blend function adjustment is enabled. When enabled, the blend function set with setBlendFunc() is ignored.
+     *
+     * @param enabled True to enable automatic blend function adjustment, false to disable.
+     */
+    void enableAutoBlendFunc(bool enabled);
+
+    /**
+     * @brief Check whether the automatic blend function adjustment is enabled.
+     *
+     * @return True if automatic blend function adjustment is enabled, false otherwise.
+     */
+    bool autoBlendFuncEnabled() const;
 
     /**
      * @brief Set the color factor.
@@ -725,27 +787,9 @@ public:
      * on the current framebuffer. The painting is performed using the provided LPainter object
      * with the specified source and destination surface coordinates, size, scaling, and alpha value.
      *
-    * @note Alternatively, you have the option to use your own custom OpenGL shaders/program for rendering, in place of the provided LPainter.
-     *
-     * @param p The LPainter object to perform the painting.
-     * @param srcX The source x-coordinate within the view to copy from.
-     * @param srcY The source y-coordinate within the view to copy from.
-     * @param srcW The width of the source area to copy from.
-     * @param srcH The height of the source area to copy from.
-     * @param dstX The destination x-coordinate within the output to paint on.
-     * @param dstY The destination y-coordinate within the output to paint on.
-     * @param dstW The width of the destination area to paint on.
-     * @param dstH The height of the destination area to paint on.
-     * @param scale The scaling factor to be applied during painting.
-     * @param alpha The alpha (transparency) value to be applied during painting.
+     * @note Alternatively, you have the option to use your own custom OpenGL shaders/program for rendering, in place of the provided LPainter.
      */
-    virtual void paintRect(LPainter *p,
-                           Int32 srcX, Int32 srcY,
-                           Int32 srcW, Int32 srcH,
-                           Int32 dstX, Int32 dstY,
-                           Int32 dstW, Int32 dstH,
-                           Float32 scale,
-                           Float32 alpha) = 0;
+    virtual void paintRect(const LViewPaintParams &params) = 0;
 
     /**
      * @brief Handle a pointer enter event within the view.

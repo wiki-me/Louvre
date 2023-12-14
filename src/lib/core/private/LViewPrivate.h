@@ -37,6 +37,7 @@ LPRIVATE_CLASS(LView)
         ParentClipping          = 1 << 13,
         ParentOpacity           = 1 << 14,
         ForceRequestNextFrame   = 1 << 15,
+        AutoBlendFunc           = 1 << 16
     };
 
     /* Sometimes view ordering can change while a scene is emitting an event,
@@ -102,7 +103,7 @@ LPRIVATE_CLASS(LView)
         bool isFullyTrans;
     };
 
-    UInt32 state = Visible | ParentOffset | ParentOpacity | BlockPointer;
+    UInt32 state = Visible | ParentOffset | ParentOpacity | BlockPointer | BlockTouch | AutoBlendFunc;
     UInt32 eventsState = 0;
     ViewCache cache;
 
@@ -110,8 +111,12 @@ LPRIVATE_CLASS(LView)
     LView *parent = nullptr;
     LView *view = nullptr;
     std::list<LView*>children;
-    GLenum sFactor = GL_SRC_ALPHA;
-    GLenum dFactor = GL_ONE_MINUS_SRC_ALPHA;
+
+    GLenum sRGBFactor = GL_SRC_ALPHA;
+    GLenum dRGBFactor = GL_ONE_MINUS_SRC_ALPHA;
+    GLenum sAlphaFactor = GL_SRC_ALPHA;
+    GLenum dAlphaFactor = GL_ONE_MINUS_SRC_ALPHA;
+
     LRGBAF colorFactor = {1.f, 1.f, 1.f, 1.f};
     Float32 opacity = 1.f;
     LSizeF scalingVector = LSizeF(1.f, 1.f);
