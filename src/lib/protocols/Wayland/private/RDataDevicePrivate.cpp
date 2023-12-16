@@ -79,7 +79,8 @@ void RDataDevice::RDataDevicePrivate::start_drag(wl_client *client,
     // Removes pevious data source if any
     dndManager->cancel();
 
-    dndManager->imp()->startDragEvent = event;
+    delete dndManager->imp()->triggererEvent;
+    dndManager->imp()->triggererEvent = event;
 
     // Check if there is an icon
     if (icon)

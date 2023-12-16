@@ -15,13 +15,13 @@ using namespace Louvre;
 void LDNDManager::startDragRequest()
 {
     // Left pointer button click
-    if (startDragEvent()->type() == LEvent::Type::Pointer && seat()->pointer()->focus() && seat()->pointer()->focus()->client() == origin()->client())
+    if (triggererEvent().type() == LEvent::Type::Pointer && seat()->pointer()->focus() && seat()->pointer()->focus()->client() == origin()->client())
     {
-        if (startDragEvent()->subtype() == LEvent::Subtype::Button)
+        if (triggererEvent().subtype() == LEvent::Subtype::Button)
         {
-            LPointerButtonEvent *pointerButtonEvent = (LPointerButtonEvent*)startDragEvent();
+            LPointerButtonEvent &pointerButtonEvent = (LPointerButtonEvent&)triggererEvent();
 
-            if (pointerButtonEvent->button() == LPointerButtonEvent::Left && pointerButtonEvent->state() == LPointerButtonEvent::Pressed)
+            if (pointerButtonEvent.button() == LPointerButtonEvent::Left && pointerButtonEvent.state() == LPointerButtonEvent::Pressed)
             {
                 seat()->pointer()->setDraggingSurface(nullptr);
 
@@ -32,7 +32,7 @@ void LDNDManager::startDragRequest()
         }
     }
     // Keyboard focus event
-    else if (startDragEvent()->type() == LEvent::Type::Keyboard && startDragEvent()->subtype() == LEvent::Subtype::Enter &&
+    else if (triggererEvent().type() == LEvent::Type::Keyboard && triggererEvent().subtype() == LEvent::Subtype::Enter &&
                seat()->keyboard()->focus() && seat()->keyboard()->focus()->client() == origin()->client())
     {
         seat()->pointer()->setDraggingSurface(nullptr);
@@ -43,10 +43,10 @@ void LDNDManager::startDragRequest()
         return;
     }
     // Touch down event
-    else if (startDragEvent()->type() == LEvent::Type::Touch && startDragEvent()->subtype() == LEvent::Subtype::Down)
+    else if (triggererEvent().type() == LEvent::Type::Touch && triggererEvent().subtype() == LEvent::Subtype::Down)
     {
-        LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)startDragEvent();
-        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent->id());
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)triggererEvent();
+        LTouchPoint *tp = seat()->touch()->findTouchPoint(touchDownEvent.id());
 
         if (tp && tp->surface() && tp->surface()->client() == origin()->client())
         {

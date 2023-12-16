@@ -23,10 +23,11 @@ GDataDeviceManager::GDataDeviceManager
     ),
     LPRIVATE_INIT_UNIQUE(GDataDeviceManager)
 {
-    client->imp()->dataDeviceManagerGlobal = this;
+    client->imp()->dataDeviceManagerGlobals.push_back(this);
+    imp()->clientLink = std::prev(client->imp()->dataDeviceManagerGlobals.end());
 }
 
 GDataDeviceManager::~GDataDeviceManager()
 {
-    client()->imp()->dataDeviceManagerGlobal = nullptr;
+    client()->imp()->dataDeviceManagerGlobals.erase(imp()->clientLink);
 }

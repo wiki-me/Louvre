@@ -27,7 +27,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
     // Schedule repaint on outputs that intersect with the cursor if hardware composition is not supported.
     cursor()->repaintOutputs(true);
 
-    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->startDragEvent()->type() != LEvent::Type::Touch;
+    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->triggererEvent().type() != LEvent::Type::Touch;
 
     if (seat()->dndManager()->icon() && activeDND)
     {
@@ -111,7 +111,7 @@ void LPointer::pointerMoveEvent(const LPointerMoveEvent &event)
 //! [pointerButtonEvent]
 void LPointer::pointerButtonEvent(const LPointerButtonEvent &event)
 {
-    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->startDragEvent()->type() != LEvent::Type::Touch;
+    bool activeDND = seat()->dndManager()->dragging() && seat()->dndManager()->triggererEvent().type() != LEvent::Type::Touch;
 
     if (activeDND && event.state() == LPointerButtonEvent::Released && event.button() == LPointerButtonEvent::Left)
         seat()->dndManager()->drop();

@@ -24,15 +24,13 @@ LPRIVATE_CLASS(LClient)
     std::list<Wayland::GOutput*> outputGlobals;
     std::list<Wayland::GSeat*> seatGlobals;
     std::list<Wayland::GSubcompositor*> subcompositorGlobals;
+    std::list<Wayland::GDataDeviceManager*>dataDeviceManagerGlobals;
     std::list<XdgShell::GXdgWmBase*> xdgWmBaseGlobals;
     std::list<XdgDecoration::GXdgDecorationManager*> xdgDecorationManagerGlobals;
     std::list<PresentationTime::GPresentation*> presentationTimeGlobals;
     std::list<LinuxDMABuf::GLinuxDMABuf*> linuxDMABufGlobals;
     std::list<PointerGestures::GPointerGestures*> pointerGesturesGlobals;
     std::list<RelativePointer::GRelativePointerManager*> relativePointerManagerGlobals;
-
-    // Singleton Globals
-    Wayland::GDataDeviceManager *dataDeviceManagerGlobal = nullptr;
 };
 
 #endif // LCLIENTPRIVATE_H

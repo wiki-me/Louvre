@@ -14,9 +14,10 @@ LPRIVATE_CLASS(LDNDManager)
 
     void clear();
 
+    LEvent *triggererEvent                                      = nullptr;
+
     // Since 3
     Action preferredAction                                      = NoAction;
-    LEvent *startDragEvent                                      = nullptr;
     LDNDIconRole *icon                                          = nullptr;
     LSurface *origin                                            = nullptr;
     LSurface *focus                                             = nullptr;

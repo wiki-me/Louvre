@@ -25,9 +25,6 @@ Dock::Dock(Output *output) : LLayerView(&G::compositor()->overlayLayer)
     // Enable input so it shows/hides when the cursor is over
     enablePointerEvents(true);
 
-    // Allow views behind to get pointer events
-    enableBlockPointer(false);
-
     dockContainer = new LLayerView(this);
 
     dockLeft = new LTextureView(G::dockTextures().left, dockContainer);

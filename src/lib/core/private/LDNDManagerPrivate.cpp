@@ -16,12 +16,6 @@ void LDNDManager::LDNDManagerPrivate::clear()
     srcDataDevice = nullptr;
     dstClient = nullptr;
     matchedMimeType = false;
-
-    if (startDragEvent)
-    {
-        delete startDragEvent;
-        startDragEvent = nullptr;
-    }
 }
 
 void LDNDManager::LDNDManagerPrivate::sendLeaveEvent(LSurface *surface)

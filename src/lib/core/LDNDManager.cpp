@@ -8,6 +8,7 @@
 #include <private/LDataDevicePrivate.h>
 #include <private/LSurfacePrivate.h>
 #include <private/LCompositorPrivate.h>
+#include <LPointerEnterEvent.h>
 #include <LDNDIconRole.h>
 #include <LClient.h>
 #include <LDataSource.h>
@@ -22,15 +23,13 @@ using namespace Louvre::Protocols::Wayland;
 LDNDManager::LDNDManager(Params *params) : LPRIVATE_INIT_UNIQUE(LDNDManager)
 {
     L_UNUSED(params);
+    imp()->triggererEvent = new LPointerEnterEvent();
 }
 
 LDNDManager::~LDNDManager()
 {
-    if (startDragEvent())
-    {
-        delete imp()->startDragEvent;
-        imp()->startDragEvent = nullptr;
-    }
+    delete imp()->triggererEvent;
+    imp()->triggererEvent = nullptr;
 }
 
 void LDNDManager::setFocus(LSurface *surface, const LPointF &localPos)
@@ -115,9 +114,9 @@ void LDNDManager::sendMoveEvent(const LPointF &localPos, UInt32 ms)
             gSeat->dataDeviceResource()->motion(ms, x, y);
 }
 
-const LEvent *LDNDManager::startDragEvent() const
+const LEvent &LDNDManager::triggererEvent() const
 {
-    return imp()->startDragEvent;
+    return *imp()->triggererEvent;
 }
 
 LDNDIconRole *LDNDManager::icon() const

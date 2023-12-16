@@ -50,11 +50,11 @@ void LTouch::touchMoveEvent(const LTouchMoveEvent &event)
     // Handle DND session
     LDNDManager *dnd = seat()->dndManager();
 
-    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch)
+    if (dnd->dragging() && dnd->triggererEvent().type() == LEvent::Type::Touch)
     {
-        LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)dnd->startDragEvent();
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)dnd->triggererEvent();
 
-        if (touchDownEvent->id() == tp->id())
+        if (touchDownEvent.id() == tp->id())
         {
             if (dnd->icon())
             {
@@ -141,11 +141,11 @@ void LTouch::touchUpEvent(const LTouchUpEvent &event)
 
     LDNDManager *dnd = seat()->dndManager();
 
-    if (dnd->dragging() && dnd->startDragEvent()->type() == LEvent::Type::Touch)
+    if (dnd->dragging() && dnd->triggererEvent().type() == LEvent::Type::Touch)
     {
-        LTouchDownEvent *touchDownEvent = (LTouchDownEvent*)dnd->startDragEvent();
+        LTouchDownEvent &touchDownEvent = (LTouchDownEvent&)dnd->triggererEvent();
 
-        if (touchDownEvent->id() == tp->id())
+        if (touchDownEvent.id() == tp->id())
             dnd->drop();
     }
 

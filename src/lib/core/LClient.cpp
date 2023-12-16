@@ -68,9 +68,9 @@ const list<Wayland::GSeat*> &LClient::seatGlobals() const
     return imp()->seatGlobals;
 }
 
-const Wayland::GDataDeviceManager *LClient::dataDeviceManagerGlobal() const
+const std::list<Wayland::GDataDeviceManager *> &LClient::dataDeviceManagerGlobals() const
 {
-    return imp()->dataDeviceManagerGlobal;
+    return imp()->dataDeviceManagerGlobals;
 }
 
 const list<XdgShell::GXdgWmBase *> &LClient::xdgWmBaseGlobals() const

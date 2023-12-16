@@ -19,12 +19,6 @@ void GDataDeviceManager::GDataDeviceManagerPrivate::bind(wl_client *client, void
     L_UNUSED(data);
     LClient *lClient = compositor()->getClientFromNativeResource(client);
 
-    if (lClient->dataDeviceManagerGlobal())
-    {
-        LLog::warning("[GDataDeviceManagerPrivate::bind] Client bound twice to the wl_data_device_manager singleton global. Ignoring it...");
-        return;
-    }
-
     new GDataDeviceManager(
         lClient,
         &wl_data_device_manager_interface,

@@ -17,7 +17,7 @@ public:
 
     void setFocus(LSurface *surface, const LPointF &localPos);
     void sendMoveEvent(const LPointF &localPos, UInt32 ms);
-    const LEvent *startDragEvent() const;
+    const LEvent &triggererEvent() const;
 
     /**
      * @brief Constructor of the LDNDManager class.

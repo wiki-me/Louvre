@@ -136,11 +136,11 @@ public:
     const std::list<Protocols::Wayland::GSeat*>&seatGlobals() const;
 
     /**
-     * Resource created when the client binds to
+     * List of resources created when the client binds to
      * the [wl_data_device_manager](https://wayland.app/protocols/wayland#wl_data_device_manager)
      * singleton global of the Wayland protocol.
      */
-    const Protocols::Wayland::GDataDeviceManager* dataDeviceManagerGlobal() const;
+    const std::list<Protocols::Wayland::GDataDeviceManager*> &dataDeviceManagerGlobals() const;
 
     /**
      * List of resources created when the client binds to the
